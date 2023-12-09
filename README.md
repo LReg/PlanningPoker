@@ -1,6 +1,9 @@
 # PlanningPoker
 
 Planning Poker is a collaborative estimation technique used by agile teams to collectively estimate the effort required for a set of tasks. This open-source project provides a digital implementation of Planning Poker, allowing teams to streamline their estimation process.
+## Demo
+https://planningpoker.mooo.com
+
 # Features
 
 - User-friendly interface for team members to participate in the estimation process.
