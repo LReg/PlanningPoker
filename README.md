@@ -7,11 +7,14 @@ https://planningpoker.mooo.com
 # Features
 
 - User-friendly interface for team members to participate in the estimation process.
-- Support for creating and managing estimation sessions.
+- throw paper balls and emojis at other players
+- shake the screen of other players
+- creating and managing estimation sessions.
 - Real-time updates to ensure all team members are on the same page.
 - dockerized
 - although it is dockerized is it not yet ready for plug and play. You need to change some things in the code.
 - free for everyone
+- no ads
 
 # Getting Started
 ## Prerequisites
