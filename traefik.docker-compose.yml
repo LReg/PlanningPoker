@@ -15,7 +15,7 @@ services:
       - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.tls=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.middlewares=pokerBackendStripPrefix"
-      - "traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.stripprefix.prefixes=/api"
+      - "traefik.http.middlewares.pokerBackendStripPrefix.stripprefix.prefixes=/api"
     build:
       target: backend
       dockerfile: Dockerfile

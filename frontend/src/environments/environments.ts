@@ -6,9 +6,8 @@ const environment: {
     joinAdress: string;
 } = {
     production: env.VITE_PRODUCTION === 'true',
-    apiServiceRoute: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}:${env.VITE_BACKEND_PORT}${env.VITE_TRAEFIK === 'true' ? '/api' : ''}`,
+    apiServiceRoute: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}${env.VITE_TRAEFIK ? '' : ':' + env.VITE_BACKEND_PORT}${env.VITE_TRAEFIK === 'true' ? '/api' : ''}`,
     joinAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}/join/`,
-    socketAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}:${env.VITE_BACKEND_PORT}`,
+    socketAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}${env.VITE_TRAEFIK ? '' : ':' + env.VITE_BACKEND_PORT}`,
 }
-console.log(environment);
 export default environment;

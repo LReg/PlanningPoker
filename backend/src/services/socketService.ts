@@ -6,6 +6,7 @@ export const app = express();
 export const server = http.createServer(app);
 export const socketPlayers: { [key: string]: string } = {};
 
+console.log(`${process.env.PROTOCOL}://${process.env.DOMAIN}`);
 export const io = new Server(server, {
     cors: {
         origin: [`${process.env.PROTOCOL}://${process.env.DOMAIN}`, "http://localhost"],
