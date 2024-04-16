@@ -3,7 +3,7 @@ services:
   backend:
     container_name: ${CONTAINER_NAME}-Backend
     restart: always
-    image: ${imagename}backend
+    image: ${IMAGE_NAME}backend
     environment:
       - DOMAIN=${DOMAIN}
       - BACKEND_PORT=${BACKEND_PORT}
@@ -24,7 +24,7 @@ services:
   frontend:
     restart: always
     container_name: ${CONTAINER_NAME}-Frontend
-    image: ${imagename}frontend
+    image: ${IMAGE_NAME}frontend
     build:
       target: frontend
       dockerfile: Dockerfile
