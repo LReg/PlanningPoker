@@ -9,18 +9,18 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.entrypoints=${TRAEFIK_ENTRYPOINT}"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.tls=true"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.middlewares=pokerBackendStripPrefix"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.entrypoints=${TRAEFIK_ENTRYPOINT}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.middlewares=pokerBackendStripPrefix"
       - "traefik.http.middlewares.${TRAEFIK_MIDDLEWARE}.stripprefix.prefixes=/api"
     build:
       target: backend
       dockerfile: Dockerfile
       context: .
     networks:
-      - ${TRAEFIK_NETWORK}
+      - innernetwork
   frontend:
     restart: always
     container_name: ${CONTAINER_NAME}-Frontend
@@ -37,12 +37,13 @@ services:
         - BACKEND_PORT=${BACKEND_PORT}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.entrypoints=${TRAEFIK_ENTRYPOINT}"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.tls=true"
-      - "traefik.http.routers.${TRAEFIK_ROUTER}.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.entrypoints=${TRAEFIK_ENTRYPOINT}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
     networks:
-      - ${TRAEFIK_NETWORK}
+      - innernetwork
 networks:
-  ${TRAEFIK_NETWORK}:
+  innernetwork:
     external: true
+    name: ${TRAEFIK_NETWORK}
