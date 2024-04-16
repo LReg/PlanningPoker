@@ -8,7 +8,7 @@ export const socketPlayers: { [key: string]: string } = {};
 
 export const io = new Server(server, {
     cors: {
-        origin: ["https://YOURDOMAIN", "http://localhost:5173"],
+        origin: [`${process.env.BACKEND_PROTOCOL}://${process.env.DOMAIN}`, "http://localhost"],
     }
 });
 
