@@ -1,13 +1,14 @@
-const env = process.env.NODE_ENV;
+const env = import.meta.env
 const environment: {
     production: boolean;
     apiServiceRoute: string;
     socketAdress: string;
     joinAdress: string;
 } = {
-    production: env === 'production',
-    apiServiceRoute: env === 'production' ? 'https://YOURDOMAIN/api' : 'http://localhost:80',
-    joinAdress: env === 'production' ? 'https://YOURDOMAIN/join/' : 'http://localhost:5173/join/',
-    socketAdress: env === 'production' ? 'https://YOURDOMAIN' : 'http://localhost:80',
+    production: env.VITE_PRODUCTION === 'true',
+    apiServiceRoute: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}:${env.VITE_BACKEND_PORT}${env.VITE_TRAEFIK === 'true' ? '/api' : ''}`,
+    joinAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}/join/`,
+    socketAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}:${env.VITE_BACKEND_PORT}`,
 }
+console.log(environment);
 export default environment;

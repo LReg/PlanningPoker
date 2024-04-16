@@ -1,39 +1,31 @@
 version: '3.4'
 services:
-  backend:
-    container_name: Poker-Backend
-    restart: always
-    image: pokerbackend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pokerBackendRouter.entrypoints=Https"
-      - "traefik.http.routers.pokerBackendRouter.rule=Host(`YOURDOMAIN`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
-      - "traefik.http.routers.pokerBackendRouter.tls=true"
-      - "traefik.http.routers.pokerBackendRouter.tls.certresolver=HttpsResolver"
-      - "traefik.http.routers.pokerBackendRouter.middlewares=pokerBackendStripPrefix"
-      - "traefik.http.middlewares.pokerBackendStripPrefix.stripprefix.prefixes=/api"
-    build:
-      target: backend
-      dockerfile: Dockerfile
-      context: .
-    networks:
-      - traefiknetwork
-  frontend:
-    restart: always
-    container_name: Poker-Frontend
-    image: pokerfrontend
-    build:
-      target: frontend
-      dockerfile: Dockerfile
-      context: .
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pokerRouter.entrypoints=Https"
-      - "traefik.http.routers.pokerRouter.rule=Host(`YOURDOMAIN`)"
-      - "traefik.http.routers.pokerRouter.tls=true"
-      - "traefik.http.routers.pokerRouter.tls.certresolver=HttpsResolver"
-    networks:
-      - traefiknetwork
-networks:
-  traefiknetwork:
-    external: true
+    backend:
+        container_name: PlanningPoker-Backend
+        restart: always
+        image: planningpokerbackend
+        environment:
+            - DOMAIN=${DOMAIN}
+            - BACKEND_PORT=${BACKEND_PORT}
+        build:
+            target: backend
+            dockerfile: Dockerfile
+            context: .
+        ports:
+            - "8080:8080"
+    frontend:
+        restart: always
+        container_name: PlanningPoker-Frontend
+        image: planningpokerfrontend
+        ports:
+            - "80:80"
+        build:
+            target: frontend
+            dockerfile: Dockerfile
+            context: .
+            args:
+                - TRAEFIK=${TRAEFIK}
+                - DOMAIN=${DOMAIN}
+                - PRODUCTION=${PRODUCTION}
+                - PROTOCOL=${PROTOCOL}
+                - BACKEND_PORT=${BACKEND_PORT}

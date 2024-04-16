@@ -1,8 +1,9 @@
+import 'dotenv/config';
 import express from 'express';
 import sessionRouter from './routers/sessionRouter.js';
 import { server, app }from './services/socketService.js';
 
-const port = 80;
+const port = process.env.BACKEND_PORT;
 export const debug = true;
 
 app.use(express.json());

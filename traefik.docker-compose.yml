@@ -1,0 +1,48 @@
+version: '3.4'
+services:
+  backend:
+    container_name: PlanningPoker-Backend
+    restart: always
+    image: planningpokerbackend
+    environment:
+      - DOMAIN=${DOMAIN}
+      - BACKEND_PORT=${BACKEND_PORT}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pokerBackendRouter.entrypoints=${TRAEFIK_ENTRYPOINT}"
+      - "traefik.http.routers.pokerBackendRouter.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
+      - "traefik.http.routers.pokerBackendRouter.tls=true"
+      - "traefik.http.routers.pokerBackendRouter.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.pokerBackendRouter.middlewares=pokerBackendStripPrefix"
+      - "traefik.http.middlewares.pokerBackendStripPrefix.stripprefix.prefixes=/api"
+    build:
+      target: backend
+      dockerfile: Dockerfile
+      context: .
+    networks:
+      - ${TRAEFIK_NETWORK}
+  frontend:
+    restart: always
+    container_name: PlanningPoker-Frontend
+    image: planningpokerfrontend
+    build:
+      target: frontend
+      dockerfile: Dockerfile
+      context: .
+      args:
+        - TRAEFIK=${TRAEFIK}
+        - DOMAIN=${DOMAIN}
+        - PROTOCOL=${PROTOCOL}
+        - PRODUCTION=${PRODUCTION}
+        - BACKEND_PORT=${BACKEND_PORT}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pokerRouter.entrypoints=${TRAEFIK_ENTRYPOINT}"
+      - "traefik.http.routers.pokerRouter.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.pokerRouter.tls=true"
+      - "traefik.http.routers.pokerRouter.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+    networks:
+      - ${TRAEFIK_NETWORK}
+networks:
+  ${TRAEFIK_NETWORK}:
+    external: true
