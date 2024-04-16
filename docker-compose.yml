@@ -7,6 +7,7 @@ services:
         environment:
             - DOMAIN=${DOMAIN}
             - BACKEND_PORT=${BACKEND_PORT}
+            - PROTOCOL=${PROTOCOL}
         build:
             target: backend
             dockerfile: Dockerfile
