@@ -1,9 +1,9 @@
 version: '3.4'
 services:
     backend:
-        container_name: PlanningPoker-Backend
+        container_name: ${CONTAINER_NAME}-Backend
         restart: always
-        image: planningpokerbackend
+        image: ${IMAGE_NAME}backend
         environment:
             - DOMAIN=${DOMAIN}
             - BACKEND_PORT=${BACKEND_PORT}
@@ -15,8 +15,8 @@ services:
             - "8080:8080"
     frontend:
         restart: always
-        container_name: PlanningPoker-Frontend
-        image: planningpokerfrontend
+        container_name: ${CONTAINER_NAME}-Frontend
+        image: ${IMAGE_NAME}frontend
         ports:
             - "80:80"
         build:
