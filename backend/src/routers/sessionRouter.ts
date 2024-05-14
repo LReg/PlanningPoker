@@ -156,7 +156,17 @@ router.put('/openSession/:token/:open', (req, res) => {
                 voters++;
                 return acc + parse;
             }, 0) / voters;
-            sendMessageToSession(token, 'Durchschnittlicher Wert: ' + (isNaN(avg) ? 'nicht ermittelbar' : avg));
+            const roundedAvg = Math.round(avg);
+            const median = session.players.map((player) => parseInt(player.estimate ?? '')).sort((a, b) => a - b)[Math.floor(session.players.length / 2)];
+            // pick the second highest value
+            const secondHighest = session.players.map((player) => parseInt(player.estimate ?? '')).sort((a, b) => b - a)[1];
+            const computable = !isNaN(avg) && !isNaN(median) && !isNaN(roundedAvg) && !isNaN(secondHighest);
+            if (!computable) {
+                sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
+            }
+            else {
+                sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag: ${secondHighest}`);
+            }
         }
         io.to(token).emit('sessionOpened', getSessionInfo(token));
         res.send('OK');
@@ -188,6 +198,9 @@ router.get('/pullUserInfo/:token/:sessionToken', (req, res) => {
     const token = req.params.token;
     const sessionToken = req.params.sessionToken;
     const session = getSessionByToken(sessionToken);
+
+
+
     if (session) {
         const player = getPlayerByToken(token, sessionToken);
         if (player) {
