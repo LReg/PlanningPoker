@@ -32,6 +32,6 @@ jobs:
         script: |
           cd PlanningPoker
           git pull
-          docker compose build
-          docker compose down
-          docker compose up -d --force-recreate
+          docker compose -f traefik.docker-compose.yml build
+          docker compose -f traefik.docker-compose.yml down
+          docker compose -f traefik.docker-compose.yml up -d --force-recreate
