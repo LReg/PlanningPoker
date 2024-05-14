@@ -165,7 +165,7 @@ router.put('/openSession/:token/:open', (req, res) => {
                 sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
             }
             else {
-                sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag: ${secondHighest}`);
+                sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag (zweithöchstes): ${secondHighest}`);
             }
         }
         io.to(token).emit('sessionOpened', getSessionInfo(token));
