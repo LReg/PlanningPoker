@@ -13,6 +13,8 @@ import { message } from 'ant-design-vue';
 import Chat from "@/components/Chat.vue";
 import {clearMessages} from "@/api/chatService";
 import ColorThemeChooser from "@/components/ColorThemeChooser.vue";
+import estimationHistogram from "@/reactive/useEstimationHistogram";
+import Histogram from "@/components/Histogram.vue";
 const router = useRouter();
 const route = useRoute();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
@@ -129,10 +131,14 @@ const handleLeaveSpectatorMode = () => {
       <Chat></Chat>
     </div>
   </div>
-  <EstimateOptions v-if="sessionRef && userRef" ref="estimateOptionsRef"></EstimateOptions>
+  <Histogram v-if="sessionRef && userRef && estimationHistogram" :data="estimationHistogram" :hide="!sessionRef?.open"></Histogram>
+  <EstimateOptions v-if="sessionRef && userRef" ref="estimateOptionsRef" :hide="sessionRef?.open" class="estimations"></EstimateOptions>
 </template>
 
 <style scoped>
+.estimations {
+  transition: top 0.5s linear;
+}
 .userContainer{
   display: flex;
   flex-wrap: wrap;

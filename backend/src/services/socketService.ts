@@ -2,6 +2,7 @@ import {Server} from "socket.io";
 import http from "http";
 import express from "express";
 import {Message} from "../models/Message.model";
+import {EstimationHistogram} from "../models/EstimationHistogram";
 export const app = express();
 export const server = http.createServer(app);
 export const socketPlayers: { [key: string]: string } = {};
@@ -20,6 +21,9 @@ export function sendMessageToSession(sessionToken: string, message: string) {
         timestamp: new Date().getTime()
     }
     io.to(sessionToken).emit('newMessage', messageObj);
+}
+export function sendHistogramToSession(sessionToken: string, histogram: EstimationHistogram) {
+    io.to(sessionToken).emit('newHistogram', histogram);
 }
 
 io.on('connection', (socket) => {

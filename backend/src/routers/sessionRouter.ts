@@ -13,8 +13,9 @@ import {
     checkIsOwnerById, getPlayerById, getSessionByToken, getPlayerByToken, shake, throwEmojiAt
 } from "../services/sessionService.js";
 import { debug } from "../index.js";
-import { io, sendMessageToSession } from "../services/socketService.js";
+import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
 import { validateEstimate } from "../services/validationService.js";
+import {EstimationHistogram} from "../models/EstimationHistogram";
 const router = express.Router();
 
 router.post('/debug', (req, res) => {
@@ -145,6 +146,7 @@ router.put('/openSession/:token/:open', (req, res) => {
             session.players.forEach((player) => {
                 player.estimate = null;
             });
+            sendHistogramToSession(token, {estimationCount: {}});
         }
         else {
             let voters = 0;
@@ -157,15 +159,27 @@ router.put('/openSession/:token/:open', (req, res) => {
                 return acc + parse;
             }, 0) / voters;
             const roundedAvg = Math.round(avg);
-            const median = session.players.map((player) => parseInt(player.estimate ?? '')).sort((a, b) => a - b)[Math.floor(session.players.length / 2)];
+            const sortedEstimates = session.players.map((player) => parseInt(player.estimate ?? '')).sort((a, b) => b - a);
+            const median = sortedEstimates[Math.floor(voters / 2)];
             // pick the second highest value
-            const secondHighest = session.players.map((player) => parseInt(player.estimate ?? '')).sort((a, b) => b - a)[1];
-            const computable = !isNaN(avg) && !isNaN(median) && !isNaN(roundedAvg) && !isNaN(secondHighest);
+            let secondHighest = sortedEstimates[1];
+            if (isNaN(secondHighest))
+                secondHighest = sortedEstimates[0];
+            const computable = !isNaN(median) && !isNaN(roundedAvg) && !isNaN(secondHighest);
+            const estimationHistogram: EstimationHistogram = session.players.reduce((acc: EstimationHistogram, player) => {
+                const estimate = parseInt(player.estimate ?? '');
+                if (!isNaN(estimate)) {
+                    acc.estimationCount[estimate] = (acc.estimationCount[estimate] ?? 0) + 1;
+                }
+                return acc;
+            }, { estimationCount: {}} as EstimationHistogram);
             if (!computable) {
                 sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
+                sendHistogramToSession(token, {estimationCount: {}});
             }
             else {
                 sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag (zweithöchstes): ${secondHighest}`);
+                sendHistogramToSession(token, estimationHistogram);
             }
         }
         io.to(token).emit('sessionOpened', getSessionInfo(token));

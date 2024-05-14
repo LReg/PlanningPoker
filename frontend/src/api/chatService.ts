@@ -6,8 +6,6 @@ import userRef from "@/reactive/useUser";
 import sessionRef from "@/reactive/useSession";
 export const messagesRef: Ref<Message[]> = ref([]);
 
-
-
 export async function postMessage(message: string) {
     if (!socket) {
         throw new Error('Socket not initialized');
