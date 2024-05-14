@@ -3,6 +3,7 @@ import {ref} from "vue";
 import Card from "@/components/Card.vue";
 import {estimate} from "@/api/actionsService";
 
+const props = defineProps(['hide']);
 const options = ref(['🤷‍♂️', '☕', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '134']);
 const selected = ref(null);
 const resetSelection = () => {
@@ -20,7 +21,7 @@ const choose = (option: any) => {
 </script>
 
 <template>
-  <div class="estimates">
+  <div class="estimates" :style="{'transform': props.hide?? false ? 'translateY(6rem)': '', 'transition': 'transform 0.2s linear'}">
     <Card v-for="option in options" :estimate="option" @click="choose(option)" clickable="true" :selected="selected === option"/>
   </div>
 </template>

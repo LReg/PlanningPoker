@@ -8,6 +8,9 @@ import { message } from 'ant-design-vue';
 import { socket, socketConnect, socketExit } from "./socketService";
 import {clearMessages, messagesRef} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
+import type {EstimationHistogram} from "@/models/EstimationHistogram";
+import useEstimationHistogram from "@/reactive/useEstimationHistogram";
+const histogramRef = useEstimationHistogram;
 
 function socketSessionUpdateListeners() {
     socket!.on('playerJoined', (session: ExportEstimateSession) => {
@@ -19,6 +22,9 @@ function socketSessionUpdateListeners() {
         message.info('Ein Spieler hat die Sitzung verlassen.');
     });
     socket!.on('playerEstimated', (session: ExportEstimateSession) => {
+        if (session.open) {
+            histogramRef.value = { estimationCount: {}};
+        }
         sessionRef.value = session;
     });
     socket!.on('sessionOpened', (session: ExportEstimateSession) => {
@@ -28,6 +34,9 @@ function socketSessionUpdateListeners() {
         sessionRef.value = session;
         message.info('Ein Spieler wurde aus der Sitzung entfernt.');
     });
+    socket!.on('newHistogram', (histogram: EstimationHistogram) => {
+        histogramRef.value = histogram;
+    })
     socketChatListener();
     throwListener();
 }
