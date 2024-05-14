@@ -16,7 +16,7 @@ jobs:
       TRAEFIK_ROUTER: "PlanningPokerRouter"
       CONTAINER_NAME: "planning-poker"
       IMAGE_NAME: "planningpoker"
-      DOMAIN: "pokertest.lreg0.de"
+      DOMAIN: ${{ secrets.DOMAIN }}
       PRODUCTION: "true"
       PROTOCOL: "https"
       BACKEND_PORT: "80"
