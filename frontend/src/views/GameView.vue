@@ -131,7 +131,7 @@ const handleLeaveSpectatorMode = () => {
       <Chat></Chat>
     </div>
   </div>
-  <Histogram v-if="sessionRef && userRef && estimationHistogram" :data="estimationHistogram" :hide="!sessionRef?.open"></Histogram>
+  <Histogram v-if="sessionRef && estimationHistogram" :data="estimationHistogram" :hide="!sessionRef?.open"></Histogram>
   <EstimateOptions v-if="sessionRef && userRef" ref="estimateOptionsRef" :hide="sessionRef?.open" class="estimations"></EstimateOptions>
 </template>
 
