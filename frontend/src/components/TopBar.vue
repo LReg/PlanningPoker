@@ -17,7 +17,8 @@ const gameToken: string = (typeof route.params.token === 'object' ? route.params
 const isAdmin = ref(false);
 
 onMounted(() => {
-  isAdmin.value = userRef.value?.isOwner;
+  // not sure if this is the best way yet
+  isAdmin.value = userRef.value?.isOwner ?? false;
 });
 
 const handleLeave = () => {
