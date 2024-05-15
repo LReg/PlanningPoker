@@ -37,17 +37,9 @@ function socketSessionUpdateListeners() {
     socket!.on('newHistogram', (histogram: EstimationHistogram) => {
         histogramRef.value = histogram;
     })
-    socketChatListener();
-    throwListener();
-}
-
-function socketChatListener() {
     socket?.on('newMessage', (message: Message) => {
         messagesRef.value.push(message);
     });
-}
-
-function throwListener() {
     socket?.on('throw', (playerId: string, emoji: string) => {
         paperThrowSubject.next({id: playerId, emoji});
     });
@@ -63,6 +55,7 @@ function socketSessionListenersForPlayers() {
     socket!.on('kicked', () => {
         message.error('Du wurdest aus der Sitzung geworfen');
         localStorage.clear();
+        userRef.value = null;
         socketExit();
         window.location.reload();
     });
@@ -99,8 +92,10 @@ export async function createGame(sessionName: string, leaderName: string): Promi
 
 export async function joinGame(sessionToken: string, playerName: string): Promise<void> {
     if (socket) {
-        throw new Error('Socket already initialized');
+        socketExit();
     }
+    localStorage.clear();
+    userRef.value = null;
     const res = await axios.post(env.apiServiceRoute + '/joinSession/' + sessionToken, {
         name: playerName,
     })
@@ -112,11 +107,11 @@ export async function joinGame(sessionToken: string, playerName: string): Promis
     socket?.emit('joinSession', sessionToken, res.data.token);
     socketSessionUpdateListeners();
     socketSessionListenersForPlayers();
+    clearMessages();
     await pullSessionInfo(sessionToken);
     localStorage.setItem('userToken', res.data.token);
     localStorage.setItem('sessionToken', sessionToken);
     userRef.value = res.data;
-
 }
 
 export async function pullUserInfo(sessionToken: string, playerToken: string): Promise<void> {
@@ -138,6 +133,7 @@ export async function tryReconnectFromBrowserStorage(sessionToken: string) {
         return;
     }
     await pullUserInfo(sessionToken, userToken);
+    clearMessages();
     socketConnect();
     // @ts-ignore
     socket?.emit('joinSession', sessionToken, userToken);
@@ -150,11 +146,12 @@ export async function leaveGame(sessionToken: string, playerToken: string): Prom
     if (!socket) {
         throw new Error('Socket not initialized');
     }
-    await axios.post(env.apiServiceRoute+ '/leaveSession/' + sessionToken, {
+    await axios.post(env.apiServiceRoute + '/leaveSession/' + sessionToken, {
         token: playerToken,
     });
     clearMessages();
     socketExit();
+    userRef.value = null;
     localStorage.clear();
 }
 
@@ -170,9 +167,25 @@ export async function spectateGame(sessionToken: string): Promise<void> {
 }
 
 export async function exitSpectateGame(): Promise<void> {
+    socketExit();
     clearMessages();
+    localStorage.clear();
+    userRef.value = null;
+}
+
+export async function getSpectatorAsUser(): Promise<void> {
+    if (!socket) {
+        throw new Error('Socket not initialized');
+    }
+    const sessionToken = localStorage.getItem('sessionToken');
+    const playerToken = localStorage.getItem('userToken');
+    await axios.post(env.apiServiceRoute + '/leaveSession/' + sessionToken, {
+        token: playerToken,
+    });
+    userRef.value = null;
     socketExit();
     localStorage.clear();
+    socketSessionUpdateListeners();
 }
 
 
