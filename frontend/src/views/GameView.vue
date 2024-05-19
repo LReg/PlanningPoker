@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import env from '@/environments/environments';
 import {useRoute, useRouter} from "vue-router";
 import {pullSessionInfo, openSession} from "@/api/actionsService";
-import {tryReconnectFromBrowserStorage, leaveGame, spectateGame, exitSpectateGame} from "@/api/joinLeaveService";
+import {tryReconnectFromBrowserStorage, spectateGame} from "@/api/joinLeaveService";
 import userRef from "@/reactive/useUser";
 import sessionRef from "@/reactive/useSession";
 import User from "@/components/User.vue";
-import {LogoutOutlined, UserOutlined, EyeOutlined, EyeInvisibleOutlined, CopyOutlined} from "@ant-design/icons-vue";
 import EstimateOptions from "@/components/EstimateOptions.vue";
 import {ref, watch} from "vue";
 import { message } from 'ant-design-vue';
 import Chat from "@/components/Chat.vue";
 import {clearMessages} from "@/api/chatService";
-import ColorThemeChooser from "@/components/ColorThemeChooser.vue";
 import estimationHistogram from "@/reactive/useEstimationHistogram";
 import Histogram from "@/components/Histogram.vue";
+import TopBar from "@/components/TopBar.vue";
+
 const router = useRouter();
 const route = useRoute();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
@@ -22,9 +21,11 @@ const estimateOptionsRef = ref(null);
 
 if (sessionRef.value === null) {
   pullSessionInfo(gameToken).catch(() => {
+    // TODO if you would want to reopen a session this is where to start
     router.push('/');
   });
   if (!localStorage.getItem('userToken')) {
+    // kein Usertoken vorhanden -> Zuschauermodus
     spectateGame(gameToken).then(
       () => {
         message.success('Du bist nun Zuschauer.');
@@ -35,6 +36,7 @@ if (sessionRef.value === null) {
     });
   }
   else {
+    // Usertoken vorhanden -> versuche Wiederverbindung
     tryReconnectFromBrowserStorage(gameToken)
         .then(
             () => {
@@ -48,18 +50,6 @@ if (sessionRef.value === null) {
     });
   }
 }
-const handleLeave = () => {
-  if (!userRef.value)
-    return;
-  leaveGame(gameToken, userRef.value.token).then(() => {
-    router.push('/');
-  });
-}
-const toggleOpen = async () => {
-  if (!sessionRef.value)
-    return;
-  await openSession(!sessionRef.value.open);
-}
 
 watch(sessionRef, (newValue, oldValue) => {
   if (newValue?.open === false && oldValue?.open === true)
@@ -67,62 +57,9 @@ watch(sessionRef, (newValue, oldValue) => {
     estimateOptionsRef?.value?.resetSelection();
 });
 
-const handleCopy = () => {
-  navigator.clipboard.writeText(env.joinAdress + gameToken).then(() => {
-    message.success('Beitrittslink wurde in die Zwischenablage kopiert.');
-  });
-}
-
-const handleLeaveSpectatorMode = () => {
-  exitSpectateGame().then(() => {
-    router.push('/');
-  });
-}
-
 </script>
 <template>
-  <div class="top-bar">
-    <div style="display: flex; align-items: center; gap: 1rem;" class="top-bar_container">
-      <h1 v-if="sessionRef">
-        {{ sessionRef.name }}
-      </h1>
-      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true" ghost>
-        <template #icon>
-          <EyeInvisibleOutlined></EyeInvisibleOutlined>
-        </template>
-        neue Schätzung
-      </a-button>
-      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false" ghost>
-        <template #icon>
-          <EyeOutlined></EyeOutlined>
-        </template>
-        Schätzungen aufdecken
-      </a-button>
-    </div>
-    <div>
-      <a-button ghost @click="handleCopy">
-        <template #icon>
-          <CopyOutlined />
-        </template>
-      </a-button>
-      Token: {{gameToken}}
-    </div>
-    <div v-if="userRef" style="" class="top-bar_container top-bar_usercontainer">
-      <ColorThemeChooser></ColorThemeChooser>
-      <UserOutlined style="margin: .7rem;"/>
-      <h1>{{userRef.name}}</h1>
-      <a-button type="default" ghost style="margin-left: 1.5rem; margin-top: .2rem;" @click="handleLeave()">
-        <template #icon><LogoutOutlined /></template>
-      </a-button>
-    </div>
-    <div v-if="!userRef"  class="top-bar_container top-bar_usercontainer">
-      <UserOutlined style="margin: .7rem;"/>
-      <h1>Zuschauer</h1>
-        <a-button type="default" ghost style="margin-left: 1.5rem; margin-top: .2rem;" @click="handleLeaveSpectatorMode()">
-          <template #icon><LogoutOutlined /></template>
-        </a-button>
-    </div>
-  </div>
+  <TopBar></TopBar>
   <div class="content_container">
     <div v-if="sessionRef" class="userContainer">
       <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name"></User>
@@ -149,29 +86,7 @@ const handleLeaveSpectatorMode = () => {
   padding: 1rem;
   overflow-y: auto;
 }
-.top-bar_usercontainer {
-  display: flex;
-  align-items: center;
-  justify-content: end;
-}
 
-.top-bar {
-  flex-wrap: wrap;
-  width: 100vw;
-  margin: 0 auto;
-  background-image: linear-gradient(to right, rgba(var(--lingrad-a), 0.7), rgba(var(--lingrad-b), 0.7));
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.3rem;
-  text-shadow: 1px 1px 5px black;
-}
-.top-bar_container {
-  display: flex;
-  flex-wrap: wrap;
-  width: 35rem;
-}
 h1 {
   margin: 0;
   font-size: 1.3em;
@@ -193,9 +108,6 @@ h1 {
 }
 
 @media(max-width: 1295px) {
-  .top-bar_usercontainer {
-    justify-content: start;
-  }
   .content_container {
     top: 10rem;
   }
