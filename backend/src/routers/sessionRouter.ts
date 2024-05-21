@@ -140,6 +140,7 @@ router.put('/openSession/:token/:open', (req, res) => {
         res.status(403).send('Not owner');
         return;
     }
+    // TODO: put this in a service
     if (session) {
         session.open = open;
         if (!open) {
@@ -159,7 +160,10 @@ router.put('/openSession/:token/:open', (req, res) => {
                 return acc + parse;
             }, 0) / voters;
             const roundedAvg = Math.round(avg);
-            const sortedEstimates = session.players.map((player) => parseInt(player.estimate ?? '')).sort((a, b) => b - a);
+            const sortedEstimates = session.players
+                .map((player) => parseInt(player.estimate ?? ''))
+                .sort((a, b) => b - a)
+                .filter((estimate) => !isNaN(estimate));
             const median = sortedEstimates[Math.floor(voters / 2)];
             // pick the second highest value
             let secondHighest = sortedEstimates[1];
