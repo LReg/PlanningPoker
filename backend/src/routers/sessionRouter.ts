@@ -162,8 +162,8 @@ router.put('/openSession/:token/:open', (req, res) => {
             const roundedAvg = Math.round(avg);
             const sortedEstimates = session.players
                 .map((player) => parseInt(player.estimate ?? ''))
-                .sort((a, b) => b - a)
-                .filter((estimate) => !isNaN(estimate));
+                .filter((estimate) => !isNaN(estimate))
+                .sort((a, b) => b - a);
             const median = sortedEstimates[Math.floor(voters / 2)];
             // pick the second highest value
             let secondHighest = sortedEstimates[1];

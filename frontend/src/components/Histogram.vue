@@ -45,7 +45,7 @@ const evaluateHeightRem = (value: number) => {
   gap: .5rem;
 }
 .histogramContainer {
-  width: 100vw;
+  width: 70vw;
   height: 11rem;
   position: absolute;
   bottom: 2rem;
