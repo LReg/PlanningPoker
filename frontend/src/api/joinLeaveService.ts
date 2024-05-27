@@ -179,13 +179,16 @@ export async function getSpectatorAsUser(): Promise<void> {
     }
     const sessionToken = localStorage.getItem('sessionToken');
     const playerToken = localStorage.getItem('userToken');
+    if (!sessionToken || !playerToken) {
+        throw new Error('No session or player token found');
+    }
     await axios.post(env.apiServiceRoute + '/leaveSession/' + sessionToken, {
         token: playerToken,
     });
     userRef.value = null;
     socketExit();
     localStorage.clear();
-    socketSessionUpdateListeners();
+    await spectateGame(sessionToken);
 }
 
 
