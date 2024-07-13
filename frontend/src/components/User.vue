@@ -12,7 +12,6 @@ const actionCooldown = ref(false);
 const dropdownOpen = ref(false);
 const throwItems = ref([] as {id: number, emoji: string}[]);
 const unsubscribe = new Subject<void>();
-const nextId = ref(0);
 const modalOpen = ref(false);
 const newEmoji = ref('');
 const customIcons = ref(JSON.parse(localStorage.getItem('emojis') || '[]'));
@@ -37,7 +36,7 @@ const handleShake = (e: any) => {
   triggerActionCooldown();
 }
 const triggerBallAnimation = (emoji: string) => {
-  throwItems.value.push({id: nextId.value++, emoji});
+  throwItems.value.push({id: Math.floor(Math.random() * 9999999), emoji});
   setTimeout(() => {
     //throwItems.value.shift();
   }, 1100);
