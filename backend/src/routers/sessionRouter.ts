@@ -16,6 +16,7 @@ import { debug } from "../index.js";
 import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
 import { validateEstimate } from "../services/validationService.js";
 import {EstimationHistogram} from "../models/EstimationHistogram";
+import {log, logSesstionDetails} from "../services/logger.js";
 const router = express.Router();
 
 router.post('/debug', (req, res) => {
@@ -45,7 +46,7 @@ router.post('/newSession', (req, res) => {
     sessions.push(newSession);
     res.send(newSession);
     setPlayerTimers(newSession.token, owner.token);
-    console.log('new session created: ' + newSession.name + ' with token ' + newSession.token);
+    logSesstionDetails(newSession.token, 'new session created');
 });
 router.post('/joinSession/:token', (req, res) => {
     const token = req.params.token;
@@ -65,7 +66,7 @@ router.post('/joinSession/:token', (req, res) => {
         res.send(player);
         setPlayerTimers(token, player.token);
         sendMessageToSession(token, player.name + ' ist der Sitzung beigetreten.');
-        console.log(player.name + ' joined session ' + token);
+        logSesstionDetails(token, player.name + ' joined session ' + token);
     }
     else {
         res.status(404).send('Session not found');
@@ -75,10 +76,11 @@ router.post('/joinSession/:token', (req, res) => {
 router.post('/leaveSession/:token', (req, res) => {
     const token = req.params.token;
     const playerToken = req.body.token;
+    const player = getPlayerByToken(playerToken, token);
     try {
         playerLeave(token, playerToken);
         res.send('OK');
-        console.log('Player left session ' + token);
+        logSesstionDetails(token, player?.name ?? '?' + ' left session ' + token);
     } catch (e: any) {
         res.status(404).send(e.message);
     }
@@ -179,6 +181,8 @@ router.put('/openSession/:token/:open', (req, res) => {
             }, { estimationCount: {}} as EstimationHistogram);
             if (!computable) {
                 sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
+                log('Average not computable');
+                logSesstionDetails(token, 'Average not computable');
                 sendHistogramToSession(token, {estimationCount: {}});
             }
             else {
@@ -187,6 +191,7 @@ router.put('/openSession/:token/:open', (req, res) => {
             }
         }
         io.to(token).emit('sessionOpened', getSessionInfo(token));
+        log('Session opened: ' + token + ' - ' + open);
         res.send('OK');
     }
     else {
@@ -216,8 +221,6 @@ router.get('/pullUserInfo/:token/:sessionToken', (req, res) => {
     const token = req.params.token;
     const sessionToken = req.params.sessionToken;
     const session = getSessionByToken(sessionToken);
-
-
 
     if (session) {
         const player = getPlayerByToken(token, sessionToken);
@@ -257,6 +260,7 @@ router.post('/kickPlayer/:id/:sessionToken', (req, res) => {
       const playerToKick = getPlayerById(kickId, session.token);
       if (playerToKick) {
         kick(playerToKick, sessionToken);
+        log('Player kicked: ' + playerToKick.name);
       }
       else {
         res.status(404).send('Player not found');
