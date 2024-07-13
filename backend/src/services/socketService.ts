@@ -3,6 +3,7 @@ import http from "http";
 import express from "express";
 import {Message} from "../models/Message.model";
 import {EstimationHistogram} from "../models/EstimationHistogram";
+import {log} from "./logger.js";
 export const app = express();
 export const server = http.createServer(app);
 export const socketPlayers: { [key: string]: string } = {};
@@ -35,6 +36,7 @@ io.on('connection', (socket) => {
     });
     socket.on('chat', (message: Message, sessionToken) => {
         socket.to(sessionToken).emit('newMessage', message);
+        log('chat: ' +  message.name + ' -> ' + message.message + ' in ' + sessionToken);
     });
     socket.on('leaveSession', (token) => {
         socket.leave(token);
