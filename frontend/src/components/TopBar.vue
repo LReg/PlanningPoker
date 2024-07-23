@@ -125,7 +125,7 @@ h1 {
 
 .top-bar {
   flex-wrap: wrap;
-  width: 100vw;
+  width: 100%;
   margin: 0 auto;
   background-image: linear-gradient(to right, rgba(var(--lingrad-a), 0.7), rgba(var(--lingrad-b), 0.7));
   color: white;

@@ -36,7 +36,7 @@ const choose = (option: any) => {
   gap: 1rem;
   justify-content: center;
   align-items: center;
-  width: 100vw;
+  width: 100%;
   padding: 1rem 2rem;
   background-image: linear-gradient(to right, rgba(var(--lingrad-a), 0.3), rgba(var(--lingrad-b), 0.3));
 }

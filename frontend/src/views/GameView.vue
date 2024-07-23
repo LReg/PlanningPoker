@@ -81,7 +81,7 @@ watch(sessionRef, (newValue, oldValue) => {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  width: 70vw;
+  width: 70%;
   min-width: 17rem;
   padding: 1rem;
   overflow-y: auto;
@@ -97,13 +97,13 @@ h1 {
   gap: 1rem;
   top: 8rem;
   bottom: 9rem;
-  width: 100vw;
+  width: 100%;
   overflow-x: auto;
 }
 .chat_container {
   min-width: 17rem;
   padding: 2rem;
-  width: 30vw;
+  width: 30%;
   border-left: 1px solid grey;
 }
 

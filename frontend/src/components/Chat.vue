@@ -65,4 +65,5 @@ watch(() => messagesRef.value.length, () => {
   overflow-y: scroll;
   height: 100%;
 }
+
 </style>
