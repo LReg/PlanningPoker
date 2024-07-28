@@ -1,0 +1,32 @@
+version: '3.4'
+services:
+    backend:
+        container_name: ${CONTAINER_NAME}-Backend
+        restart: always
+        image: ${IMAGE_NAME}backend
+        environment:
+            - DOMAIN=${DOMAIN}
+            - BACKEND_PORT=${BACKEND_PORT}
+            - PROTOCOL=${PROTOCOL}
+        build:
+            target: backend
+            dockerfile: Dockerfile
+            context: .
+        ports:
+            - "8080:8080"
+    frontend:
+        restart: always
+        container_name: ${CONTAINER_NAME}-Frontend
+        image: ${IMAGE_NAME}frontend
+        ports:
+            - "80:80"
+        build:
+            target: frontend
+            dockerfile: Dockerfile
+            context: .
+            args:
+                - TRAEFIK=${TRAEFIK}
+                - DOMAIN=${DOMAIN}
+                - PRODUCTION=${PRODUCTION}
+                - PROTOCOL=${PROTOCOL}
+                - BACKEND_PORT=${BACKEND_PORT}

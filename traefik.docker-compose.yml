@@ -1,0 +1,50 @@
+version: '3.4'
+services:
+  backend:
+    container_name: ${CONTAINER_NAME}-Backend
+    restart: always
+    image: ${IMAGE_NAME}backend
+    environment:
+      - DOMAIN=${DOMAIN}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - PROTOCOL=${PROTOCOL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.entrypoints=${TRAEFIK_ENTRYPOINT}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.middlewares=pokerBackendStripPrefix"
+      - "traefik.http.middlewares.pokerBackendStripPrefix.stripprefix.prefixes=/api"
+    build:
+      target: backend
+      dockerfile: Dockerfile
+      context: .
+    networks:
+      - innernetwork
+  frontend:
+    restart: always
+    container_name: ${CONTAINER_NAME}-Frontend
+    image: ${IMAGE_NAME}frontend
+    build:
+      target: frontend
+      dockerfile: Dockerfile
+      context: .
+      args:
+        - TRAEFIK=${TRAEFIK}
+        - DOMAIN=${DOMAIN}
+        - PROTOCOL=${PROTOCOL}
+        - PRODUCTION=${PRODUCTION}
+        - BACKEND_PORT=${BACKEND_PORT}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.entrypoints=${TRAEFIK_ENTRYPOINT}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+    networks:
+      - innernetwork
+networks:
+  innernetwork:
+    external: true
+    name: ${TRAEFIK_NETWORK}
