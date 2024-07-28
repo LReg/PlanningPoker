@@ -8,26 +8,61 @@ Planning Poker is a collaborative estimation technique used by agile teams to co
 - throw paper balls and emojis at other players
 - shake the screen of other players
 - creating and managing estimation sessions.
+- estimation plot
 - Real-time updates to ensure all team members are on the same page.
 - dockerized
-- although it is dockerized is it not yet ready for plug and play. You need to change some things in the code.
 - free for everyone
 - no ads
 
-# Getting Started
+# Get it to run 
 ## Prerequisites
 
 - Docker
-- Docker Compose installed on your machine.
-- traefik configured
 
-## Installation
+## Self-Hosting
 
-Clone the repository:
+### No Docker (for development)
+- ```git clone https://github.com/LReg/PlanningPoker.git```
+- ```cd backend```
+- ```npm install```
+- ```npm run start```
+- open new Terminal for trontend
+- ```cd frontend```
+- ```npm install```
+- ```npm run dev```
+- open your browser and go to ```http://localhost:80```
 
-- ```git clone https://github.com/your-username/planning-poker.git```
-- change all YOURDOMAIN to your domain in the project. Maybe sometime i will implement proper env variables for this.
-``` docker-compose up -d```
+### Localhost Docker
+- ```git clone https://github.com/LReg/PlanningPoker.git```
+- change the .env File to your needs [explained below](#customize-env-file)
+- ``` docker compose up -d```
+ 
+### Classic Docker
+- ```git clone https://github.com/LReg/PlanningPoker.git```
+- ```cp .env.example .env``` 
+- change the .env File to your needs [explained below](#customize-env-file)
+- ``` docker compose up -d```
 
-# Language
-The application is currently available only in German. Maybe some day i will translate it. 
+### Classic Docker
+- ```git clone https://github.com/LReg/PlanningPoker.git```
+- ```cp .env.example.traefik .env```
+- change the .env File to your needs [explained below](#customize-env-file)
+- ``` docker compose -f traefik.docker-compose.yml up -d```
+
+# Customize .env File
+- DOMAIN=YOURDOMAIN -> needs to be changed to your domain
+- PRODUCTION=true -> should stay on true
+- PROTOCOL=http -> important for backend url in frontend
+- BACKEND_PORT=8080 -> port of the backend
+ 
+- TRAEFIK=false -> append an /api to route over the same domain (in frontend)
+- TRAEFIK_CERT_RESOLVER=HttpsResolver -> needs to be changed to traefik your cert resolver
+- TRAEFIK_ENTRYPOINT=Https -> name of your traefik entrypoint
+- TRAEFIK_NETWORK=traefiknetwork -> name of your traefik network
+- TRAEFIK_ROUTER=PlanningPokerRouter -> the name of the traefik router (needs to be unique to other traefik services)
+ 
+- CONTAINER_NAME=planning-poker -> name of docker the container
+- IMAGE_NAME=planningpoker -> name of the docker image
+ 
+# Drawbacks 
+The application is currently only available in German. Maybe some day i will translate it. 
