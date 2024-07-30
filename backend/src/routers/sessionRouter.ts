@@ -80,7 +80,7 @@ router.post('/leaveSession/:token', (req, res) => {
     try {
         playerLeave(token, playerToken);
         res.send('OK');
-        logSesstionDetails(token, player?.name ?? '?' + ' left session ' + token);
+        logSesstionDetails(token, (player?.name ?? '?') + ' left session ' + token);
     } catch (e: any) {
         res.status(404).send(e.message);
     }
@@ -182,6 +182,7 @@ router.put('/openSession/:token/:open', (req, res) => {
             if (!computable) {
                 sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
                 log('Average not computable');
+                log(session.players.map((player) => player.estimate ?? 'X').toString());
                 logSesstionDetails(token, 'Average not computable');
                 sendHistogramToSession(token, {estimationCount: {}});
             }
