@@ -53,7 +53,6 @@ function socketSessionListenersForPlayers() {
         pullUserInfo(sessionRef.value.token, userRef.value?.token);
     })
     socket!.on('kicked', () => {
-        message.error('Du wurdest aus der Sitzung geworfen');
         localStorage.clear();
         userRef.value = null;
         socketExit();
