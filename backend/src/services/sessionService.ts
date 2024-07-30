@@ -118,7 +118,7 @@ export const playerKick = (sessionToken: string, playerToken: string) => {
         session.players = session.players.filter((player) => player.token !== playerToken);
         io.to(sessionToken).emit('playerKicked', getSessionInfo(sessionToken));
         io.to(socketPlayers[playerToken]).emit('kicked');
-        sendMessageToSession(sessionToken, player?.name + ' wurde von ' + session.players.find((player) => player.isOwner)?.name + ' entfernt.');
+        sendMessageToSession(sessionToken, player?.name + ' wurde von ' + session.players.find((player) => player.isOwner)?.name + ' zum Zuschauer gemacht.');
     } else {
         throw new Error('Session not found');
     }

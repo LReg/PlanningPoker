@@ -107,7 +107,7 @@ const handleOpenModal = () => {
           <a-button @click="handleOpenModal">Emoji hinzufügen</a-button>
           <a-button @click="handleResetCustomEmojis" v-if="customIcons.length > 0">Zurücksetzen</a-button>
         </a-menu-Item>
-        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">Rauswerfen</span></a-menu-item>
+        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">Zuschauer machen</span></a-menu-item>
         <a-menu-item @click="dropdownOpen = false"><span class="noselect">Schließen</span></a-menu-item>
       </a-menu>
     </template>
