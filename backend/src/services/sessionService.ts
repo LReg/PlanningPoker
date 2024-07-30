@@ -75,14 +75,14 @@ export const activateSessionDeletion = (token: string) => {
     }, 1000 * 60 * 60 * 8); // 8 hours
 }
 
-const ownerPropagation = (player: Player, session: Session) => {
-    if (player?.isOwner && session && session.players?.length >= 1) {
-        session.players[0].isOwner = true;
-        io.to(socketPlayers[session.players[0].token]).emit('updateUserinfo');
-        sendMessageToSession(session.token, session.players[0].name + ' ist jetzt der Sitzungsleiter.');
-    }
-    if (session?.players.length === 0) {
-        activateSessionDeletion(session.token);
+const handAdminOver = (session: Session, player: Player) => {
+    if (session.players.length > 1) {
+        const newOwner = session.players.find((player) => player.id !== player.id);
+        if (newOwner) {
+            newOwner.isOwner = true;
+            io.to(socketPlayers[newOwner.token]).emit('updateUserinfo');
+            sendMessageToSession(session.token, newOwner.name + ' ist jetzt der Sitzungsleiter.');
+        }
     }
 }
 
@@ -94,6 +94,9 @@ export const playerLeave = (sessionToken: string, playerToken: string) => {
         throw new Error('Player not found');
     }
 
+    if (player.isOwner && session)
+       handAdminOver(session, player);
+
     if (session) {
         session.players = session.players.filter((player) => player.token !== playerToken);
         io.to(sessionToken).emit('playerLeft', getSessionInfo(sessionToken));
@@ -101,7 +104,6 @@ export const playerLeave = (sessionToken: string, playerToken: string) => {
     } else {
         throw new Error('Session not found');
     }
-    ownerPropagation(player, session);
 }
 
 export const playerKick = (sessionToken: string, playerToken: string) => {
@@ -120,7 +122,6 @@ export const playerKick = (sessionToken: string, playerToken: string) => {
     } else {
         throw new Error('Session not found');
     }
-    ownerPropagation(player, session);
 }
 
 export const kick = (playerToKick: Player, sessionToken: string) => {
