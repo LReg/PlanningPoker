@@ -11,7 +11,7 @@ const handleJoinGame = () => {
   joinGame(sessionToken.value, playerName.value).then(() => {
     router.push('/game/' + sessionToken.value);
   }).catch((error) => {
-    message.error('Beitreten fehlgeschlagen, überprüfe den Token.');
+    message.error('Beitreten fehlgeschlagen, das Spiel scheint nicht (mehr) zu existieren.');
     console.error(error);
   });
 };
