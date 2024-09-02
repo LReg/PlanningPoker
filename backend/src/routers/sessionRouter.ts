@@ -10,7 +10,7 @@ import {
     setPlayerTimers,
     playerLeave,
     checkIsOwnerByToken,
-    checkIsOwnerById, getPlayerById, getSessionByToken, getPlayerByToken, shake, throwEmojiAt
+    checkIsOwnerById, getPlayerById, getSessionByToken, getPlayerByToken, shake, throwEmojiAt, clearSessionDeletion
 } from "../services/sessionService.js";
 import { debug } from "../index.js";
 import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
@@ -70,6 +70,7 @@ router.post('/joinSession/:token', (req, res) => {
         setPlayerTimers(token, player.token);
         sendMessageToSession(token, player.name + ' ist der Sitzung beigetreten.');
         logSesstionDetails(token, player.name + ' joined session ' + token);
+        clearSessionDeletion(session);
     }
     else {
         res.status(404).send('Session not found');

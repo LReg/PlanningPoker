@@ -2,7 +2,6 @@
 import { BgColorsOutlined } from '@ant-design/icons-vue';
 import {onMounted} from "vue";
 const changeTheme = (key: string) => {
-  console.log(key);
   document.body.className = key;
   localStorage.setItem('theme', key);
 }
