@@ -15,6 +15,9 @@ const handleJoinGame = () => {
     console.error(error);
   });
 };
+const handleSpectate = () => {
+  router.push('/game/' + sessionToken.value);
+};
 const sessionToken = ref(props.gameToken ?? '');
 const playerName = ref('');
 </script>
@@ -32,6 +35,7 @@ const playerName = ref('');
       </div>
       <template #actions>
         <a-button type="primary" @click="handleJoinGame">Beitreten</a-button>
+        <a-button type="default" @click="handleSpectate">Zuschauen</a-button>
       </template>
     </a-card>
   </main>

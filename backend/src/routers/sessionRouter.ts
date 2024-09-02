@@ -61,6 +61,9 @@ router.post('/joinSession/:token', (req, res) => {
     };
     const session = sessions.find((session) => session.token === token);
     if (session) {
+        if (session.players.length == 0) {
+            player.isOwner = true;
+        }
         session.players.push(player);
         io.to(token).emit('playerJoined', getSessionInfo(token));
         res.send(player);

@@ -59,10 +59,10 @@ export const setPlayerTimers = (sessionToken: string, playerToken: string) => {
         } catch (e) {
             console.log('playerLeave failed (probably because session not found, or player already left)');
         }
-    }, 1000 * 60 * 60 * 10));  // 10 hours
+    }, 1000 * 60 * 60));  // 1 hour
     player.timeoutIds.push(setTimeout(() => {
         io.to(socketPlayers[playerToken]).emit('kickWarning');
-    }, (1000 * 60 * 60 * 10) - (1000 * 60 * 5)));  // 5 minutes before kick
+    }, (1000 * 60 * 60) - (1000 * 60 * 5)));  // 5 minutes before kick
 }
 
 export const activateSessionDeletion = (token: string) => {
@@ -72,7 +72,7 @@ export const activateSessionDeletion = (token: string) => {
             sessions.splice(sessions.indexOf(session), 1);
             console.log('session ' + token + ' deleted');
         }
-    }, 1000 * 60 * 60 * 24 * 100); // 100 days
+    }, 1000 * 60 * 60 * 24 * 10); // 10 days
 }
 
 const handAdminOver = (session: Session, player: Player) => {

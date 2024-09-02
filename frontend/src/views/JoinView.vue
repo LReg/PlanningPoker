@@ -5,15 +5,16 @@ import JoinGame from "@/components/JoinGame.vue";
 const route = useRoute();
 const router = useRouter();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
-const handleGuestJoin = () => {
-  router.push('/game/' + gameToken);
+
+const handleHome = () => {
+  router.push('/');
 }
 </script>
 
 <template>
   <div class="container">
     <JoinGame :gameToken="gameToken"></JoinGame>
-    <a-button @click="handleGuestJoin()" type="primary" class="guest-button">Als Zuschauer beitreten</a-button>
+    <a-button @click="handleHome" type="default" class="guest-button">Home</a-button>
   </div>
 </template>
 

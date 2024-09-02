@@ -24,7 +24,6 @@ const handleCreateGame = () => {
         router.push('/game/' + token);
       }).catch((error) => {
         message.error('Erstellen fehlgeschlagen, vermutlich ist das Backend nicht erreichbar.');
-        message.error(error);
       });
 }
 const sessionName = ref('');
