@@ -4,7 +4,7 @@ import express from "express";
 import {Message} from "../models/Message.model";
 import {EstimationHistogram} from "../models/EstimationHistogram";
 import {log} from "./logger.js";
-import {setPlayerTimers} from "./sessionService";
+import {setPlayerTimers} from "./sessionService.js";
 export const app = express();
 export const server = http.createServer(app);
 export const socketPlayers: { [key: string]: string } = {};
