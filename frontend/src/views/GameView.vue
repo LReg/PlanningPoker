@@ -20,8 +20,10 @@ const gameToken: string = (typeof route.params.token === 'object' ? route.params
 const estimateOptionsRef = ref(null);
 
 if (sessionRef.value === null) {
+  console.log('exec');
   pullSessionInfo(gameToken).catch(() => {
     // TODO if you would want to reopen a session this is where to start
+    message.error('Die Sitzung ist abgelaufen, du musst eine neue erstellen.');
     router.push('/');
   });
   if (!localStorage.getItem('userToken')) {

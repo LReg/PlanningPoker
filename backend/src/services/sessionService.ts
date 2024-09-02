@@ -72,7 +72,7 @@ export const activateSessionDeletion = (token: string) => {
             sessions.splice(sessions.indexOf(session), 1);
             console.log('session ' + token + ' deleted');
         }
-    }, 1000 * 60 * 60 * 8); // 8 hours
+    }, 1000 * 60 * 60 * 24 * 100); // 100 days
 }
 
 const handAdminOver = (session: Session, player: Player) => {
@@ -101,6 +101,9 @@ export const playerLeave = (sessionToken: string, playerToken: string) => {
         session.players = session.players.filter((player) => player.token !== playerToken);
         io.to(sessionToken).emit('playerLeft', getSessionInfo(sessionToken));
         sendMessageToSession(sessionToken, player?.name + ' hat die Sitzung verlassen.');
+        if (session.players.length === 0) {
+            activateSessionDeletion(sessionToken);
+        }
     } else {
         throw new Error('Session not found');
     }

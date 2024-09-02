@@ -19,7 +19,6 @@ onMounted(() => {
 
 <style scoped>
 .item {
-  width: 1.5rem;
   height: 1.5rem;
   flex-shrink: 0;
   transform: translate(0, -1rem);
@@ -27,6 +26,7 @@ onMounted(() => {
   display: none;
 }
 .showPaperBall {
+  width: 1.5rem;
   background-image: url("/papier.png");
   background-size: 1.5rem 1.5rem;
 }

@@ -15,7 +15,7 @@ import {
 import { debug } from "../index.js";
 import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
 import { validateEstimate } from "../services/validationService.js";
-import {EstimationHistogram} from "../models/EstimationHistogram";
+import {createAndSendHistogram} from "../models/EstimationHistogram.js";
 import {log, logSesstionDetails} from "../services/logger.js";
 const router = express.Router();
 
@@ -152,44 +152,7 @@ router.put('/openSession/:token/:open', (req, res) => {
             sendHistogramToSession(token, {estimationCount: {}});
         }
         else {
-            let voters = 0;
-            const avg = session.players.reduce((acc, player) => {
-                const parse = parseInt(player.estimate ?? '');
-                if (isNaN(parse)) {
-                    return acc;
-                }
-                voters++;
-                return acc + parse;
-            }, 0) / voters;
-            const roundedAvg = Math.round(avg);
-            const sortedEstimates = session.players
-                .map((player) => parseInt(player.estimate ?? ''))
-                .filter((estimate) => !isNaN(estimate))
-                .sort((a, b) => b - a);
-            const median = sortedEstimates[Math.floor(voters / 2)];
-            // pick the second highest value
-            let secondHighest = sortedEstimates[1];
-            if (isNaN(secondHighest))
-                secondHighest = sortedEstimates[0];
-            const computable = !isNaN(median) && !isNaN(roundedAvg) && !isNaN(secondHighest);
-            const estimationHistogram: EstimationHistogram = session.players.reduce((acc: EstimationHistogram, player) => {
-                const estimate = parseInt(player.estimate ?? '');
-                if (!isNaN(estimate)) {
-                    acc.estimationCount[estimate] = (acc.estimationCount[estimate] ?? 0) + 1;
-                }
-                return acc;
-            }, { estimationCount: {}} as EstimationHistogram);
-            if (!computable) {
-                sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
-                log('Average not computable');
-                log(session.players.map((player) => player.estimate ?? 'X').toString());
-                logSesstionDetails(token, 'Average not computable');
-                sendHistogramToSession(token, {estimationCount: {}});
-            }
-            else {
-                sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag (zweithöchstes): ${secondHighest}`);
-                sendHistogramToSession(token, estimationHistogram);
-            }
+            createAndSendHistogram(session, token);
         }
         io.to(token).emit('sessionOpened', getSessionInfo(token));
         log('Session opened: ' + token + ' - ' + open);
@@ -305,10 +268,6 @@ router.post('/throw/:id/:sessionToken', (req, res) => {
     const sessionToken = req.params.sessionToken;
     const shakeId = req.params.id;
     const session = getSessionByToken(sessionToken);
-    if (emoji.length > 7) {
-        res.status(400).send('Emoji too long');
-        return;
-    }
     if (!session) {
         res.status(404).send('Session not found');
         return;
