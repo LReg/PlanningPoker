@@ -97,6 +97,7 @@ const handAdminOver = (session: Session, player: Player) => {
             newOwner.isOwner = true;
             io.to(socketPlayers[newOwner.token]).emit('updateUserinfo');
             sendMessageToSession(session.token, newOwner.name + ' ist jetzt der Sitzungsleiter.');
+            log('handAdminOver: ' + newOwner.name + ' is now the session owner');
         }
     }
 }
