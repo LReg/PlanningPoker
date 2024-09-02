@@ -69,9 +69,6 @@ export async function shake(playerId: string): Promise<void> {
 }
 
 export async function throwEmoji(playerId: string, emoji: string): Promise<void> {
-    if (emoji.length > 7) {
-        throw new Error('Emoji too long');
-    }
     if (!userRef.value || !sessionRef.value) {
         throw new Error('User or Session not initialized');
     }

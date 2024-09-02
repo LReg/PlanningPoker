@@ -4,7 +4,7 @@ import Card from "@/components/Card.vue";
 import {estimate} from "@/api/actionsService";
 
 const props = defineProps(['hide']);
-const options = ref(['🤷‍♂️', '☕', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '134']);
+const options = ref(['🤷‍♂️', '☕', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '144']);
 const selected = ref(null);
 const resetSelection = () => {
   selected.value = null;
