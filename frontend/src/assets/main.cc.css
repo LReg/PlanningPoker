@@ -133,6 +133,6 @@ body::after{
     background-image: linear-gradient(120deg, rgba(var(--lingrad-a), 0.7), rgba(var(--lingrad-b), 0.7)) !important;
 }
 
-.dark .ant-dropdown-menu {
+.dark .ant-dropdown-menu,.dark .ant-dropdown-menu-item {
     background-color: var(--theme-container-color) !important;
 }
