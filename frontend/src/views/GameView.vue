@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
-import {pullSessionInfo, openSession} from "@/api/actionsService";
 import {tryReconnectFromBrowserStorage, spectateGame} from "@/api/joinLeaveService";
 import userRef from "@/reactive/useUser";
 import sessionRef from "@/reactive/useSession";
@@ -13,6 +12,7 @@ import {clearMessages} from "@/api/chatService";
 import estimationHistogram from "@/reactive/useEstimationHistogram";
 import Histogram from "@/components/Histogram.vue";
 import TopBar from "@/components/TopBar.vue";
+import {socketExit} from "@/api/socketService";
 
 const router = useRouter();
 const route = useRoute();
@@ -20,10 +20,6 @@ const gameToken: string = (typeof route.params.token === 'object' ? route.params
 const estimateOptionsRef = ref(null);
 
 if (sessionRef.value === null) {
-  pullSessionInfo(gameToken).catch(() => {
-    // TODO if you would want to reopen a session this is where to start
-    router.push('/');
-  });
   if (!localStorage.getItem('userToken')) {
     // kein Usertoken vorhanden -> Zuschauermodus
     spectateGame(gameToken).then(
@@ -31,8 +27,11 @@ if (sessionRef.value === null) {
         message.success('Du bist nun Zuschauer.');
       }
     ).catch(() => {
+      socketExit();
       clearMessages();
+      localStorage.clear();
       router.push('/');
+      message.error('Die Sitzung ist abgelaufen, du musst eine neue erstellen.');
     });
   }
   else {
@@ -44,9 +43,11 @@ if (sessionRef.value === null) {
             }
         )
         .catch(() => {
+          socketExit();
           clearMessages();
           localStorage.clear();
           router.push('/');
+          message.error('Die Sitzung ist abgelaufen, du musst eine neue erstellen.');
     });
   }
 }

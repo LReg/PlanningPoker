@@ -10,12 +10,12 @@ import {
     setPlayerTimers,
     playerLeave,
     checkIsOwnerByToken,
-    checkIsOwnerById, getPlayerById, getSessionByToken, getPlayerByToken, shake, throwEmojiAt
+    checkIsOwnerById, getPlayerById, getSessionByToken, getPlayerByToken, shake, throwEmojiAt, clearSessionDeletion
 } from "../services/sessionService.js";
 import { debug } from "../index.js";
 import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
 import { validateEstimate } from "../services/validationService.js";
-import {EstimationHistogram} from "../models/EstimationHistogram";
+import {createAndSendHistogram} from "../models/EstimationHistogram.js";
 import {log, logSesstionDetails} from "../services/logger.js";
 const router = express.Router();
 
@@ -61,12 +61,16 @@ router.post('/joinSession/:token', (req, res) => {
     };
     const session = sessions.find((session) => session.token === token);
     if (session) {
+        if (session.players.length == 0) {
+            player.isOwner = true;
+        }
         session.players.push(player);
         io.to(token).emit('playerJoined', getSessionInfo(token));
         res.send(player);
         setPlayerTimers(token, player.token);
         sendMessageToSession(token, player.name + ' ist der Sitzung beigetreten.');
         logSesstionDetails(token, player.name + ' joined session ' + token);
+        clearSessionDeletion(session);
     }
     else {
         res.status(404).send('Session not found');
@@ -80,7 +84,7 @@ router.post('/leaveSession/:token', (req, res) => {
     try {
         playerLeave(token, playerToken);
         res.send('OK');
-        logSesstionDetails(token, player?.name ?? '?' + ' left session ' + token);
+        logSesstionDetails(token, (player?.name ?? '?') + ' left session ' + token);
     } catch (e: any) {
         res.status(404).send(e.message);
     }
@@ -152,43 +156,7 @@ router.put('/openSession/:token/:open', (req, res) => {
             sendHistogramToSession(token, {estimationCount: {}});
         }
         else {
-            let voters = 0;
-            const avg = session.players.reduce((acc, player) => {
-                const parse = parseInt(player.estimate ?? '');
-                if (isNaN(parse)) {
-                    return acc;
-                }
-                voters++;
-                return acc + parse;
-            }, 0) / voters;
-            const roundedAvg = Math.round(avg);
-            const sortedEstimates = session.players
-                .map((player) => parseInt(player.estimate ?? ''))
-                .filter((estimate) => !isNaN(estimate))
-                .sort((a, b) => b - a);
-            const median = sortedEstimates[Math.floor(voters / 2)];
-            // pick the second highest value
-            let secondHighest = sortedEstimates[1];
-            if (isNaN(secondHighest))
-                secondHighest = sortedEstimates[0];
-            const computable = !isNaN(median) && !isNaN(roundedAvg) && !isNaN(secondHighest);
-            const estimationHistogram: EstimationHistogram = session.players.reduce((acc: EstimationHistogram, player) => {
-                const estimate = parseInt(player.estimate ?? '');
-                if (!isNaN(estimate)) {
-                    acc.estimationCount[estimate] = (acc.estimationCount[estimate] ?? 0) + 1;
-                }
-                return acc;
-            }, { estimationCount: {}} as EstimationHistogram);
-            if (!computable) {
-                sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
-                log('Average not computable');
-                logSesstionDetails(token, 'Average not computable');
-                sendHistogramToSession(token, {estimationCount: {}});
-            }
-            else {
-                sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag (zweithöchstes): ${secondHighest}`);
-                sendHistogramToSession(token, estimationHistogram);
-            }
+            createAndSendHistogram(session, token);
         }
         io.to(token).emit('sessionOpened', getSessionInfo(token));
         log('Session opened: ' + token + ' - ' + open);
@@ -304,10 +272,6 @@ router.post('/throw/:id/:sessionToken', (req, res) => {
     const sessionToken = req.params.sessionToken;
     const shakeId = req.params.id;
     const session = getSessionByToken(sessionToken);
-    if (emoji.length > 7) {
-        res.status(400).send('Emoji too long');
-        return;
-    }
     if (!session) {
         res.status(404).send('Session not found');
         return;

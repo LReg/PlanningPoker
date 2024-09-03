@@ -6,6 +6,7 @@ export interface Session {
     players: Player[];
     // open = true -> everyone can see the estimates
     open: boolean;
+    timeoutId?: NodeJS.Timeout;
 }
 
 export interface NewSessionDto {

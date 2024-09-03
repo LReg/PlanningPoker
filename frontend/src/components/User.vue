@@ -47,10 +47,6 @@ const handleThrow = (emoji:string) => {
 
 const handleAddEmoji = () => {
   const emoji = newEmoji.value;
-  if (emoji.length > 7) {
-    message.error('Emoji zu lang');
-    return;
-  }
   if (emoji.length === 0) {
     message.error('Emoji zu kurz');
     return;
@@ -94,7 +90,7 @@ const handleOpenModal = () => {
     <template #overlay v-if="!(reactiveUser?.id === id) && reactiveUser">
       <a-menu>
         <a-menu-item @click="handleShake" :disabled="actionCooldown"><span class="noselect">Schütteln</span></a-menu-item>
-        <a-menu-Item>
+        <a-menu-Item class="throw-menu-item">
           <span>Abwerfen:</span><br />
           <a-button @click="handleThrow('0')">Papierkugel</a-button><br />
           <a-button @click="handleThrow('🚀')">🚀</a-button>
@@ -103,11 +99,13 @@ const handleOpenModal = () => {
           <a-button @click="handleThrow('👍')">👍</a-button>
           <a-button @click="handleThrow('👎')">👎</a-button>
           <a-button @click="handleThrow('🤣')">🤣</a-button><br />
-          <a-button v-for="emoji in customIcons" @click="handleThrow(emoji)">{{emoji}}</a-button><br v-if="customIcons.length > 0" />
+          <div class="custom-icons">
+            <a-button v-for="emoji in customIcons" @click="handleThrow(emoji)">{{emoji}}</a-button><br v-if="customIcons.length > 0" />
+          </div>
           <a-button @click="handleOpenModal">Emoji hinzufügen</a-button>
           <a-button @click="handleResetCustomEmojis" v-if="customIcons.length > 0">Zurücksetzen</a-button>
         </a-menu-Item>
-        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">Rauswerfen</span></a-menu-item>
+        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">Zuschauer machen</span></a-menu-item>
         <a-menu-item @click="dropdownOpen = false"><span class="noselect">Schließen</span></a-menu-item>
       </a-menu>
     </template>
@@ -134,5 +132,13 @@ const handleOpenModal = () => {
 }
 .noselect {
   user-select: none;
+}
+.custom-icons {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 30rem;
+}
+.throw-menu-item {
+  max-width: 30rem;
 }
 </style>

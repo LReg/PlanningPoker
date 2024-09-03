@@ -11,9 +11,12 @@ const handleJoinGame = () => {
   joinGame(sessionToken.value, playerName.value).then(() => {
     router.push('/game/' + sessionToken.value);
   }).catch((error) => {
-    message.error('Beitreten fehlgeschlagen, überprüfe den Token.');
+    message.error('Beitreten fehlgeschlagen, das Spiel scheint nicht (mehr) zu existieren.');
     console.error(error);
   });
+};
+const handleSpectate = () => {
+  router.push('/game/' + sessionToken.value);
 };
 const sessionToken = ref(props.gameToken ?? '');
 const playerName = ref('');
@@ -32,6 +35,7 @@ const playerName = ref('');
       </div>
       <template #actions>
         <a-button type="primary" @click="handleJoinGame">Beitreten</a-button>
+        <a-button type="default" @click="handleSpectate">Zuschauen</a-button>
       </template>
     </a-card>
   </main>

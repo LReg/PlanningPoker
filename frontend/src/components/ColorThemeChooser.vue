@@ -2,7 +2,6 @@
 import { BgColorsOutlined } from '@ant-design/icons-vue';
 import {onMounted} from "vue";
 const changeTheme = (key: string) => {
-  console.log(key);
   document.body.className = key;
   localStorage.setItem('theme', key);
 }
@@ -25,6 +24,9 @@ onMounted(() => {
   <BgColorsOutlined />
   <template #overlay>
     <a-menu @click="handleMenuClick">
+      <a-menu-item key="default">
+        Default
+      </a-menu-item>
       <a-menu-item key="purple">
         Purple
       </a-menu-item>
@@ -39,6 +41,9 @@ onMounted(() => {
       </a-menu-item>
       <a-menu-item key="red">
         Red
+      </a-menu-item>
+      <a-menu-item key="dark">
+        Dark
       </a-menu-item>
     </a-menu>
   </template>

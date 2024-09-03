@@ -5,6 +5,9 @@ import { ref, watch} from "vue";
 import { postMessage} from "@/api/chatService";
 const messageInputRef = ref('');
 const handleSendMessage = () => {
+  if (messageInputRef.value === '') {
+    return;
+  }
   postMessage(messageInputRef.value);
   messageInputRef.value = '';
 }

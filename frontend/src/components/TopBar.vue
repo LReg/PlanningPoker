@@ -59,13 +59,13 @@ const handleJoinGame = () => {
       <h1 v-if="sessionRef">
         {{ sessionRef.name }}
       </h1>
-      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true" ghost>
+      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true">
         <template #icon>
           <EyeInvisibleOutlined></EyeInvisibleOutlined>
         </template>
         neue Schätzung
       </a-button>
-      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false" ghost>
+      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false">
         <template #icon>
           <EyeOutlined></EyeOutlined>
         </template>
@@ -73,7 +73,7 @@ const handleJoinGame = () => {
       </a-button>
     </div>
     <div>
-      <a-button ghost @click="handleCopy">
+      <a-button @click="handleCopy">
         <template #icon>
           <CopyOutlined />
         </template>
@@ -84,13 +84,13 @@ const handleJoinGame = () => {
       <ColorThemeChooser></ColorThemeChooser>
       <UserOutlined style="margin: .7rem;"/>
       <h1>{{userRef.name}}</h1>
-      <a-button v-if="!isAdmin" @click="handleSpectateFromPlayer" style="margin-left: 1.5rem;" ghost>
+      <a-button v-if="!isAdmin" @click="handleSpectateFromPlayer" style="margin-left: 1.5rem;" >
         Zuschauer werden
         <template #icon>
           <UserSwitchOutlined />
         </template>
       </a-button>
-      <a-button type="default" ghost style="margin-left: 1.5rem;" @click="handleLeave()">
+      <a-button type="default" style="margin-left: 1.5rem;" @click="handleLeave()">
         Verlassen
         <template #icon><LogoutOutlined /></template>
       </a-button>
@@ -98,13 +98,13 @@ const handleJoinGame = () => {
     <div v-if="!userRef"  class="top-bar_container top-bar_usercontainer">
       <UserOutlined style="margin: .7rem;"/>
       <h1>Zuschauer</h1>
-      <a-button @click="handleJoinGame" style="margin-left: 1.5rem;" ghost>
+      <a-button @click="handleJoinGame" style="margin-left: 1.5rem;">
         Spiel beitreten
         <template #icon>
           <UserSwitchOutlined />
         </template>
       </a-button>
-      <a-button type="default" ghost style="margin-left: 1.5rem;" @click="handleLeaveSpectatorMode()">
+      <a-button type="default" style="margin-left: 1.5rem;" @click="handleLeaveSpectatorMode()">
         <template #icon><LogoutOutlined /></template>
       </a-button>
     </div>

@@ -2,6 +2,7 @@ import {ExportEstimateSession, Session} from "../models/SessionModel.js";
 import { sendMessageToSession } from "./socketService.js";
 import {Player} from "../models/PlayerModel.js";
 import { socketPlayers, io } from "./socketService.js";
+import {log} from "./logger.js";
 
 export const sessions: Session[] = [];
 
@@ -56,33 +57,48 @@ export const setPlayerTimers = (sessionToken: string, playerToken: string) => {
         io.to(socketPlayers[playerToken]).emit('kicked');
         try {
             playerLeave(sessionToken, playerToken);
+            log('player leave after timeout for ' + player.name);
         } catch (e) {
-            console.log('playerLeave failed (probably because session not found, or player already left)');
+            log('playerLeave failed (probably because session not found, or player already left)');
         }
-    }, 1000 * 60 * 60 * 10));  // 10 hours
+    }, 1000 * 60 * 60));  // 1 hour
     player.timeoutIds.push(setTimeout(() => {
+        log('kickWarning for ' + player.name);
         io.to(socketPlayers[playerToken]).emit('kickWarning');
-    }, (1000 * 60 * 60 * 10) - (1000 * 60 * 5)));  // 5 minutes before kick
+    }, (1000 * 60 * 60) - (1000 * 60 * 5)));  // 5 minutes before kick
 }
 
-export const activateSessionDeletion = (token: string) => {
-    setTimeout(() => {
-        const session = getSessionByToken(token);
+export const activateSessionDeletion = (session: Session) => {
+    log('activateSessionDeletion for ' + session.token);
+    if (session.timeoutId) {
+        clearTimeout(session.timeoutId);
+        session.timeoutId = undefined;
+    }
+    session.timeoutId = setTimeout(() => {
         if (session?.players.length === 0) {
             sessions.splice(sessions.indexOf(session), 1);
-            console.log('session ' + token + ' deleted');
+            log('session ' + session.token + ' deleted');
         }
-    }, 1000 * 60 * 60 * 8); // 8 hours
+    }, 1000 * 60 * 60 * 24 * 20); // 20 days
 }
 
-const ownerPropagation = (player: Player, session: Session) => {
-    if (player?.isOwner && session && session.players?.length >= 1) {
-        session.players[0].isOwner = true;
-        io.to(socketPlayers[session.players[0].token]).emit('updateUserinfo');
-        sendMessageToSession(session.token, session.players[0].name + ' ist jetzt der Sitzungsleiter.');
+export const clearSessionDeletion = (session: Session) => {
+    log('clearSessionDeletion for ' + session.token);
+    if (session.timeoutId) {
+        clearTimeout(session.timeoutId);
+        session.timeoutId = undefined;
     }
-    if (session?.players.length === 0) {
-        activateSessionDeletion(session.token);
+}
+
+const handAdminOver = (session: Session, player: Player) => {
+    if (session.players.length > 1) {
+        const newOwner = session.players.find((p) => p.id !== player.id);
+        if (newOwner) {
+            newOwner.isOwner = true;
+            io.to(socketPlayers[newOwner.token]).emit('updateUserinfo');
+            sendMessageToSession(session.token, newOwner.name + ' ist jetzt der Sitzungsleiter.');
+            log('handAdminOver: ' + newOwner.name + ' is now the session owner');
+        }
     }
 }
 
@@ -94,14 +110,19 @@ export const playerLeave = (sessionToken: string, playerToken: string) => {
         throw new Error('Player not found');
     }
 
+    if (player.isOwner && session)
+       handAdminOver(session, player);
+
     if (session) {
         session.players = session.players.filter((player) => player.token !== playerToken);
         io.to(sessionToken).emit('playerLeft', getSessionInfo(sessionToken));
         sendMessageToSession(sessionToken, player?.name + ' hat die Sitzung verlassen.');
+        if (session.players.length === 0) {
+            activateSessionDeletion(session);
+        }
     } else {
         throw new Error('Session not found');
     }
-    ownerPropagation(player, session);
 }
 
 export const playerKick = (sessionToken: string, playerToken: string) => {
@@ -116,11 +137,10 @@ export const playerKick = (sessionToken: string, playerToken: string) => {
         session.players = session.players.filter((player) => player.token !== playerToken);
         io.to(sessionToken).emit('playerKicked', getSessionInfo(sessionToken));
         io.to(socketPlayers[playerToken]).emit('kicked');
-        sendMessageToSession(sessionToken, player?.name + ' wurde von ' + session.players.find((player) => player.isOwner)?.name + ' entfernt.');
+        sendMessageToSession(sessionToken, player?.name + ' wurde von ' + session.players.find((player) => player.isOwner)?.name + ' zum Zuschauer gemacht.');
     } else {
         throw new Error('Session not found');
     }
-    ownerPropagation(player, session);
 }
 
 export const kick = (playerToKick: Player, sessionToken: string) => {
