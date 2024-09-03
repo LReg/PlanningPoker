@@ -79,7 +79,7 @@ export const activateSessionDeletion = (session: Session) => {
             sessions.splice(sessions.indexOf(session), 1);
             log('session ' + session.token + ' deleted');
         }
-    }, 1000 * 60 * 60 * 24 * 10); // 10 days
+    }, 1000 * 60 * 60 * 24 * 20); // 20 days
 }
 
 export const clearSessionDeletion = (session: Session) => {

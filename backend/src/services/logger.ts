@@ -22,6 +22,6 @@ export function logSesstionDetails(sessionToken: string, message: string): void 
 
 function sessionToString(session: Session): string {
     return `${session.name} (${session.token}) with ${session.players.length} players:
-    [${session.players.reduce((prev, current) => prev + `(name: ${current.name}, isOwner:${current.isOwner}),`, '')}]
+    [${session.players.reduce((prev, current) => prev + `(name: ${current.name}),`, '')}]
     Open: ${session.open}`;
 }
