@@ -9,17 +9,11 @@ import {exitSpectateGame, getSpectatorAsUser, leaveGame} from "@/api/joinLeaveSe
 import {openSession} from "@/api/actionsService";
 import {useRoute, useRouter} from "vue-router";
 import {noop} from "rxjs";
-import {onMounted, ref} from "vue";
+import {ref, watch} from "vue";
 
 const router = useRouter();
 const route = useRoute();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
-const isAdmin = ref(false);
-
-onMounted(() => {
-  // not sure if this is the best way yet
-  isAdmin.value = userRef.value?.isOwner ?? false;
-});
 
 const handleLeave = () => {
   if (!userRef.value)
@@ -39,7 +33,7 @@ const handleLeaveSpectatorMode = () => {
   });
 }
 const handleSpectateFromPlayer = () => {
-  getSpectatorAsUser().then(noop);
+  getSpectatorAsUser().then(() => message.success('Du bist nun Zuschauer.'));
 }
 
 const toggleOpen = async () => {
@@ -84,7 +78,7 @@ const handleJoinGame = () => {
       <ColorThemeChooser></ColorThemeChooser>
       <UserOutlined style="margin: .7rem;"/>
       <h1>{{userRef.name}}</h1>
-      <a-button v-if="!isAdmin" @click="handleSpectateFromPlayer" style="margin-left: 1.5rem;" >
+      <a-button v-if="userRef && !userRef.isOwner" @click="handleSpectateFromPlayer" style="margin-left: 1.5rem;" >
         Zuschauer werden
         <template #icon>
           <UserSwitchOutlined />

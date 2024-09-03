@@ -145,12 +145,13 @@ export async function leaveGame(sessionToken: string, playerToken: string): Prom
     if (!socket) {
         throw new Error('Socket not initialized');
     }
+    socketExit();
     await axios.post(env.apiServiceRoute + '/leaveSession/' + sessionToken, {
         token: playerToken,
     });
     clearMessages();
-    socketExit();
     userRef.value = null;
+    sessionRef.value = null;
     localStorage.clear();
 }
 
@@ -169,6 +170,7 @@ export async function exitSpectateGame(): Promise<void> {
     socketExit();
     clearMessages();
     localStorage.clear();
+    sessionRef.value = null;
     userRef.value = null;
 }
 
@@ -181,11 +183,11 @@ export async function getSpectatorAsUser(): Promise<void> {
     if (!sessionToken || !playerToken) {
         throw new Error('No session or player token found');
     }
+    socketExit();
     await axios.post(env.apiServiceRoute + '/leaveSession/' + sessionToken, {
         token: playerToken,
     });
     userRef.value = null;
-    socketExit();
     localStorage.clear();
     await spectateGame(sessionToken);
 }
