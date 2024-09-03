@@ -6,7 +6,14 @@ import { RouterView } from 'vue-router';
   <a-config-provider
       :theme="{
         token: {
-          colorPrimary: 'black',
+          colorPrimary: 'var(--text-color)',
+          colorBgContainer: 'var(--theme-container-color)',
+          colorBorder: '',
+          borderRadius: 8,
+          colorText: 'var(--text-color)',
+          colorTextSecondary: 'var(--text-color)',
+          colorTextTertiary: 'var(--text-color)',
+          colorTextQuaternary: 'var(--text-color)',
         }
       }"
   >

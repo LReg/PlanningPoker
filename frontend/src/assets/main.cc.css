@@ -23,6 +23,16 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: white;
     --text-color: black;
+    --theme-container-color: rgba(237, 219, 255, 0.24);
+}
+
+
+.default {
+    --lingrad-a: 0, 0, 255;
+    --lingrad-b: 150, 0, 255;
+    --bg-color: white;
+    --text-color: black;
+    --theme-container-color: rgba(237, 219, 255, 0.24);
 }
 
 .purple {
@@ -30,6 +40,15 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: rgba(150, 0, 255, 0.05);
     --text-color: black;
+    --theme-container-color: rgba(237, 219, 255, 0.24);
+}
+
+.dark {
+    --lingrad-a: 38, 42, 59;
+    --lingrad-b: 56, 91, 114;
+    --bg-color: rgba(33, 33, 33, 0.75);
+    --text-color: #ffffff;
+    --theme-container-color: rgba(89, 106, 115, 0.63);
 }
 
 .green {
@@ -37,6 +56,7 @@ body::after{
     --lingrad-b: 0, 153, 153;
     --bg-color: rgba(0, 255, 13, 0.05);
     --text-color: black;
+    --theme-container-color: rgba(204, 255, 207, 0.26);
 }
 
 .blue {
@@ -44,6 +64,7 @@ body::after{
     --lingrad-b: 2, 193, 214;
     --bg-color: rgba(0, 140, 255, 0.05);
     --text-color: black;
+    --theme-container-color: rgba(190, 216, 255, 0.6);
 }
 
 .gray {
@@ -51,6 +72,7 @@ body::after{
     --lingrad-b: 125, 125, 125;
     --bg-color: rgba(0, 0, 0, 0.07);
     --text-color: black;
+    --theme-container-color: rgba(186, 205, 217, 0.31);
 }
 
 .red {
@@ -58,6 +80,7 @@ body::after{
     --lingrad-b: 189, 0, 47;
     --bg-color: rgba(200, 0, 0, 0.07);
     --text-color: black;
+    --theme-container-color: rgba(255, 197, 197, 0.25);
 }
 
 @keyframes shake {
@@ -98,4 +121,18 @@ body::after{
 
 .shake {
     animation: shake .6s infinite;
+}
+
+.ant-message-notice-content {
+    background-color: transparent;
+    background-image: linear-gradient(120deg, rgba(var(--lingrad-a), 0.3), rgba(var(--lingrad-b), 0.3)) !important;
+    color: var(--text-color);
+}
+
+.dark .ant-message-notice-content {
+    background-image: linear-gradient(120deg, rgba(var(--lingrad-a), 0.7), rgba(var(--lingrad-b), 0.7)) !important;
+}
+
+.dark .ant-dropdown-menu {
+    background-color: var(--theme-container-color) !important;
 }
