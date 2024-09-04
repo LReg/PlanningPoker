@@ -84,7 +84,7 @@ const handleOpenModal = () => {
   <a-dropdown :trigger="['click']" v-model:open="dropdownOpen">
     <div :class="'user' + ((reactiveUser?.id === id) && reactiveUser ? '' : ' hoverpointer')">
       {{ username }}
-      <Card :estimate="estimate"></Card>
+      <Card :estimate="estimate" :selected="estimate"></Card>
       <ThrowItem v-for="data in throwItems" :key="data.id" :ballid="'ball' + data.id" :emoji="data.emoji"></ThrowItem>
     </div>
     <template #overlay v-if="!(reactiveUser?.id === id) && reactiveUser">
