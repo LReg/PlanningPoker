@@ -32,7 +32,7 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: white;
     --text-color: black;
-    --theme-container-color: rgba(237, 219, 255, 0.24);
+    --theme-container-color: rgba(247, 241, 255, 0.35);
 }
 
 .purple {
@@ -40,7 +40,7 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: rgba(150, 0, 255, 0.05);
     --text-color: black;
-    --theme-container-color: rgba(237, 219, 255, 0.24);
+    --theme-container-color: rgba(247, 241, 255, 0.35);
 }
 
 .dark {
@@ -72,7 +72,7 @@ body::after{
     --lingrad-b: 125, 125, 125;
     --bg-color: rgba(0, 0, 0, 0.07);
     --text-color: black;
-    --theme-container-color: rgba(186, 205, 217, 0.31);
+    --theme-container-color: rgba(229, 255, 255, 0.4);
 }
 
 .red {
@@ -80,7 +80,7 @@ body::after{
     --lingrad-b: 189, 0, 47;
     --bg-color: rgba(200, 0, 0, 0.07);
     --text-color: black;
-    --theme-container-color: rgba(255, 197, 197, 0.25);
+    --theme-container-color: rgba(255, 197, 197, 0.3);
 }
 
 @keyframes shake {

@@ -90,6 +90,7 @@ const handleJoinGame = () => {
       </a-button>
     </div>
     <div v-if="!userRef"  class="top-bar_container top-bar_usercontainer">
+      <ColorThemeChooser></ColorThemeChooser>
       <UserOutlined style="margin: .7rem;"/>
       <h1>Zuschauer</h1>
       <a-button @click="handleJoinGame" style="margin-left: 1.5rem;">

@@ -12,9 +12,18 @@ function getAvg(session: Session, voters: number) {
         if (isNaN(parse)) {
             return acc;
         }
-        voters++;
         return acc + parse;
     }, 0) / voters;
+}
+
+function getNrOfVoters(session: Session) {
+    return session.players.reduce((acc, player) => {
+        const parse = parseInt(player.estimate ?? '');
+        if (isNaN(parse)) {
+            return acc;
+        }
+        return acc + 1;
+    }, 0);
 }
 
 function getSortedEstimates(session: Session) {
@@ -43,7 +52,7 @@ function handleNotComputable(token: string, session: Session) {
 }
 
 export function createAndSendHistogram(session: Session, token: string) {
-    let voters = 0;
+    let voters = getNrOfVoters(session);
     const avg = getAvg(session, voters);
     const roundedAvg = Math.round(avg);
     const sortedEstimates = getSortedEstimates(session);
