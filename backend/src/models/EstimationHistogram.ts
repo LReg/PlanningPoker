@@ -60,7 +60,6 @@ function handleHistogram(session: Session, token: string) {
 
 function handleMessage(session: Session, token: string) {
 
-    console.log(session);
     if (session.estimationOptions === EstimationOption.TShirtSizes)
         return;
 

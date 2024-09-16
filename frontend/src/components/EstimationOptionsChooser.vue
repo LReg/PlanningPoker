@@ -6,6 +6,8 @@ import {changeEstimationType} from "@/api/actionsService";
 const handleMenuClick = (e: any) => {
   const estimationTypeString = e.key;
   const estimationType = parseEstimationType(estimationTypeString);
+  if (!estimationType)
+    return;
   changeEstimationType(estimationType);
 }
 
