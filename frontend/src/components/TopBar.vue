@@ -10,6 +10,7 @@ import {openSession} from "@/api/actionsService";
 import {useRoute, useRouter} from "vue-router";
 import {noop} from "rxjs";
 import {ref, watch} from "vue";
+import EstimationOptionsChooser from "@/components/EstimationOptionsChooser.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -75,6 +76,7 @@ const handleJoinGame = () => {
       Token: {{gameToken}}
     </div>
     <div v-if="userRef" style="" class="top-bar_container top-bar_usercontainer">
+      <EstimationOptionsChooser v-if="userRef && userRef.isOwner"></EstimationOptionsChooser>
       <ColorThemeChooser></ColorThemeChooser>
       <UserOutlined style="margin: .7rem;"/>
       <h1>{{userRef.name}}</h1>
@@ -116,6 +118,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: end;
+  gap: .5rem
 }
 
 .top-bar {

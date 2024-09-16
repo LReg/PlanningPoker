@@ -5,7 +5,7 @@ import userRef from "@/reactive/useUser";
 import sessionRef from "@/reactive/useSession";
 import User from "@/components/User.vue";
 import EstimateOptions from "@/components/EstimateOptions.vue";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import { message } from 'ant-design-vue';
 import Chat from "@/components/Chat.vue";
 import {clearMessages} from "@/api/chatService";
@@ -18,6 +18,10 @@ const router = useRouter();
 const route = useRoute();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
 const estimateOptionsRef = ref(null);
+
+const estimationOptions = computed(() => {
+  return sessionRef.value?.estimationValues;
+})
 
 if (sessionRef.value === null) {
   if (!localStorage.getItem('userToken')) {
@@ -56,6 +60,9 @@ watch(sessionRef, (newValue, oldValue) => {
   if (newValue?.open === false && oldValue?.open === true)
     // @ts-ignore
     estimateOptionsRef?.value?.resetSelection();
+  if (newValue?.estimationOptions !== oldValue?.estimationOptions)
+    // @ts-ignore
+    estimateOptionsRef?.value?.resetSelection();
 });
 
 </script>
@@ -70,7 +77,7 @@ watch(sessionRef, (newValue, oldValue) => {
     </div>
   </div>
   <Histogram v-if="sessionRef && estimationHistogram" :data="estimationHistogram" :hide="!sessionRef?.open"></Histogram>
-  <EstimateOptions v-if="sessionRef && userRef" ref="estimateOptionsRef" :hide="sessionRef?.open" class="estimations"></EstimateOptions>
+  <EstimateOptions v-if="sessionRef && userRef" ref="estimateOptionsRef" :estimation-options="estimationOptions" :hide="sessionRef?.open" class="estimations"></EstimateOptions>
 </template>
 
 <style scoped>
