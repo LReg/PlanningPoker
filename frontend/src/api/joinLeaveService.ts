@@ -20,6 +20,9 @@ function socketSessionUpdateListeners() {
         sessionRef.value = session;
         message.info('Ein Spieler hat die Sitzung verlassen.');
     });
+    socket!.on('estimationOptionsChanged', (session: ExportEstimateSession) => {
+        sessionRef.value = session;
+    });
     socket!.on('playerEstimated', (session: ExportEstimateSession) => {
         if (session.open) {
             histogramRef.value = { estimationCount: {}};

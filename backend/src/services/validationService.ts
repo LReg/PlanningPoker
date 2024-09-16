@@ -1,7 +1,8 @@
-const allowedEstimates = ['🤷‍♂️', '☕', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '144'];
+import {EstimationOption, Session} from "../models/SessionModel.js";
+
 /**
  * return true if estimate is allowed
  */
-export function validateEstimate(estimate: string): boolean {
-  return allowedEstimates.includes(estimate);
+export function validateEstimate(estimate: string, session: Session): boolean {
+  return session.estimationValues.includes(estimate);
 }

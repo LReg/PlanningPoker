@@ -22,6 +22,8 @@ export const getSessionInfo = (sessionToken: string) => {
             token: session.token,
             name: session.name,
             open: session.open,
+            estimationOptions: session.estimationOptions,
+            estimationValues: session.estimationValues,
             players: session.players.map((player) => {
                 return {
                     name: player.name,
