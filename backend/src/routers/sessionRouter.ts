@@ -352,4 +352,13 @@ router.post('/throw/:id/:sessionToken', (req, res) => {
     res.send('OK');
 });
 
+router.get('/currentActiveSessions', (req, res) => {
+    const activeSessions = sessions.filter((session) => session.players.length > 0);
+    const totalSessions = sessions.length;
+    res.send({
+        total: totalSessions,
+        active: activeSessions.length,
+    });
+});
+
 export default router;
