@@ -3,6 +3,8 @@ import userRef from "@/reactive/useUser";
 import axios from "axios";
 import env from "@/environments/environments";
 import {Subject} from "rxjs";
+import type {EstimationOption} from "@/models/Session.model";
+import type {ActiveSessions} from "@/models/ActiveSessions";
 
 export const paperThrowSubject = new Subject<{id: string, emoji: string}>();
 export async function estimate(estimate: string) {
@@ -77,4 +79,20 @@ export async function throwEmoji(playerId: string, emoji: string): Promise<void>
         env.apiServiceRoute + '/throw/' + playerId + '/' + sessionRef.value.token,
         {userToken: userRef.value.token, emoji: emoji},
     );
+}
+
+export async function changeEstimationType(estimationType: EstimationOption) {
+    if (!userRef.value || !sessionRef.value) {
+        throw new Error('User or Session not initialized');
+    }
+
+    await axios.put(
+        env.apiServiceRoute + '/changeEstimationOptions/' + sessionRef.value.token,
+        {userToken: userRef.value.token, estimationType: estimationType},
+    );
+}
+
+export async function getActiveSessions() {
+    const res = await axios.get(env.apiServiceRoute + '/currentActiveSessions');
+    return res.data as ActiveSessions;
 }

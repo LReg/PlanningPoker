@@ -1,22 +1,35 @@
-import {NewSessionDto, Session} from "../models/SessionModel.js";
+import {
+    EstimationOption,
+    FibonacciEstimationValues, getEstimationValues,
+    NewSessionDto,
+    parseEstimationType,
+    Session
+} from "../models/SessionModel.js";
 import {Player} from "../models/PlayerModel.js";
 import {nanoid} from "nanoid";
 import express from "express";
 import {
-    kick,
-    sessions,
-    getSessionInfo,
-    mapPersonalPlayerExport,
-    setPlayerTimers,
-    playerLeave,
+    checkIsOwnerById,
     checkIsOwnerByToken,
-    checkIsOwnerById, getPlayerById, getSessionByToken, getPlayerByToken, shake, throwEmojiAt, clearSessionDeletion
+    clearSessionDeletion,
+    getPlayerById,
+    getPlayerByToken,
+    getSessionByToken,
+    getSessionInfo,
+    kick,
+    mapPersonalPlayerExport,
+    playerLeave,
+    sessions,
+    setPlayerTimers,
+    shake,
+    throwEmojiAt
 } from "../services/sessionService.js";
-import { debug } from "../index.js";
+import {debug} from "../index.js";
 import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
-import { validateEstimate } from "../services/validationService.js";
+import {validateEstimate} from "../services/validationService.js";
 import {createAndSendHistogram} from "../models/EstimationHistogram.js";
 import {log, logSesstionDetails} from "../services/logger.js";
+
 const router = express.Router();
 
 router.post('/debug', (req, res) => {
@@ -42,12 +55,15 @@ router.post('/newSession', (req, res) => {
         token: nanoid(5),
         name: newSessionReq.name,
         players: [owner],
+        estimationOptions: EstimationOption.Fibonacci,
+        estimationValues: FibonacciEstimationValues,
     }
     sessions.push(newSession);
     res.send(newSession);
     setPlayerTimers(newSession.token, owner.token);
     logSesstionDetails(newSession.token, 'new session created');
 });
+
 router.post('/joinSession/:token', (req, res) => {
     const token = req.params.token;
     const player: Player = {
@@ -107,12 +123,18 @@ router.put('/estimate/:token', (req, res) => {
     const token = req.params.token;
     const playerToken = req.body.token;
     const estimate = req.body.estimate;
-    if (!validateEstimate(estimate)) {
+    const session = getSessionByToken(token);
+
+    if (!session) {
+        res.status(404).send('Session not found');
+        return;
+    }
+
+    if (!validateEstimate(estimate, session)) {
         res.status(400).send('Estimate not allowed');
         return;
     }
 
-    const session = getSessionByToken(token);
     if (session) {
         const player = getPlayerByToken(playerToken, token);
         if (player) {
@@ -125,6 +147,49 @@ router.put('/estimate/:token', (req, res) => {
         else {
             res.status(404).send('Player not found');
         }
+    }
+    else {
+        res.status(404).send('Session not found');
+    }
+});
+
+router.put('/changeEstimationOptions/:token', (req, res) => {
+    const sessionToken = req.params.token;
+    const userToken = req.body.userToken;
+
+    let estimationOptions = req.body.custom;
+    const estimationTypeString = req.body.estimationType;
+    const estimationType = parseEstimationType(estimationTypeString);
+
+    const session = getSessionByToken(sessionToken);
+
+    if (!estimationType) {
+        res.status(400).send('Invalid estimation type');
+        return;
+    }
+
+    if (estimationType === EstimationOption.Custom && (!estimationOptions || estimationOptions.length === 0)) {
+        res.status(400).send('Custom estimation type requires options');
+        return;
+    }
+
+    if (estimationType !== EstimationOption.Custom) {
+        estimationOptions = getEstimationValues(estimationType);
+    }
+
+    if (session) {
+        const isOwner = checkIsOwnerByToken(userToken, session);
+        if (!isOwner) {
+            res.status(403).send('Not owner');
+            return;
+        }
+        session.estimationOptions = estimationType;
+        session.estimationValues = estimationOptions;
+        session.players.forEach((player) => {
+            player.estimate = null;
+        });
+        io.to(sessionToken).emit('estimationOptionsChanged', getSessionInfo(sessionToken));
+        res.send('OK');
     }
     else {
         res.status(404).send('Session not found');
@@ -288,6 +353,15 @@ router.post('/throw/:id/:sessionToken', (req, res) => {
     }
     throwEmojiAt(session, throwPlayer, emoji);
     res.send('OK');
+});
+
+router.get('/currentActiveSessions', (req, res) => {
+    const activeSessions = sessions.filter((session) => session.players.length > 0);
+    const totalSessions = sessions.length;
+    res.send({
+        total: totalSessions,
+        active: activeSessions.length,
+    });
 });
 
 export default router;

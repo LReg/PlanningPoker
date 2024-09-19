@@ -9,8 +9,7 @@ import { socket, socketConnect, socketExit } from "./socketService";
 import {clearMessages, messagesRef} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
 import type {EstimationHistogram} from "@/models/EstimationHistogram";
-import useEstimationHistogram from "@/reactive/useEstimationHistogram";
-const histogramRef = useEstimationHistogram;
+import histogramRef from "@/reactive/useEstimationHistogram";
 
 function socketSessionUpdateListeners() {
     socket!.on('playerJoined', (session: ExportEstimateSession) => {
@@ -20,6 +19,9 @@ function socketSessionUpdateListeners() {
     socket!.on('playerLeft', (session: ExportEstimateSession) => {
         sessionRef.value = session;
         message.info('Ein Spieler hat die Sitzung verlassen.');
+    });
+    socket!.on('estimationOptionsChanged', (session: ExportEstimateSession) => {
+        sessionRef.value = session;
     });
     socket!.on('playerEstimated', (session: ExportEstimateSession) => {
         if (session.open) {
