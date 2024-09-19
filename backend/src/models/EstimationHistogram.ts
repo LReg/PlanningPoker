@@ -44,8 +44,8 @@ function getEstimationHistogram(session: Session) {
 
 function handleNotComputable(token: string, session: Session) {
     sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
-    log(session.players.map((player) => player.estimate ?? 'X').toString());
     logSesstionDetails(token, 'Average not computable');
+    log('The estimations are: ' + session.players.map((player) => player.estimate ?? 'X').toString());
 }
 
 export function createAndSendHistogram(session: Session, token: string) {

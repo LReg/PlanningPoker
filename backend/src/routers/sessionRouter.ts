@@ -185,6 +185,9 @@ router.put('/changeEstimationOptions/:token', (req, res) => {
         }
         session.estimationOptions = estimationType;
         session.estimationValues = estimationOptions;
+        session.players.forEach((player) => {
+            player.estimate = null;
+        });
         io.to(sessionToken).emit('estimationOptionsChanged', getSessionInfo(sessionToken));
         res.send('OK');
     }
