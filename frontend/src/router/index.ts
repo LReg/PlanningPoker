@@ -20,6 +20,10 @@ const router = createRouter({
       path: '/join/:token',
       name: 'join',
       component: JoinView,
+    },
+    {
+      path: "/:catchAll(.*)",
+      redirect: '/',
     }
   ]
 })

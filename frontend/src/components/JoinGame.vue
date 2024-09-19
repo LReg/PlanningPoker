@@ -16,6 +16,8 @@ const handleJoinGame = () => {
   });
 };
 const handleSpectate = () => {
+  if (sessionToken.value === '')
+    return;
   router.push('/game/' + sessionToken.value);
 };
 const sessionToken = ref(props.gameToken ?? '');
