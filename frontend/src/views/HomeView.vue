@@ -34,7 +34,7 @@ getActiveSessions().then(info => {
   top: 0;
   right: 0;
   padding: .5rem;
-  background-color: white;
+  background-color: var(--theme-container-color);
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
   border-radius: 0 0 0 1rem;
   z-index: 100;
