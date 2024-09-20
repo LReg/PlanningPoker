@@ -67,14 +67,11 @@ const loading = ref(false);
 
 // Methoden
 const handleSubmit = async () => {
-  console.log(formData.value);
   if (!formData.value.title || !formData.value.text) {
     message.error('Please fill in both the title and the text.');
     return;
   }
-
   loading.value = true;
-
   try {
     const response = await axios.post(`${env.apiServiceRoute}/${props.requestType}`, formData.value);
 
@@ -90,6 +87,10 @@ const handleSubmit = async () => {
       message.error('Ein Fehler ist aufgetreten.');
   } finally {
     loading.value = false;
+    formData.value = {
+      text: '',
+      title: '',
+    };
   }
 };
 </script>
