@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import GameView from "@/views/GameView.vue";
+import JoinView from "@/views/JoinView.vue";
+import BugView from "@/views/BugView.vue";
+import ChangeView from "@/views/ChangeView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,15 +21,15 @@ const router = createRouter({
     {
       path: '/join/:token',
       name: 'join',
-      component: import('@/views/JoinView.vue'),
+      component: JoinView,
     },
     {
       path: "/bugreport",
-      component: import('@/views/BugView.vue')
+      component: BugView
     },
     {
       path: "/changerequest",
-      component: import('@/views/ChangeView.vue')
+      component: ChangeView
     },
     {
       path: "/:catchAll(.*)",

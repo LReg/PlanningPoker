@@ -20,7 +20,6 @@ const links = [
 <style scoped>
 .footer {
   padding: 20px;
-  background-color: #f8f9fa;
   text-align: center;
 }
 
