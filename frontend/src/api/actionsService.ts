@@ -92,6 +92,17 @@ export async function changeEstimationType(estimationType: EstimationOption) {
     );
 }
 
+export async function makeOtherPlayerAdmin(playerId: string) {
+    if (!userRef.value || !sessionRef.value) {
+        throw new Error('User or Session not initialized');
+    }
+
+    await axios.put(
+        env.apiServiceRoute + `/makeAdmin/${sessionRef.value.token}/${playerId}`,
+        {userToken: userRef.value.token},
+    );
+}
+
 export async function getActiveSessions() {
     const res = await axios.get(env.apiServiceRoute + '/currentActiveSessions');
     return res.data as ActiveSessions;

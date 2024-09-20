@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Card from "@/components/Card.vue";
 import reactiveUser from "@/reactive/useUser";
-import {kickPlayer, shake, throwEmoji} from "@/api/actionsService";
+import {kickPlayer, makeOtherPlayerAdmin, shake, throwEmoji} from "@/api/actionsService";
 import {onMounted, onUnmounted, ref} from "vue";
 import {paperThrowSubject} from "@/api/actionsService";
 import {Subject, takeUntil} from "rxjs";
@@ -92,20 +92,21 @@ const handleOpenModal = () => {
         <a-menu-item @click="handleShake" :disabled="actionCooldown"><span class="noselect">Schütteln</span></a-menu-item>
         <a-menu-Item class="throw-menu-item">
           <span>Abwerfen:</span><br />
-          <a-button @click="handleThrow('0')">Papierkugel</a-button><br />
-          <a-button @click="handleThrow('🚀')">🚀</a-button>
-          <a-button @click="handleThrow('🎱')">🎱</a-button>
-          <a-button @click="handleThrow('❤️')">❤️</a-button><br />
-          <a-button @click="handleThrow('👍')">👍</a-button>
-          <a-button @click="handleThrow('👎')">👎</a-button>
-          <a-button @click="handleThrow('🤣')">🤣</a-button><br />
+          <a-button @click="handleThrow('0')" type="text">Papierkugel</a-button><br />
+          <a-button @click="handleThrow('🚀')" type="text">🚀</a-button>
+          <a-button @click="handleThrow('🎱')" type="text">🎱</a-button>
+          <a-button @click="handleThrow('❤️')" type="text">❤️</a-button><br />
+          <a-button @click="handleThrow('👍')" type="text">👍</a-button>
+          <a-button @click="handleThrow('👎')" type="text">👎</a-button>
+          <a-button @click="handleThrow('🤣')" type="text">🤣</a-button><br />
           <div class="custom-icons">
             <a-button v-for="emoji in customIcons" @click="handleThrow(emoji)">{{emoji}}</a-button><br v-if="customIcons.length > 0" />
           </div>
-          <a-button @click="handleOpenModal">Emoji hinzufügen</a-button>
-          <a-button @click="handleResetCustomEmojis" v-if="customIcons.length > 0">Zurücksetzen</a-button>
+          <a-button @click="handleOpenModal" type="text">Emoji hinzufügen</a-button>
+          <a-button @click="handleResetCustomEmojis" v-if="customIcons.length > 0" type="text">Zurücksetzen</a-button>
         </a-menu-Item>
-        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">Zuschauer machen</span></a-menu-item>
+        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">zum Zuschauer machen / rauswerfen</span></a-menu-item>
+        <a-menu-item v-if="reactiveUser?.isOwner" @click="makeOtherPlayerAdmin(id)"><span class="noselect">zum Admin machen</span></a-menu-item>
         <a-menu-item @click="dropdownOpen = false"><span class="noselect">Schließen</span></a-menu-item>
       </a-menu>
     </template>
@@ -140,5 +141,14 @@ const handleOpenModal = () => {
 }
 .throw-menu-item {
   max-width: 30rem;
+}
+.throw-menu-item button {
+  margin: 0.1rem;
+  background-color: #eaeaea;
+}
+
+.dark .throw-menu-item button {
+  margin: 0.1rem;
+  background-color: #475256;
 }
 </style>
