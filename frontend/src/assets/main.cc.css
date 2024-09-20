@@ -23,7 +23,7 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: white;
     --text-color: black;
-    --theme-container-color: rgba(237, 219, 255, 0.24);
+    --theme-container-color: rgba(209, 199, 218, 0.45);
 }
 
 
@@ -32,7 +32,7 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: white;
     --text-color: black;
-    --theme-container-color: rgba(247, 241, 255, 0.35);
+    --theme-container-color: rgba(209, 199, 218, 0.45);
 }
 
 .purple {
@@ -40,7 +40,7 @@ body::after{
     --lingrad-b: 150, 0, 255;
     --bg-color: rgba(150, 0, 255, 0.05);
     --text-color: black;
-    --theme-container-color: rgba(247, 241, 255, 0.35);
+    --theme-container-color: rgba(183, 143, 222, 0.45);
 }
 
 .dark {
