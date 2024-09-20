@@ -211,7 +211,6 @@ router.put('/openSession/:token/:open', (req, res) => {
         res.status(403).send('Not owner');
         return;
     }
-    // TODO: put this in a service
     if (session) {
         session.open = open;
         if (!open) {
@@ -223,6 +222,7 @@ router.put('/openSession/:token/:open', (req, res) => {
         else {
             createAndSendHistogram(session, token);
         }
+        setPlayerTimers(token, userToken);
         io.to(token).emit('sessionOpened', getSessionInfo(token));
         log('Session opened: ' + token + ' - ' + open);
         res.send('OK');
