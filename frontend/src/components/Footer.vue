@@ -10,7 +10,7 @@
   </footer>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 const links = [
   { text: 'Änderung vorschlagen', href: '/changerequest' },
   { text: 'Fehler melden', href: '/bugreport' },

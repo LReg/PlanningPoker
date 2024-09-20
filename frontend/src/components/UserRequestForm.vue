@@ -41,7 +41,7 @@
     </a-form-item>
   </a-form>
 </template>
-<script setup>
+<script lang="ts" setup>
 import { ref } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
@@ -84,8 +84,8 @@ const handleSubmit = async () => {
     } else {
       message.error('Ein Fehler ist aufgetreten.');
     }
-  } catch (error) {
-    if (error.response.status === 429)
+  } catch (error: any) {
+    if (error?.response?.status === 429)
       message.warn('Zu viele Anfragen versuche es später nochmal.');
     else
       message.error('Ein Fehler ist aufgetreten.');
@@ -100,5 +100,4 @@ const handleSubmit = async () => {
   display: flex;
   gap: 1rem;
 }
-/* Optional: Customize styles */
 </style>
