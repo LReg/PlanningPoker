@@ -1,6 +1,5 @@
 <template>
   <a-form
-      :form="form"
       @submit.prevent="handleSubmit"
       layout="vertical"
   >
@@ -52,7 +51,7 @@ const props = defineProps({
   requestType: {
     type: String,
     required: true,
-    validator(value) {
+    validator(value: string) {
       return ['bugreport', 'changerequest'].includes(value);
     }
   }
