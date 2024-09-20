@@ -78,7 +78,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await axios.post(`${env.apiServiceRoute}/${props.requestType}`, formData.value);
-    console.log(response);
 
     if (response.status === 200) {
       message.success('Deine Anfrage wurde erfolgreich abgeschickt.');
