@@ -7,6 +7,7 @@ import {ref} from "vue";
 import type {Ref} from "vue";
 import type {ActiveSessions} from "@/models/ActiveSessions";
 import Footer from "@/components/Footer.vue";
+import environment from "@/environments/environments";
 const router = useRouter();
 const sessionToken = localStorage.getItem('sessionToken');
 if (sessionToken) {
@@ -28,12 +29,30 @@ getActiveSessions().then(info => {
       <CreateGame/>
       <JoinGame />
     </main>
+    <div v-if="environment.devServer" class="testserver-message">
+      <p>
+        <h2>Du nutzt einen Testserver</h2>
+        Eventuell funktionieren bei dieser Version einige Funktionen nicht.<br/>
+        Du kannst Informationen über die aktuelle Version in den <RouterLink to="/changelog">Changelogs</RouterLink> finden.<br/>
+        Die Produktivversion findest du <a :href="environment.productionAddress" target="_blank">hier</a>.
+      </p>
+    </div>
     <div class="footer-container">
       <Footer></Footer>
     </div>
   </div>
 </template>
 <style scoped>
+.testserver-message {
+  margin: 1rem auto;
+  max-width: 30rem;
+  border: 1px solid #91caff;
+  background-color: #e6f4ff;
+  padding: 1rem;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 8px;
+}
 .home-container {
   height: 100vh;
 }

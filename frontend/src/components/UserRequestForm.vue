@@ -45,6 +45,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
 import env from "@/environments/environments";
+import environment from "@/environments/environments";
 
 // Props definieren
 const props = defineProps({
@@ -70,6 +71,9 @@ const handleSubmit = async () => {
   if (!formData.value.title || !formData.value.text) {
     message.error('Please fill in both the title and the text.');
     return;
+  }
+  if (environment.devServer) {
+    formData.value.title = '[From Testserver] ' + formData.value.title;
   }
   loading.value = true;
   try {

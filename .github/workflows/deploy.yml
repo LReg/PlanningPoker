@@ -20,6 +20,8 @@ jobs:
       PRODUCTION: "true"
       PROTOCOL: "https"
       BACKEND_PORT: "80"
+      PRODUCTION_ADDRESS: ${{ secrets.PRODUCTION_ADDRESS }}
+      DEV_SERVER: "true"
     steps:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@v1.0.0
@@ -28,7 +30,7 @@ jobs:
         username: ${{ secrets.USER }}
         password: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        envs: TRAEFIK,TRAEFIK_CERT_RESOLVER,TRAEFIK_ENTRYPOINT,TRAEFIK_NETWORK,TRAEFIK_ROUTER,CONTAINER_NAME,IMAGE_NAME,DOMAIN,PRODUCTION,PROTOCOL,BACKEND_PORT
+        envs: TRAEFIK,TRAEFIK_CERT_RESOLVER,TRAEFIK_ENTRYPOINT,TRAEFIK_NETWORK,TRAEFIK_ROUTER,CONTAINER_NAME,IMAGE_NAME,DOMAIN,PRODUCTION,PROTOCOL,BACKEND_PORT,PRODUCTION_ADDRESS,DEV_SERVER
         script: |
           cd PlanningPoker
           git pull
