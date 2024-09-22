@@ -32,7 +32,7 @@ getActiveSessions().then(info => {
     <div v-if="environment.devServer" class="testserver-message">
       <p>
         <h2>Du nutzt einen Testserver</h2>
-        Eventuell funktionieren bei dieser Version einige Funktionen nicht.<br/>
+        Eventuell funktionieren bei dieser Version einige Funktionen noch nicht.<br/>
         Du kannst Informationen über die aktuelle Version in den <RouterLink to="/changelog">Changelogs</RouterLink> finden.<br/>
         Die Produktivversion findest du <a :href="environment.productionAddress" target="_blank">hier</a>.
       </p>
