@@ -4,6 +4,7 @@ import GameView from "@/views/GameView.vue";
 import JoinView from "@/views/JoinView.vue";
 import BugView from "@/views/BugView.vue";
 import ChangeView from "@/views/ChangeView.vue";
+import ChangelogsView from "@/views/ChangelogsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,10 @@ const router = createRouter({
     {
       path: "/bugreport",
       component: BugView
+    },
+    {
+      path: '/changelog',
+      component: ChangelogsView
     },
     {
       path: "/changerequest",

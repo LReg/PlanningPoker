@@ -12,6 +12,7 @@
 
 <script lang="ts" setup>
 const links = [
+  { text: 'Changelog', href: '/changelog'},
   { text: 'Änderung vorschlagen', href: '/changerequest' },
   { text: 'Fehler melden', href: '/bugreport' },
 ]
