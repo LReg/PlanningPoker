@@ -13,12 +13,12 @@
 </template>
 
 <script lang="ts" setup>
-defineProps({
-  changelogs: {
-    type: Array as () => Array<{ title: string; body: string; server: string | undefined }>,
-    required: true
-  }
-})
+/* type Changelog = {
+  title: string;
+  body: string;
+  server?: string;
+} */
+defineProps(['changelogs']);
 </script>
 
 <style scoped>
