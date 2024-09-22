@@ -30,3 +30,5 @@ services:
                 - PRODUCTION=${PRODUCTION}
                 - PROTOCOL=${PROTOCOL}
                 - BACKEND_PORT=${BACKEND_PORT}
+                - PRODUCTION_ADDRESS=${PRODUCTION_ADDRESS}
+                - DEV_SERVER=${DEV_SERVER}
