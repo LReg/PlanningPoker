@@ -14,8 +14,4 @@ const environment: {
     joinAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}/join/`,
     socketAdress: `${env.VITE_PROTOCOL}://${env.VITE_DOMAIN}${env.VITE_TRAEFIK === 'true' ? '' : ':' + env.VITE_BACKEND_PORT}`,
 }
-console.log(env)
-console.log(env.VITE_PRODUCTION_ADDRESS);
-console.log(env.VITE_DEV_SERVER);
-console.log(environment);
 export default environment;
