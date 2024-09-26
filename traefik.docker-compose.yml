@@ -38,6 +38,8 @@ services:
         - BACKEND_PORT=${BACKEND_PORT}
         - PRODUCTION_ADDRESS=${PRODUCTION_ADDRESS}
         - DEV_SERVER=${DEV_SERVER}
+        - LIT_DOMAIN=${LIT_DOMAIN}
+        - LIT_PROJECT=${LIT_PROJECT}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.entrypoints=${TRAEFIK_ENTRYPOINT}"

@@ -32,3 +32,5 @@ services:
                 - BACKEND_PORT=${BACKEND_PORT}
                 - PRODUCTION_ADDRESS=${PRODUCTION_ADDRESS}
                 - DEV_SERVER=${DEV_SERVER}
+                - LIT_DOMAIN=${LIT_DOMAIN}
+                - LIT_PROJECT=${LIT_PROJECT}
