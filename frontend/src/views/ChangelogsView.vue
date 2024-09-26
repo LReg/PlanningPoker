@@ -25,17 +25,17 @@ import Changelog from '@/components/Changelog.vue';
 
 const changelogs = [
   {
-    title: 'Version 0.0.3 Alpha',
+    title: 'Version 0.0.3 Beta',
     body: 'Die changelogs wurden hinzufügt',
     server: 'Production & Testserver',
     green: true
   },
   {
-    title: 'Version 0.0.2 Alpha',
+    title: 'Version 0.0.2 Beta',
     body: 'Bugreport und Changerequest wurden hinzugefügt',
   },
   {
-    title: 'Version 0.0.1 Alpha',
+    title: 'Version 0.0.1 Beta',
     body: 'Zusätzlich zu Fibonacci Schätzungen wurden T-Shirt und Power Of two Schätzungen hinzugefügt.<br/> Zudem kann man sehen wie viele Session gerade aktiv sind.',
   }
 ]
