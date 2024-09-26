@@ -24,7 +24,7 @@ const handleLeave = () => {
   });
 }
 const handleCopy = () => {
-  navigator.clipboard.writeText(env.joinAdress + gameToken).then(() => {
+  navigator.clipboard.writeText(env.joinAddress + gameToken).then(() => {
     message.success('Beitrittslink wurde in die Zwischenablage kopiert.');
   });
 }

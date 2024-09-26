@@ -9,5 +9,5 @@ export function socketExit() {
 }
 
 export function socketConnect() {
-    socket = io(env.socketAdress);
+    socket = io(env.socketAddress);
 }
