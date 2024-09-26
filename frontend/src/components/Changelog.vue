@@ -3,7 +3,7 @@
     <div v-for="(log, index) in changelogs" :key="index" class="card">
       <div class="card-header">
         <h2>{{ log.title }}</h2>
-        <span v-if="log.server" :class="log.server === 'production' ? 'badge bg-success' : 'badge bg-warning'">{{ log.server }}</span>
+        <span v-if="log.server" :class="log.green ? 'badge bg-success' : 'badge bg-warning'">{{ log.server }}</span>
       </div>
       <div class="card-body">
         <p v-html="log.body"></p>
@@ -17,6 +17,7 @@
   title: string;
   body: string;
   server?: string;
+  green?: boolean
 } */
 defineProps(['changelogs']);
 </script>

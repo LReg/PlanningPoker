@@ -27,7 +27,8 @@ const changelogs = [
   {
     title: 'Version 0.0.3 Alpha',
     body: 'Die changelogs wurden hinzufügt',
-    server: 'Testserver'
+    server: 'Production & Testserver',
+    green: true
   },
   {
     title: 'Version 0.0.2 Alpha',
@@ -36,7 +37,6 @@ const changelogs = [
   {
     title: 'Version 0.0.1 Alpha',
     body: 'Zusätzlich zu Fibonacci Schätzungen wurden T-Shirt und Power Of two Schätzungen hinzugefügt.<br/> Zudem kann man sehen wie viele Session gerade aktiv sind.',
-    server: 'production',
   }
 ]
 </script>
