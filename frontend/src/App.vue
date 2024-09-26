@@ -4,7 +4,7 @@ import {Lit} from "litlyx-js";
 import environment from "@/environments/environments";
 Lit.init(environment.litProject, {
   server: {
-    port: 433,
+    port: 443,
     secure: true,
     host: environment.litDomain
   }
