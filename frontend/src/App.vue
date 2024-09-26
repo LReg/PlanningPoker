@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
+import {Lit} from "litlyx-js";
+import environment from "@/environments/environments";
+Lit.init(environment.litProject, {
+  server: {
+    port: 443,
+    secure: true,
+    host: environment.litDomain
+  }
+})
 </script>
 
 <template>

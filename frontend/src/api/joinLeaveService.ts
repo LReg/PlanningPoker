@@ -10,6 +10,7 @@ import {clearMessages, messagesRef} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
 import type {EstimationHistogram} from "@/models/EstimationHistogram";
 import histogramRef from "@/reactive/useEstimationHistogram";
+import {Lit} from "litlyx-js";
 
 function socketSessionUpdateListeners() {
     socket!.on('playerJoined', (session: ExportEstimateSession) => {
@@ -72,6 +73,7 @@ function socketSessionListenersForPlayers() {
 }
 
 export async function createGame(sessionName: string, leaderName: string): Promise<string> {
+    Lit.event("create Game");
     if (socket) {
         throw new Error('Socket already initialized');
     }
@@ -92,6 +94,7 @@ export async function createGame(sessionName: string, leaderName: string): Promi
 }
 
 export async function joinGame(sessionToken: string, playerName: string): Promise<void> {
+    Lit.event("join Game");
     if (socket) {
         socketExit();
     }

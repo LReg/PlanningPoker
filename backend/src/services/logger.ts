@@ -25,3 +25,13 @@ function sessionToString(session: Session): string {
     [${session.players.reduce((prev, current) => prev + `(name: ${current.name}),`, '')}]
     Open: ${session.open}`;
 }
+
+export function veryImportantMessage(message: string) {
+    console.log('');
+    console.log('--------------------------------');
+    console.log('');
+    log(message);
+    console.log('');
+    console.log('--------------------------------');
+    console.log('');
+}

@@ -25,7 +25,7 @@ import {
     throwEmojiAt
 } from "../services/sessionService.js";
 import {debug} from "../index.js";
-import {io, sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
+import {io, sendHistogramToSession, sendMessageToSession, socketPlayers} from "../services/socketService.js";
 import {validateEstimate} from "../services/validationService.js";
 import {createAndSendHistogram} from "../models/EstimationHistogram.js";
 import {log, logSesstionDetails} from "../services/logger.js";
@@ -211,7 +211,6 @@ router.put('/openSession/:token/:open', (req, res) => {
         res.status(403).send('Not owner');
         return;
     }
-    // TODO: put this in a service
     if (session) {
         session.open = open;
         if (!open) {
@@ -223,6 +222,7 @@ router.put('/openSession/:token/:open', (req, res) => {
         else {
             createAndSendHistogram(session, token);
         }
+        setPlayerTimers(token, userToken);
         io.to(token).emit('sessionOpened', getSessionInfo(token));
         log('Session opened: ' + token + ' - ' + open);
         res.send('OK');
@@ -270,42 +270,41 @@ router.get('/pullUserInfo/:token/:sessionToken', (req, res) => {
 });
 
 router.post('/kickPlayer/:id/:sessionToken', (req, res) => {
-  const kickId = req.params.id;
-  const sessionToken = req.params.sessionToken;
-  const playerToken = req.body.userToken;
-  const session = getSessionByToken(sessionToken);
-  if (session) {
+    const kickId = req.params.id;
+    const sessionToken = req.params.sessionToken;
+    const playerToken = req.body.userToken;
+    const session = getSessionByToken(sessionToken);
+    if (!session) {
+        res.status(404).send('Session not found');
+        return;
+    }
     const player = getPlayerByToken(playerToken, sessionToken);
-    const isOwner = checkIsOwnerByToken(playerToken, session);
+    const isOwner = checkIsOwnerByToken(playerToken, session!);
 
     if (!isOwner) {
-      res.status(403).send('Not owner');
-      return;
+        res.status(403).send('Not owner');
+        return;
     }
 
-    const playerToKickIsOwner = checkIsOwnerById(kickId, session);
+    const playerToKickIsOwner = checkIsOwnerById(kickId, session!);
     if (playerToKickIsOwner) {
-      res.status(400).send('You can not kick yourself.');
-      return;
+        res.status(400).send('You can not kick yourself.');
+        return;
     }
-      
-    if (player) {
-      const playerToKick = getPlayerById(kickId, session.token);
-      if (playerToKick) {
+
+    if (!player) {
+        res.status(404).send('Player not found');
+        return;
+    }
+    const playerToKick = getPlayerById(kickId, session!.token);
+    if (playerToKick) {
         kick(playerToKick, sessionToken);
         log('Player kicked: ' + playerToKick.name);
-      }
-      else {
-        res.status(404).send('Player not found');
-      }
     }
     else {
-      res.status(404).send('Player not found');
+        res.status(404).send('Player not found');
     }
-  }
-  else {
-    res.status(404).send('Session not found');
-  }
+    res.send('OK');
 });
 
 router.post('/shake/:id/:sessionToken', (req, res) => {
@@ -328,6 +327,38 @@ router.post('/shake/:id/:sessionToken', (req, res) => {
         return;
     }
     shake(session, shakePlayer);
+    res.send('OK');
+});
+
+router.put('/makeAdmin/:sessionToken/:otherPlayerId', (req, res) => {
+    const sessionToken = req.params.sessionToken;
+    const otherPlayerId = req.params.otherPlayerId;
+    const playerToken = req.body.userToken;
+    const session = getSessionByToken(sessionToken);
+    if (!session) {
+        res.status(404).send('Session not found');
+        return;
+    }
+    const player = getPlayerByToken(playerToken, sessionToken);
+    const otherPlayer = getPlayerById(otherPlayerId, sessionToken);
+    if (!player) {
+        res.status(404).send('Player not found');
+        return;
+    }
+    if (!otherPlayer) {
+        res.status(404).send('Player to make admin not found');
+        return;
+    }
+    if (!player.isOwner) {
+        res.status(403).send('Not owner');
+        return;
+    }
+    otherPlayer.isOwner = true;
+    player.isOwner = false;
+    io.to(socketPlayers[otherPlayer.token]).emit('updateUserinfo');
+    io.to(socketPlayers[player.token]).emit('updateUserinfo');
+    sendMessageToSession(sessionToken, otherPlayer.name + ' ist jetzt der Sitzungsleiter.');
+    log('Admin changed: ' + otherPlayer.name);
     res.send('OK');
 });
 

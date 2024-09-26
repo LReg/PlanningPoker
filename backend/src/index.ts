@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import sessionRouter from './routers/sessionRouter.js';
 import { server, app }from './services/socketService.js';
+import {userRequestRouter} from "./routers/userRequestRouter.js";
 
 const port = process.env.BACKEND_PORT;
 export const debug = true;
@@ -15,6 +16,7 @@ app.use((req, res, next) => {
 });
 
 app.use(sessionRouter);
+app.use(userRequestRouter);
 
 app.options('*', (req, res) => {
     res.sendStatus(200);

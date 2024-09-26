@@ -5,6 +5,7 @@ import env from "@/environments/environments";
 import {Subject} from "rxjs";
 import type {EstimationOption} from "@/models/Session.model";
 import type {ActiveSessions} from "@/models/ActiveSessions";
+import {Lit} from "litlyx-js";
 
 export const paperThrowSubject = new Subject<{id: string, emoji: string}>();
 export async function estimate(estimate: string) {
@@ -60,6 +61,7 @@ export async function kickPlayer(playerId: string) {
 }
 
 export async function shake(playerId: string): Promise<void> {
+    Lit.event("shake");
     if (!userRef.value || !sessionRef.value) {
         throw new Error('User or Session not initialized');
     }
@@ -71,6 +73,7 @@ export async function shake(playerId: string): Promise<void> {
 }
 
 export async function throwEmoji(playerId: string, emoji: string): Promise<void> {
+    Lit.event("throw");
     if (!userRef.value || !sessionRef.value) {
         throw new Error('User or Session not initialized');
     }
@@ -82,6 +85,7 @@ export async function throwEmoji(playerId: string, emoji: string): Promise<void>
 }
 
 export async function changeEstimationType(estimationType: EstimationOption) {
+    Lit.event("change Estimation type");
     if (!userRef.value || !sessionRef.value) {
         throw new Error('User or Session not initialized');
     }
@@ -89,6 +93,17 @@ export async function changeEstimationType(estimationType: EstimationOption) {
     await axios.put(
         env.apiServiceRoute + '/changeEstimationOptions/' + sessionRef.value.token,
         {userToken: userRef.value.token, estimationType: estimationType},
+    );
+}
+
+export async function makeOtherPlayerAdmin(playerId: string) {
+    if (!userRef.value || !sessionRef.value) {
+        throw new Error('User or Session not initialized');
+    }
+
+    await axios.put(
+        env.apiServiceRoute + `/makeAdmin/${sessionRef.value.token}/${playerId}`,
+        {userToken: userRef.value.token},
     );
 }
 
