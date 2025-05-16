@@ -25,7 +25,7 @@ function socketSessionUpdateListeners() {
         sessionRef.value = session;
     });
     socket!.on('playerEstimated', (session: ExportEstimateSession) => {
-        if (session.open) {
+        if (!session.open) {
             histogramRef.value = { estimationCount: {}};
         }
         sessionRef.value = session;

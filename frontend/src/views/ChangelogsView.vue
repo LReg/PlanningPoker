@@ -25,10 +25,14 @@ import Changelog from '@/components/Changelog.vue';
 
 const changelogs = [
   {
+    title: 'Version 0.0.4 Beta',
+    body: 'Bugfix: Schätzungsdiagramm verschwindet mit einer nachträglichen Schätzungsänderung',
+    server: 'derzeitige Version',
+    green: true
+  },
+  {
     title: 'Version 0.0.3 Beta',
     body: 'Die changelogs wurden hinzufügt',
-    server: 'Production & Testserver',
-    green: true
   },
   {
     title: 'Version 0.0.2 Beta',

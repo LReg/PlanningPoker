@@ -143,6 +143,9 @@ router.put('/estimate/:token', (req, res) => {
             io.to(token).emit('playerEstimated', getSessionInfo(token));
             res.send('OK');
             setPlayerTimers(token, playerToken);
+            if (session.open) {
+                createAndSendHistogram(session, token);
+            }
         }
         else {
             res.status(404).send('Player not found');
