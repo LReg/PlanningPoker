@@ -65,6 +65,7 @@ watch(sessionRef, (newValue, oldValue) => {
     estimateOptionsRef?.value?.resetSelection();
 });
 
+
 </script>
 <template>
   <TopBar></TopBar>

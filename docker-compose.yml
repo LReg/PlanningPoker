@@ -8,6 +8,7 @@ services:
             - DOMAIN=${DOMAIN}
             - BACKEND_PORT=${BACKEND_PORT}
             - PROTOCOL=${PROTOCOL}
+            - N8NCHAT=${N8NCHAT}
         build:
             target: backend
             dockerfile: Dockerfile

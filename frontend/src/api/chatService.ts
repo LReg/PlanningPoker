@@ -4,6 +4,7 @@ import { ref } from "vue";
 import type {Message} from "@/models/Message.model";
 import userRef from "@/reactive/useUser";
 import sessionRef from "@/reactive/useSession";
+import {Lit} from "litlyx-js";
 export const messagesRef: Ref<Message[]> = ref([]);
 
 export async function postMessage(message: string) {
@@ -18,8 +19,14 @@ export async function postMessage(message: string) {
         message: message,
         timestamp: Date.now(),
     }
-    messagesRef.value.push(messageObj);
-    socket.emit('chat', messageObj, sessionRef.value.token);
+    socket.emit('chat', messageObj);
+    if (message.startsWith('/')) {
+        await Lit.event("command", {
+            metadata: {
+                prompt: messageObj.message
+            }
+        });
+    }
 }
 
 export function clearMessages() {
