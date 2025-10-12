@@ -1,6 +1,9 @@
 import {EstimationOption, Session} from "./SessionModel.js";
-import {sendHistogramToSession, sendMessageToSession} from "../services/socketService.js";
 import {log, logSesstionDetails} from "../services/logger.js";
+import {
+    sendHistogramToSession,
+    sendMessageStrFromServer
+} from "../services/socket/socketSendService.js";
 
 export interface EstimationHistogram {
     estimationCount: {[key: string]: number};
@@ -43,7 +46,7 @@ function getEstimationHistogram(session: Session) {
 }
 
 function handleNotComputable(token: string, session: Session) {
-    sendMessageToSession(token, 'Durchschnitt nicht ermittelbar');
+    sendMessageStrFromServer(token, 'Durchschnitt nicht ermittelbar');
     logSesstionDetails(token, 'Average not computable');
     log('The estimations are: ' + session.players.map((player) => player.estimate ?? 'X').toString());
 }
@@ -79,5 +82,5 @@ function handleMessage(session: Session, token: string) {
         return;
     }
 
-    sendMessageToSession(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag (zweithöchstes): ${secondHighest}`);
+    sendMessageStrFromServer(token, `Durchschnitt: ${roundedAvg}, Median: ${median}, Vorschlag (zweithöchstes): ${secondHighest}`);
 }

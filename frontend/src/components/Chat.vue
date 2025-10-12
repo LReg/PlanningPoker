@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { SendOutlined } from "@ant-design/icons-vue";
 import {messagesRef} from "@/api/chatService";
-import { ref, watch} from "vue";
+import {ref, watch} from "vue";
 import { postMessage} from "@/api/chatService";
+
 const messageInputRef = ref('');
 const handleSendMessage = () => {
   if (messageInputRef.value === '') {

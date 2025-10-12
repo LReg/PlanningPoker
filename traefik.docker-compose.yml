@@ -8,6 +8,7 @@ services:
       - DOMAIN=${DOMAIN}
       - BACKEND_PORT=${BACKEND_PORT}
       - PROTOCOL=${PROTOCOL}
+      - N8NCHAT=${N8NCHAT}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.entrypoints=${TRAEFIK_ENTRYPOINT}"
