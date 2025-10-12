@@ -33,12 +33,12 @@ interface Command {
 
 const commandOptions: Command[] = [
   {
-    title: 'Ask',
+    title: '/ask [question]',
     command: '/ask',
     description: 'Ask technical question'
   },
   {
-    title: 'Estimation',
+    title: '/estimation [feature explanation]',
     command: '/estimation',
     description: 'Ask for estimation with considertation'
   }
@@ -73,7 +73,7 @@ const handleCommandClick = (command: Command) => {
       <div class="command" v-for="command in commandOptions" @click="handleCommandClick(command)">
         <img src="/icons/ai.png" height="20px">
         <div class="command-text">
-          <strong><span>{{command.command}}</span></strong>
+          <strong><span>{{command.title}}</span></strong>
           <span>{{command.description}}</span>
         </div>
       </div>
