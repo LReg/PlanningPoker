@@ -1,10 +1,13 @@
 import axios from "axios";
 
-export async function sendMessageToAi(message: string, sessionId: string): Promise<string> {
+export async function sendMessageToAi(message: string, sessionId: string, sessionToken: string, userToken: string): Promise<string> {
     let data = JSON.stringify({
         action: "sendMessage",
         sessionId: sessionId,
-        chatInput: message
+        chatInput: message,
+        sessionToken: sessionToken,
+        userToken: userToken,
+        backendBaseurl: `${process.env.PROTOCOL}://${process.env.DOMAIN}/api`,
     });
 
     let config = {
@@ -23,7 +26,7 @@ export async function sendMessageToAi(message: string, sessionId: string): Promi
 
     try {
         const response = await axios.request(config);
-        return JSON.stringify(response.data.output);
+        return response.data.output;
     } catch (error) {
         console.log(error);
         return "error";

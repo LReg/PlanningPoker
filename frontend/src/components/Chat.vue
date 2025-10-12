@@ -39,7 +39,7 @@ watch(() => messagesRef.value.length, () => {
           {{ new Date(message.timestamp).toLocaleTimeString() }}
         </template>
         <template #content>
-          {{ message.message }}
+          <div v-html="message.message"></div>
         </template>
       </a-comment>
       <div class="chat__message">

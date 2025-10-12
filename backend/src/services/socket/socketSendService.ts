@@ -2,6 +2,8 @@ import {io} from "./socketService.js";
 import {EstimationHistogram} from "../../models/EstimationHistogram.js";
 import {Message} from "../../models/Message.model";
 
+// TODO sanatize responses beacuse of new innerhtml
+
 export function sendMessage(message: Message, anyToken: string) {
     io.to(anyToken).emit('newMessage', message);
 }
