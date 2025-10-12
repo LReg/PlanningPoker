@@ -23,7 +23,6 @@ io.on('connection', (socket) => {
         if (playertoken && sessionToken) {
             socket.join(sessionToken);
             storePlayerToken(playertoken, socket.id)
-            console.log('store player token', playertoken, socket.id)
         }
     });
     socket.on('chat', (message: Message) => {
