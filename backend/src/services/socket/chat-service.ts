@@ -43,6 +43,7 @@ function handleCommand(command: string, socketId: string) {
         return
     }
     const commandFn = commands[commandKey];
+    sendMessageStrFromServer(socketId, "[Response only visible to you] /" + command)
     commandFn(command, socketId);
 }
 
