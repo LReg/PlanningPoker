@@ -1,9 +1,9 @@
-import {getPlayerTokenFromSocketId, socketPlayers} from "./socketDataService.js";
-import {getSessionByToken, getSessionTokenByPlayerToken, setPlayerTimers} from "../sessionService.js";
+import {getPlayerTokenFromSocketId} from "./socketDataService.js";
+import {getSessionTokenByPlayerToken, setPlayerTimers} from "../sessionService.js";
 import {log} from "../logger.js";
 import {Message} from "../../models/Message.model";
 import {sendMessageStrFromServer, sendMessage} from "./socketSendService.js";
-import {handleAsk} from "./commandHandlers.js";
+import {handleAsk, handleEstimation} from "./commandHandlers.js";
 
 export function handleNewChatMessage(socketId: string, message: Message) {
     if (message.message.charAt(0) === '/') {
@@ -27,7 +27,8 @@ export function handleNewChatMessage(socketId: string, message: Message) {
 }
 
 const commands: { [key: string]: (command: string, socketId: string) => void } = {
-    "ask": handleAsk
+    "ask": handleAsk,
+    "estimation": handleEstimation,
 }
 
 function handleCommand(command: string, socketId: string) {

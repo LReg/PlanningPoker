@@ -1,12 +1,55 @@
 import axios from "axios";
+import {sendMessageStrFromServer} from "../socket/socketSendService.js";
+import {getPlayerTokenFromSocketId} from "../socket/socketDataService.js";
+import {getSessionByToken, getSessionTokenByPlayerToken} from "../sessionService.js";
+import {EstimationOption, FibonacciEstimationValues} from "../../models/SessionModel.js";
 
-export async function sendMessageToAi(message: string, sessionId: string, sessionToken: string, userToken: string): Promise<string> {
+
+interface SessionInformation {
+    estimationOptions: EstimationOption;
+    estimationValues: string[];
+}
+interface ContextInformation {
+    sessionToken: string;
+    userToken: string;
+    socketId: string;
+    sessionInformation: SessionInformation;
+}
+
+export function gatherContextInformation(socketId: string): ContextInformation | null {
+    const userToken = getPlayerTokenFromSocketId(socketId);
+    if (!userToken) {
+        sendMessageStrFromServer(socketId, "error");
+        return null;
+    }
+    const sessionToken = getSessionTokenByPlayerToken(userToken);
+    if (!sessionToken) {
+        sendMessageStrFromServer(socketId, "error");
+        return null;
+    }
+    const session = getSessionByToken(sessionToken);
+
+    const sessionInformation: SessionInformation = {
+        estimationOptions: session?.estimationOptions ?? EstimationOption.Fibonacci,
+        estimationValues: session?.estimationValues ?? FibonacciEstimationValues,
+    }
+
+    return {
+        sessionToken,
+        userToken,
+        sessionInformation,
+        socketId
+    } as ContextInformation;
+}
+export async function sendMessageToAi(message: string, context: ContextInformation, command: string): Promise<string> {
     let data = JSON.stringify({
         action: "sendMessage",
-        sessionId: sessionId,
+        sessionId: context.socketId,
         chatInput: message,
-        sessionToken: sessionToken,
-        userToken: userToken,
+        sessionToken: context.sessionToken,
+        userToken: context.userToken,
+        command: command,
+        sessionInformation: context.sessionInformation,
         backendBaseurl: `${process.env.PROTOCOL}://${process.env.DOMAIN}/api`,
     });
 

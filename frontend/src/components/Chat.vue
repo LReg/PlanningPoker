@@ -24,6 +24,30 @@ watch(() => messagesRef.value.length, () => {
       0
   );
 });
+
+interface Command {
+  title: string;
+  command: string;
+  description: string;
+}
+
+const commandOptions: Command[] = [
+  {
+    title: 'Ask',
+    command: '/ask',
+    description: 'Ask technical question'
+  },
+  {
+    title: 'Estimation',
+    command: '/estimation',
+    description: 'Ask for estimation with considertation'
+  }
+];
+
+const handleCommandClick = (command: Command) => {
+  messageInputRef.value = `${command.command} ${messageInputRef.value}`
+  document.getElementById("chatInput")?.focus();
+}
 </script>
 
 <template>
@@ -45,8 +69,17 @@ watch(() => messagesRef.value.length, () => {
       <div class="chat__message">
       </div>
     </div>
+    <div class="command-options">
+      <div class="command" v-for="command in commandOptions" @click="handleCommandClick(command)">
+        <img src="/icons/ai.png" height="20px">
+        <div class="command-text">
+          <strong><span>{{command.command}}</span></strong>
+          <span>{{command.description}}</span>
+        </div>
+      </div>
+    </div>
     <div class="chat__input">
-      <a-input v-model:value="messageInputRef" type="text" placeholder="Nachricht eingeben..." @keydown.enter="handleSendMessage" />
+      <a-input v-model:value="messageInputRef" type="text" placeholder="Nachricht eingeben..." @keydown.enter="handleSendMessage" id="chatInput"/>
       <a-button @click="handleSendMessage" :type="messageInputRef === '' ? 'default' : 'primary'">
         <SendOutlined />
       </a-button>
@@ -68,6 +101,37 @@ watch(() => messagesRef.value.length, () => {
 .chat__messages {
   overflow-y: scroll;
   height: 100%;
+}
+
+.command-options {
+  display: flex;
+  gap: 1rem;
+  height: 6rem;
+  font-size: .8em;
+  margin: .5rem .2rem;
+  padding: .9rem .2rem;
+  overflow: auto;
+  .command {
+    .command-text {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    align-items: center;
+    overflow: visible;
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    gap: .5rem;
+    border-radius: 5px;
+    padding: .4rem;
+    box-shadow: 2px 3px 5px gray;
+    transition: box-shadow linear .2s;
+  }
+  .command:hover {
+    cursor: pointer;
+    box-shadow: 2px 3px 15px gray;
+  }
 }
 
 </style>

@@ -1,21 +1,25 @@
-import {sendMessageToAi} from "../ai/ai-service.js";
+import {gatherContextInformation, sendMessageToAi} from "../ai/ai-service.js";
 import {sendMessageStrFromServer} from "./socketSendService.js";
-import {getPlayerTokenFromSocketId} from "./socketDataService.js";
-import {getSessionTokenByPlayerToken} from "../sessionService.js";
+
 
 export function handleAsk(command: string, socketId: string) {
-    const userToken = getPlayerTokenFromSocketId(socketId);
-    if (!userToken) {
-        sendMessageStrFromServer(socketId, "error");
+    const contextInformation = gatherContextInformation(socketId);
+    if (!contextInformation) {
         return;
     }
-    const sessionToken = getSessionTokenByPlayerToken(userToken);
-    if (!userToken || !sessionToken) {
-        sendMessageStrFromServer(socketId, "error");
+    sendMessageStrFromServer(socketId, "evaluating ...");
+    sendMessageToAi(command, contextInformation, "ask").then(res => {
+        sendMessageStrFromServer(socketId, res);
+    });
+}
+
+export function handleEstimation(command: string, socketId: string) {
+    const contextInformation = gatherContextInformation(socketId);
+    if (!contextInformation) {
         return;
     }
-    sendMessageStrFromServer(socketId, "asking AI");
-    sendMessageToAi(command, socketId, sessionToken, userToken).then(res => {
+    sendMessageStrFromServer(socketId, "estimating ...");
+    sendMessageToAi(command, contextInformation, "estimation").then(res => {
         sendMessageStrFromServer(socketId, res);
     });
 }
