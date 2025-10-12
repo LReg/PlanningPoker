@@ -24,6 +24,8 @@ jobs:
       DEV_SERVER: "true"
       LIT_DOMAIN: ${{ secrets.LIT_DOMAIN }}
       LIT_PROJECT: ${{ secrets.LIT_PROJECT }}
+      N8NCHAT: ${{ secrets.N8NCHAT }}
+
     steps:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@v1.0.0
@@ -32,7 +34,7 @@ jobs:
         username: ${{ secrets.USER }}
         password: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        envs: TRAEFIK,TRAEFIK_CERT_RESOLVER,TRAEFIK_ENTRYPOINT,TRAEFIK_NETWORK,TRAEFIK_ROUTER,CONTAINER_NAME,IMAGE_NAME,DOMAIN,PRODUCTION,PROTOCOL,BACKEND_PORT,PRODUCTION_ADDRESS,DEV_SERVER,LIT_DOMAIN,LIT_PROJECT
+        envs: TRAEFIK,TRAEFIK_CERT_RESOLVER,TRAEFIK_ENTRYPOINT,TRAEFIK_NETWORK,TRAEFIK_ROUTER,CONTAINER_NAME,IMAGE_NAME,DOMAIN,PRODUCTION,PROTOCOL,BACKEND_PORT,PRODUCTION_ADDRESS,DEV_SERVER,LIT_DOMAIN,LIT_PROJECT,N8NCHAT
         script: |
           cd PlanningPoker
           git pull

@@ -18,8 +18,7 @@ export async function postMessage(message: string) {
         message: message,
         timestamp: Date.now(),
     }
-    messagesRef.value.push(messageObj);
-    socket.emit('chat', messageObj, sessionRef.value.token);
+    socket.emit('chat', messageObj);
 }
 
 export function clearMessages() {

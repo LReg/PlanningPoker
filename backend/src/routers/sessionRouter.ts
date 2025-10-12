@@ -25,10 +25,15 @@ import {
     throwEmojiAt
 } from "../services/sessionService.js";
 import {debug} from "../index.js";
-import {io, sendHistogramToSession, sendMessageToSession, socketPlayers} from "../services/socketService.js";
+import {io} from "../services/socket/socketService.js";
 import {validateEstimate} from "../services/validationService.js";
 import {createAndSendHistogram} from "../models/EstimationHistogram.js";
 import {log, logSesstionDetails} from "../services/logger.js";
+import {
+    sendHistogramToSession,
+    sendMessageStrFromServer
+} from "../services/socket/socketSendService.js";
+import {socketPlayers} from "../services/socket/socketDataService.js";
 
 const router = express.Router();
 
@@ -84,7 +89,7 @@ router.post('/joinSession/:token', (req, res) => {
         io.to(token).emit('playerJoined', getSessionInfo(token));
         res.send(player);
         setPlayerTimers(token, player.token);
-        sendMessageToSession(token, player.name + ' ist der Sitzung beigetreten.');
+        sendMessageStrFromServer(token, player.name + ' ist der Sitzung beigetreten.');
         logSesstionDetails(token, player.name + ' joined session ' + token);
         clearSessionDeletion(session);
     }
@@ -329,7 +334,7 @@ router.post('/shake/:id/:sessionToken', (req, res) => {
         res.status(404).send('Player to shake not found');
         return;
     }
-    shake(session, shakePlayer);
+    shake(shakePlayer);
     res.send('OK');
 });
 
@@ -360,7 +365,7 @@ router.put('/makeAdmin/:sessionToken/:otherPlayerId', (req, res) => {
     player.isOwner = false;
     io.to(socketPlayers[otherPlayer.token]).emit('updateUserinfo');
     io.to(socketPlayers[player.token]).emit('updateUserinfo');
-    sendMessageToSession(sessionToken, otherPlayer.name + ' ist jetzt der Sitzungsleiter.');
+    sendMessageStrFromServer(sessionToken, otherPlayer.name + ' ist jetzt der Sitzungsleiter.');
     log('Admin changed: ' + otherPlayer.name);
     res.send('OK');
 });
