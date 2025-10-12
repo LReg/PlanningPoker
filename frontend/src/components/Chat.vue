@@ -71,7 +71,7 @@ const handleCommandClick = (command: Command) => {
     </div>
     <div class="command-options">
       <div class="command" v-for="command in commandOptions" @click="handleCommandClick(command)">
-        <img src="/ai.png" height="20px">
+        <img src="/ai.png" height="20">
         <div class="command-text">
           <strong><span>{{command.title}}</span></strong>
           <span>{{command.description}}</span>
