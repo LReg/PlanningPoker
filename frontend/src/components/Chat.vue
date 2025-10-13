@@ -79,7 +79,7 @@ const handleCommandClick = (command: Command) => {
       </div>
     </div>
     <div class="chat__input">
-      <a-input v-model:value="messageInputRef" type="text" placeholder="Nachricht eingeben..." @keydown.enter="handleSendMessage" id="chatInput"/>
+      <a-textarea v-model:value="messageInputRef" type="text" placeholder="Nachricht eingeben..." @keydown.enter="handleSendMessage" id="chatInput" :auto-size="{ minRows: 1, maxRows: 5 }"/>
       <a-button @click="handleSendMessage" :type="messageInputRef === '' ? 'default' : 'primary'">
         <SendOutlined />
       </a-button>

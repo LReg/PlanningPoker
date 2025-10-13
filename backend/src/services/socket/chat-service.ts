@@ -18,9 +18,6 @@ export function handleNewChatMessage(socketId: string, message: Message) {
     if (!sessionToken) {
         return;
     }
-    if (!sessionToken) {
-        return;
-    }
     sendMessage(message, sessionToken)
     setPlayerTimers(sessionToken, playerToken);
     log('chat: ' +  message.name + ' -> ' + message.message + ' in ' + sessionToken);
