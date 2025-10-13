@@ -111,7 +111,7 @@ h1 {
 }
 .chat_container {
   min-width: 17rem;
-  padding: 2rem;
+  padding: 0 1rem;
   width: 30%;
   border-left: 1px solid grey;
 }
