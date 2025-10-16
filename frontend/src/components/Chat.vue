@@ -5,7 +5,7 @@ import {ref, watch} from "vue";
 import { postMessage} from "@/api/chatService";
 
 const messageInputRef = ref('');
-const handleSendMessage = (event) => {
+const handleSendMessage = (event: Event) => {
   event.preventDefault();
   event.stopPropagation();
   if (messageInputRef.value === '') {
