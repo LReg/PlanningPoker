@@ -28,6 +28,9 @@ const handleMenuClick = (e: any) => {
         <a-menu-item key="TShirtSizes">
           T-Shirt Sizes
         </a-menu-item>
+        <a-menu-item key="PersonDays">
+          Personentage
+        </a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>

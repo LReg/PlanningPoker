@@ -4,12 +4,14 @@ export enum EstimationOption {
     Fibonacci = 'Fibonacci',
     PowersOfTwo = 'PowersOfTwo',
     TShirtSizes = 'TShirtSizes',
+    PersonDays = 'PersonDays',
     Custom = 'Custom',
 }
 
 export const FibonacciEstimationValues = ['🤷‍♂️', '☕', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '144'];
 export const PowersOfTwoEstimationValues = ['🤷‍♂️', '☕', '1', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024'];
 export const TShirtSizesEstimationValues = ['🤷‍♂️', '☕', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
+export const PersonDaysEstimationValues = ['🤷‍♂️', '☕', '0.5', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'];
 
 export function getEstimationValues(options: EstimationOption): string[] {
     switch (options) {
@@ -19,6 +21,8 @@ export function getEstimationValues(options: EstimationOption): string[] {
             return PowersOfTwoEstimationValues;
         case EstimationOption.TShirtSizes:
             return TShirtSizesEstimationValues;
+        case EstimationOption.PersonDays:
+            return PersonDaysEstimationValues;
         case EstimationOption.Custom:
             return [];
     }
@@ -31,7 +35,9 @@ export function parseEstimationType(type: string): EstimationOption | undefined 
         case 'PowersOfTwo':
             return EstimationOption.PowersOfTwo;
         case 'TShirtSizes':
-            return EstimationOption.TShirtSizes;
+            return EstimationOption.TShirtSizes
+        case 'PersonDays':
+            return EstimationOption.PersonDays;
         case 'Custom':
             return EstimationOption.Custom;
     }
