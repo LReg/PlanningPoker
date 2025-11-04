@@ -23,5 +23,7 @@ export function sendHistogramToSession(sessionToken: string, histogram: Estimati
 }
 
 function sanitize(dirty: string): string {
-    return sanitizeHtml(dirty);
+    return sanitizeHtml(dirty, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
+    });
 }
