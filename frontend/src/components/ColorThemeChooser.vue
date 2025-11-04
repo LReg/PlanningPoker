@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BgColorsOutlined } from '@ant-design/icons-vue';
+import { BgColorsOutlined, InteractionOutlined } from '@ant-design/icons-vue';
 import {onMounted} from "vue";
 const changeTheme = (key: string) => {
   document.body.className = key;
@@ -21,7 +21,7 @@ onMounted(() => {
 
 <template>
 <a-dropdown @click.prevent>
-  <BgColorsOutlined />
+  <BgColorsOutlined :style="{fontSize: '24px'}"/>
   <template #overlay>
     <a-menu @click="handleMenuClick">
       <a-menu-item key="default">

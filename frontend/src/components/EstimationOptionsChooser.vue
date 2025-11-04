@@ -16,7 +16,7 @@ const handleMenuClick = (e: any) => {
 
 <template>
   <a-dropdown @click.prevent>
-    <InteractionOutlined/>
+    <InteractionOutlined :style="{fontSize: '24px'}"/>
     <template #overlay>
       <a-menu @click="handleMenuClick">
         <a-menu-item key="Fibonacci">
