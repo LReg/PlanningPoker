@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SendOutlined, WechatOutlined, PictureOutlined } from "@ant-design/icons-vue";
 import {aimessageRef, messagesRef} from "@/api/chatService";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import { postMessage} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
 
@@ -43,16 +43,26 @@ const handleSendMessageAi = (event: Event) => {
   messageInputRefAi.value = '';
 }
 
-watch(() => messagesRef.value.length, () => {
+const scrollDown = () => {
   setTimeout(() => {
         if (!messagesContainerRef.value) {
           return;
         }
         // @ts-ignore
-        messagesContainerRef.value.scrollTop = messagesContainerRef?.value?.scrollHeight},
-      0
+        messagesContainerRef.value.scrollTop = messagesContainerRef?.value?.scrollHeight
+      },
+     200
   );
-});
+}
+
+const scrolledDown = computed(() => {
+  if (!messagesContainerRef.value) {
+    console.log('true')
+    return true;
+  }
+  console.log(messagesContainerRef.value.scrollTop == messagesContainerRef?.value?.scrollHeight)
+  return messagesContainerRef.value.scrollTop == messagesContainerRef?.value?.scrollHeight;
+})
 
 interface Command {
   title: string;
@@ -77,7 +87,7 @@ const commandOptions: Command[] = [
   {
     title: '/img [url]',
     command: '/img',
-    description: 'send image of gif'
+    description: 'send image or gif'
   },
 ];
 
@@ -102,6 +112,7 @@ const handleCommandClickAi = (command: Command) => {
       </template>
 
       <div class="chat">
+        <div class="scroll-down" @click="scrollDown" v-if="scrolledDown">Scroll Down</div>
         <div class="chat__messages" ref="messagesContainerRef">
           <a-comment
               :author="message.name"
@@ -147,7 +158,7 @@ const handleCommandClickAi = (command: Command) => {
       </template>
 
       <div class="chat">
-        <div class="chat__messages" ref="messagesContainerRef">
+        <div class="chat__messages">
           <a-comment
               :author="message.name"
               :avatar="message.name === 'Server' ? '/server.png' : '/user.png'"
@@ -233,6 +244,24 @@ const handleCommandClickAi = (command: Command) => {
   }
 }
 
+.scroll-down {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  padding: 5px;
+  border-radius: 10px;
+  z-index: 2;
 
+  background: rgba(255, 255, 255, 0.23);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5.3px);
+  -webkit-backdrop-filter: blur(5.3px);
+  border: 1px solid rgba(255, 255, 255, 0.41);
+}
+
+.scroll-down:hover {
+  cursor: pointer;
+}
 
 </style>
