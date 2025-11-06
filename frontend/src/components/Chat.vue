@@ -77,7 +77,7 @@ const commandOptions: Command[] = [
   {
     title: '/img [url]',
     command: '/img',
-    description: 'send image'
+    description: 'send image of gif'
   },
 ];
 
