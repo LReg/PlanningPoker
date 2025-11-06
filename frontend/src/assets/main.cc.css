@@ -136,3 +136,14 @@ body::after{
 .dark .ant-dropdown-menu,.dark .ant-dropdown-menu-item {
     background-color: var(--theme-container-color) !important;
 }
+
+.ant-tabs-content-holder {
+    height: 100%;
+
+}
+.ant-tabs-content {
+    height: 100%;
+}
+.chat-message-content img {
+    max-height: 300px;
+}

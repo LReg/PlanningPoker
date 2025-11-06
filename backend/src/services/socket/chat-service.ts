@@ -2,7 +2,7 @@ import {getPlayerTokenFromSocketId} from "./socketDataService.js";
 import {getSessionTokenByPlayerToken, setPlayerTimers} from "../sessionService.js";
 import {log} from "../logger.js";
 import {Message} from "../../models/Message.model";
-import {sendMessageStrFromServer, sendMessage} from "./socketSendService.js";
+import {sendMessageStrFromServer, sendMessage, sendAiCommandResponse} from "./socketSendService.js";
 import {handleAsk, handleEstimation} from "./commandHandlers.js";
 
 export function handleNewChatMessage(socketId: string, message: Message) {
@@ -40,13 +40,13 @@ function handleCommand(command: string, socketId: string) {
         return
     }
     const commandFn = commands[commandKey];
-    sendMessageStrFromServer(socketId, "[Response only visible to you] /" + command)
+    sendAiCommandResponse(socketId, "/" + command)
     commandFn(command, socketId);
 }
 
 function handleCommandError(socketId: string, error: string) {
     const playerToken = getPlayerTokenFromSocketId(socketId);
     if (playerToken) {
-        sendMessageStrFromServer(playerToken, error)
+        sendAiCommandResponse(playerToken, error)
     }
 }

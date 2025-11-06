@@ -13,7 +13,19 @@ export function sendMessageStrFromServer(anyToken: string, message: string) {
     const messageObj = {
         message: message,
         name: 'Server',
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        type: 'std'
+    }
+    io.to(anyToken).emit('newMessage', messageObj);
+}
+
+export function sendAiCommandResponse(anyToken: string, message: string) {
+    message = sanitize(message);
+    const messageObj = {
+        message: message,
+        name: 'Server',
+        timestamp: new Date().getTime(),
+        type: 'ai'
     }
     io.to(anyToken).emit('newMessage', messageObj);
 }
