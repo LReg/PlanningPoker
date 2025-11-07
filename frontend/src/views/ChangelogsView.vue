@@ -25,10 +25,15 @@ import Changelog from '@/components/Changelog.vue';
 
 const changelogs = [
   {
-    title: 'Version 0.1.0 Beta',
-    body: 'Feature: AI Integration',
+    title: 'Version 0.2.0 Beta',
+    body: 'Chat Tabs, Images and Gifs in chat',
     server: 'derzeitige Version',
     green: true
+  },
+  {
+    title: 'Version 0.1.0 Beta',
+    body: 'Feature: AI Integration',
+
   },
   {
     title: 'Version 0.0.4 Beta',
