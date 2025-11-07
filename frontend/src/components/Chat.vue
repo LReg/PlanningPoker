@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { SendOutlined, WechatOutlined, PictureOutlined } from "@ant-design/icons-vue";
 import {aimessageRef, messagesRef} from "@/api/chatService";
-import {computed, ref, watch} from "vue";
+import { ref, toRefs, watch } from 'vue';
 import { postMessage} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
+import { useScroll } from '@vueuse/core'
+import { useTemplateRef } from 'vue'
 
 const messageInputRef = ref('');
 const messageInputRefAi = ref('');
 
 const activeTabKey = ref('0');
-const messagesContainerRef = ref(null);
+const messagesContainerRef = useTemplateRef<HTMLElement>('messagesContainerRef');
+const { arrivedState } = useScroll(messagesContainerRef)
+const { bottom } = toRefs(arrivedState);
+const showScrollDown = ref(false)
+
 
 const handleSendMessage = (event: Event) => {
   event.preventDefault();
@@ -45,24 +51,21 @@ const handleSendMessageAi = (event: Event) => {
 
 const scrollDown = () => {
   setTimeout(() => {
-        if (!messagesContainerRef.value) {
-          return;
-        }
-        // @ts-ignore
-        messagesContainerRef.value.scrollTop = messagesContainerRef?.value?.scrollHeight
-      },
-     200
+      if (!messagesContainerRef.value) {
+        return;
+      }
+      // @ts-ignore
+      messagesContainerRef.value.scrollTop = messagesContainerRef?.value?.scrollHeight
+    },
+    200
   );
 }
 
-const scrolledDown = computed(() => {
-  if (!messagesContainerRef.value) {
-    console.log('true')
-    return true;
-  }
-  console.log(messagesContainerRef.value.scrollTop == messagesContainerRef?.value?.scrollHeight)
-  return messagesContainerRef.value.scrollTop == messagesContainerRef?.value?.scrollHeight;
-})
+watch([bottom], (arrivedState) => {
+  const scDo = arrivedState[0];
+  console.log(scDo);
+  showScrollDown.value = !scDo;
+});
 
 interface Command {
   title: string;
@@ -112,7 +115,7 @@ const handleCommandClickAi = (command: Command) => {
       </template>
 
       <div class="chat">
-        <div class="scroll-down" @click="scrollDown" v-if="scrolledDown">Scroll Down</div>
+        <div class="scroll-down" @click="scrollDown" v-if="showScrollDown">Scroll Down</div>
         <div class="chat__messages" ref="messagesContainerRef">
           <a-comment
               :author="message.name"
