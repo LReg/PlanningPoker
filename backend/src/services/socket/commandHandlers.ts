@@ -1,5 +1,5 @@
 import {gatherContextInformation, sendMessageToAi} from "../ai/ai-service.js";
-import {sendMessageStrFromServer} from "./socketSendService.js";
+import {sendAiCommandResponse, sendMessageStrFromServer} from "./socketSendService.js";
 
 
 export function handleAsk(command: string, socketId: string) {
@@ -7,9 +7,9 @@ export function handleAsk(command: string, socketId: string) {
     if (!contextInformation) {
         return;
     }
-    sendMessageStrFromServer(socketId, "evaluating ...");
+    sendAiCommandResponse(socketId, "evaluating ...");
     sendMessageToAi(command, contextInformation, "ask").then(res => {
-        sendMessageStrFromServer(socketId, res);
+        sendAiCommandResponse(socketId, res);
     });
 }
 
@@ -18,8 +18,8 @@ export function handleEstimation(command: string, socketId: string) {
     if (!contextInformation) {
         return;
     }
-    sendMessageStrFromServer(socketId, "estimating ...");
+    sendAiCommandResponse(socketId, "estimating ...");
     sendMessageToAi(command, contextInformation, "estimation").then(res => {
-        sendMessageStrFromServer(socketId, res);
+        sendAiCommandResponse(socketId, res);
     });
 }

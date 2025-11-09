@@ -6,7 +6,7 @@ import userRef from "@/reactive/useUser";
 import {paperThrowSubject, pullSessionInfo} from "@/api/actionsService";
 import { message } from 'ant-design-vue';
 import { socket, socketConnect, socketExit } from "./socketService";
-import {clearMessages, messagesRef} from "@/api/chatService";
+import {aimessageRef, clearMessages, messagesRef} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
 import type {EstimationHistogram} from "@/models/EstimationHistogram";
 import histogramRef from "@/reactive/useEstimationHistogram";
@@ -41,7 +41,11 @@ function socketSessionUpdateListeners() {
         histogramRef.value = histogram;
     })
     socket?.on('newMessage', (message: Message) => {
-        messagesRef.value.push(message);
+        if (message.type === 'ai') {
+           aimessageRef.value.push(message);
+        } else{
+            messagesRef.value.push(message);
+        }
     });
     socket?.on('throw', (playerId: string, emoji: string) => {
         paperThrowSubject.next({id: playerId, emoji});
