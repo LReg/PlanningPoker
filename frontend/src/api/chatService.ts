@@ -4,7 +4,6 @@ import { ref } from "vue";
 import type {Message} from "@/models/Message.model";
 import userRef from "@/reactive/useUser";
 import sessionRef from "@/reactive/useSession";
-import {Lit} from "litlyx-js";
 export const messagesRef: Ref<Message[]> = ref([]);
 export const aimessageRef: Ref<Message[]> = ref([]);
 
@@ -25,13 +24,6 @@ export async function postMessage(message: string, type: 'std' | 'ai') {
         type: type
     }
     socket.emit('chat', messageObj);
-    if (message.startsWith('/')) {
-        await Lit.event("command", {
-            metadata: {
-                prompt: messageObj.message
-            }
-        });
-    }
 }
 
 function commandTransformations(message: string) {

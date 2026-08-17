@@ -10,8 +10,6 @@ interface RuntimeConfig {
   traefik: boolean;
   backendPort: string;
   productionAddress: string;
-  litProject: string;
-  litDomain: string;
 }
 
 const config: RuntimeConfig = {
@@ -22,8 +20,6 @@ const config: RuntimeConfig = {
   traefik: false,
   backendPort: '8080',
   productionAddress: '',
-  litProject: '',
-  litDomain: '',
 };
 
 const environment = {
@@ -33,8 +29,6 @@ const environment = {
   apiServiceRoute: '',
   socketAddress: '',
   joinAddress: '',
-  litProject: '',
-  litDomain: '',
 };
 
 function recompute(): void {
@@ -46,8 +40,6 @@ function recompute(): void {
   environment.apiServiceRoute = `${config.protocol}://${config.domain}${portSuffix}${apiPrefix}`;
   environment.socketAddress = `${config.protocol}://${config.domain}${portSuffix}`;
   environment.joinAddress = `${config.protocol}://${config.domain}/join/`;
-  environment.litProject = config.litProject;
-  environment.litDomain = config.litDomain;
 }
 recompute();
 

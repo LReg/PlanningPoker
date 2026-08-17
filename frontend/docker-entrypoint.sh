@@ -13,8 +13,6 @@ CONFIG_PATH="/usr/share/nginx/html/config.json"
 : "${TRAEFIK:=false}"
 : "${BACKEND_PORT:=8080}"
 : "${PRODUCTION_ADDRESS:=}"
-: "${LIT_PROJECT:=}"
-: "${LIT_DOMAIN:=}"
 
 cat > "$CONFIG_PATH" <<EOF
 {
@@ -24,9 +22,7 @@ cat > "$CONFIG_PATH" <<EOF
   "devServer": ${DEV_SERVER},
   "traefik": ${TRAEFIK},
   "backendPort": "${BACKEND_PORT}",
-  "productionAddress": "${PRODUCTION_ADDRESS}",
-  "litProject": "${LIT_PROJECT}",
-  "litDomain": "${LIT_DOMAIN}"
+  "productionAddress": "${PRODUCTION_ADDRESS}"
 }
 EOF
 

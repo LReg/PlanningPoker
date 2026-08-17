@@ -5,7 +5,5 @@
   "devServer": true,
   "traefik": false,
   "backendPort": "8080",
-  "productionAddress": "https://poker.lreg0.de",
-  "litProject": "",
-  "litDomain": ""
+  "productionAddress": "https://poker.lreg0.de"
 }

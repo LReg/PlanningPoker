@@ -56,15 +56,13 @@ frontend:
 
 # Created once, by hand, imperatively, per namespace — same category as the ghcr-pull
 # Secret (state/wanted-state/01-cluster-architecture.md's "Secrets: the one thing that
-# doesn't go through git"). N8NCHAT/LIT_PROJECT/LIT_DOMAIN are external credentials, not
-# generate-fresh app passwords, so they don't fit the auto-generate-or-override pattern
-# used for e.g. Postgres passwords — they're pre-existing values pulled from the old
-# .env / GitHub Actions secrets, referenced here by name only. Needed once per
-# environment namespace (planning-poker-dev AND planning-poker-prod each need their own):
+# doesn't go through git"). N8NCHAT is an external credential, not a generate-fresh app
+# password, so it doesn't fit the auto-generate-or-override pattern used for e.g.
+# Postgres passwords — it's a pre-existing value pulled from the old .env / GitHub
+# Actions secrets, referenced here by name only. Needed once per environment namespace
+# (planning-poker-dev AND planning-poker-prod each need their own):
 #
 #   kubectl create secret generic planning-poker-secrets \
 #     -n <planning-poker-dev|planning-poker-prod> \
-#     --from-literal=n8n-chat-webhook='<N8NCHAT value>' \
-#     --from-literal=lit-project='<LIT_PROJECT value>' \
-#     --from-literal=lit-domain='<LIT_DOMAIN value>'
+#     --from-literal=n8n-chat-webhook='<N8NCHAT value>'
 appSecretsName: planning-poker-secrets

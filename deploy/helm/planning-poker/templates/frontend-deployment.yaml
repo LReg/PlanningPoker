@@ -42,15 +42,5 @@ spec:
               value: {{ .Values.backend.port | quote }}
             - name: PRODUCTION_ADDRESS
               value: {{ .Values.frontend.productionAddress | quote }}
-            - name: LIT_PROJECT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.appSecretsName }}
-                  key: lit-project
-            - name: LIT_DOMAIN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.appSecretsName }}
-                  key: lit-domain
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
