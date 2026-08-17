@@ -1,17 +1,22 @@
-# Base/shared defaults for every environment. Everything that differs between dev
-# and prod (image.tag, ingress.host, frontend.production, frontend.devServer) is
-# deliberately NOT set here — it lives in the infra repo's gitops/values/ per-environment
-# override files, merged on top of this one by each environment's Argo CD Application
-# (multi-source, same pattern as gitops/apps/traefik.yaml). See
-# state/wanted-state/01-cluster-architecture.md and 02-cicd-and-images.md in infra.
+# Base/shared defaults for every environment. ingress.host, frontend.production, and
+# frontend.devServer differ per environment and are deliberately NOT set here — they
+# live in the infra repo's gitops/values/ per-environment override files, merged on
+# top of this one by each environment's Argo CD Application (multi-source, same
+# pattern as gitops/apps/traefik.yaml). See state/wanted-state/01-cluster-architecture.md
+# and 02-cicd-and-images.md in infra.
+#
+# image.tag is the one exception, deliberately set HERE, not in infra: it's bumped
+# to the latest commit's sha by ghcr-dev-continuous.yml on every push to main (same
+# repo, same GITHUB_TOKEN — no cross-repo credential, PlanningPoker never commits to
+# infra). This makes it the "dev tracks trunk" value by default. Prod's values file
+# in infra explicitly overrides this with a pinned tag, which is what actually keeps
+# prod from moving on every commit — see gitops/values/planning-poker-prod.yaml.
 
 replicaCount: 1
 
 image:
   registry: ghcr.io/lreg
   pullPolicy: IfNotPresent
-  # Set per-environment in infra — either the version tag (e.g. "v1.0.1") or the short
-  # commit sha both work: CI pushes each build under both tags for the same image.
   tag: ""
   frontend:
     repository: planning-poker-frontend
