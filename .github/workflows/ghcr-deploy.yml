@@ -1,0 +1,65 @@
+name: Build, push to GHCR, bump chart
+
+# Runs alongside the existing deploy.yml (old docker-compose prod) — both fire on
+# every push to main during the parallel-running migration period. This one never
+# touches lregn/lregb; it only pushes images and bumps its own values.yaml. Argo CD,
+# not this workflow, is what actually applies anything to the cluster.
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'deploy/helm/**'   # skip re-running on the bump-chart commit below
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.vars.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: vars
+        run: echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: frontend
+          push: true
+          tags: ghcr.io/lreg/planning-poker-frontend:${{ steps.vars.outputs.sha }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: backend
+          push: true
+          tags: ghcr.io/lreg/planning-poker-backend:${{ steps.vars.outputs.sha }}
+
+  bump-chart:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump image tags in values.yaml
+        run: |
+          sed -i "s/^\(\s*tag: \).*/\1${{ needs.build-and-push.outputs.sha }}/" deploy/helm/planning-poker/values.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deploy/helm/planning-poker/values.yaml
+          git diff --cached --quiet || git commit -m "chore: bump planning-poker image tag to ${{ needs.build-and-push.outputs.sha }}"
+          git push

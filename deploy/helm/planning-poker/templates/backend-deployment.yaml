@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels:
+    {{- include "planning-poker.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: planning-poker
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: planning-poker
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.registry }}/{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+          env:
+            - name: DOMAIN
+              value: {{ .Values.ingress.host | quote }}
+            - name: PROTOCOL
+              value: {{ .Values.frontend.protocol | quote }}
+            - name: BACKEND_PORT
+              value: {{ .Values.backend.port | quote }}
+            - name: N8NCHAT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.appSecretsName }}
+                  key: n8n-chat-webhook
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}

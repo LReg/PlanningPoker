@@ -1,0 +1,11 @@
+{
+  "domain": "localhost",
+  "protocol": "http",
+  "production": false,
+  "devServer": true,
+  "traefik": false,
+  "backendPort": "8080",
+  "productionAddress": "https://poker.lreg0.de",
+  "litProject": "",
+  "litDomain": ""
+}

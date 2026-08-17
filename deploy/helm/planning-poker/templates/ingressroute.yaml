@@ -1,0 +1,36 @@
+# entryPoints: web (plain HTTP, NodePort 30080) — this in-cluster Traefik never
+# terminates TLS. TLS is terminated upstream, at the old docker Traefik / k3s-bridge
+# (see infra repo's deploy/helm/traefik/values.yaml and state/wanted-state/06-migration-runbook.md).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-strip-api
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    # Mirrors the old traefik.docker-compose.yml router split exactly: /api and
+    # /socket.io go to the backend (only /api gets prefix-stripped — the backend's
+    # Express routes have no /api prefix of their own), everything else is the
+    # static frontend.
+    - match: Host(`{{ .Values.ingress.host }}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))
+      kind: Rule
+      middlewares:
+        - name: {{ .Release.Name }}-strip-api
+      services:
+        - name: {{ .Release.Name }}-backend
+          port: 80
+    - match: Host(`{{ .Values.ingress.host }}`)
+      kind: Rule
+      services:
+        - name: {{ .Release.Name }}-frontend
+          port: 80

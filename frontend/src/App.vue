@@ -1,13 +1,20 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { RouterView } from 'vue-router';
 import {Lit} from "litlyx-js";
 import environment from "@/environments/environments";
-Lit.init(environment.litProject, {
-  server: {
-    port: 443,
-    secure: true,
-    host: environment.litDomain
-  }
+
+// Deferred to onMounted: App.vue is imported (and its top-level script run) before
+// main.ts's `await loadRuntimeConfig()` resolves, so `environment` isn't populated yet
+// at module-evaluation time — only by the time this component actually mounts.
+onMounted(() => {
+  Lit.init(environment.litProject, {
+    server: {
+      port: 443,
+      secure: true,
+      host: environment.litDomain
+    }
+  })
 })
 </script>
 

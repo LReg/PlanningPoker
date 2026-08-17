@@ -4,10 +4,16 @@ import App from './App.vue'
 import Antd from 'ant-design-vue';
 import router from './router'
 import 'ant-design-vue/dist/reset.css';
+import { loadRuntimeConfig } from '@/environments/environments';
 
-const app = createApp(App)
+// Must resolve before any component renders — App.vue's Lit.init() and every
+// service under src/api read `environment` assuming it's already populated.
+// (No top-level await: the configured build target doesn't support it.)
+loadRuntimeConfig().then(() => {
+  const app = createApp(App)
 
-app.use(router)
-app.use(Antd)
+  app.use(router)
+  app.use(Antd)
 
-app.mount('#app')
+  app.mount('#app')
+})

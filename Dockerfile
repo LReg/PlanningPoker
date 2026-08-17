@@ -36,29 +36,16 @@ COPY frontend/public ./public
 
 # Prod builds
 FROM f-build-files as f-prod
-ARG PRODUCTION
-ENV VITE_PRODUCTION=$PRODUCTION
-ARG DOMAIN
-ENV VITE_DOMAIN=$DOMAIN
-ARG PROTOCOL
-ENV VITE_PROTOCOL=$PROTOCOL
-ARG TRAEFIK
-ENV VITE_TRAEFIK=$TRAEFIK
-ARG BACKEND_PORT
-ENV VITE_BACKEND_PORT=$BACKEND_PORT
-ARG PRODUCTION_ADDRESS
-ENV VITE_PRODUCTION_ADDRESS=$PRODUCTION_ADDRESS
-ARG DEV_SERVER
-ENV VITE_DEV_SERVER=$DEV_SERVER
-ARG LIT_DOMAIN
-ENV VITE_LIT_DOMAIN=$LIT_DOMAIN
-ARG LIT_PROJECT
-ENV VITE_LIT_PROJECT=$LIT_PROJECT
 RUN npm run build
 # TODO Add Linter
 
 FROM nginx:1.22.1 as frontend
 COPY frontend/docker/remote.nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=f-prod /build/dist /usr/share/nginx/html
+# Renders config.json from real env vars at container start — see docker-entrypoint.sh.
+# Values are no longer baked into the JS bundle at build time (see environments.ts):
+# the same image now runs unmodified in any environment, docker-compose or k8s.
+COPY frontend/docker-entrypoint.sh /docker-entrypoint.d/40-write-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/40-write-runtime-config.sh
 
 EXPOSE 80

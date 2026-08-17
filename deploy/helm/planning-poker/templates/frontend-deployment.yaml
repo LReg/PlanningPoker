@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    {{- include "planning-poker.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: planning-poker
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: planning-poker
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.registry }}/{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          env:
+            # Read at container start by docker-entrypoint.sh (renders config.json) —
+            # not baked into the JS bundle at build time.
+            - name: DOMAIN
+              value: {{ .Values.ingress.host | quote }}
+            - name: PROTOCOL
+              value: {{ .Values.frontend.protocol | quote }}
+            - name: PRODUCTION
+              value: {{ .Values.frontend.production | quote }}
+            - name: DEV_SERVER
+              value: {{ .Values.frontend.devServer | quote }}
+            - name: TRAEFIK
+              value: "true"
+            - name: BACKEND_PORT
+              value: {{ .Values.backend.port | quote }}
+            - name: PRODUCTION_ADDRESS
+              value: {{ .Values.frontend.productionAddress | quote }}
+            - name: LIT_PROJECT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.appSecretsName }}
+                  key: lit-project
+            - name: LIT_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.appSecretsName }}
+                  key: lit-domain
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}

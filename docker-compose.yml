@@ -21,17 +21,19 @@ services:
         image: ${IMAGE_NAME}frontend
         ports:
             - "80:80"
+        environment:
+            # Read at container start by docker-entrypoint.sh, not baked into the JS
+            # bundle at build time anymore — same image works unmodified in k8s too.
+            - TRAEFIK=${TRAEFIK}
+            - DOMAIN=${DOMAIN}
+            - PRODUCTION=${PRODUCTION}
+            - PROTOCOL=${PROTOCOL}
+            - BACKEND_PORT=${BACKEND_PORT}
+            - PRODUCTION_ADDRESS=${PRODUCTION_ADDRESS}
+            - DEV_SERVER=${DEV_SERVER}
+            - LIT_DOMAIN=${LIT_DOMAIN}
+            - LIT_PROJECT=${LIT_PROJECT}
         build:
             target: frontend
             dockerfile: Dockerfile
             context: .
-            args:
-                - TRAEFIK=${TRAEFIK}
-                - DOMAIN=${DOMAIN}
-                - PRODUCTION=${PRODUCTION}
-                - PROTOCOL=${PROTOCOL}
-                - BACKEND_PORT=${BACKEND_PORT}
-                - PRODUCTION_ADDRESS=${PRODUCTION_ADDRESS}
-                - DEV_SERVER=${DEV_SERVER}
-                - LIT_DOMAIN=${LIT_DOMAIN}
-                - LIT_PROJECT=${LIT_PROJECT}
