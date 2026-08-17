@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: "{{ .Values.image.registry }}/{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          image: "{{ .Values.image.registry }}/{{ .Values.image.backend.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.backend.port }}

@@ -1,25 +1,24 @@
-name: Build, push to GHCR, bump chart
+name: Build and push versioned images to GHCR
 
-# Runs alongside the existing deploy.yml (old docker-compose prod) — both fire on
-# every push to main during the parallel-running migration period. This one never
-# touches lregn/lregb; it only pushes images and bumps its own values.yaml. Argo CD,
-# not this workflow, is what actually applies anything to the cluster.
+# Only fires on a version tag (e.g. v1.0.1), not on every push to main — commits
+# accumulate on main freely, nothing ships an image until you deliberately tag a
+# release. Each image gets pushed under TWO tags for the same build: the version
+# and the short commit sha — infra's per-environment values files can pin either.
+# This workflow never writes back to git and never touches the cluster; it only
+# pushes images. Which version is deployed where is chosen entirely in the infra
+# repo (gitops/values/planning-poker-{dev,prod}.yaml), not here.
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - 'deploy/helm/**'   # skip re-running on the bump-chart commit below
+    tags:
+      - 'v*.*.*'
 
 permissions:
-  contents: write
+  contents: read
   packages: write
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      sha: ${{ steps.vars.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,29 +36,15 @@ jobs:
           context: .
           target: frontend
           push: true
-          tags: ghcr.io/lreg/planning-poker-frontend:${{ steps.vars.outputs.sha }}
+          tags: |
+            ghcr.io/lreg/planning-poker-frontend:${{ github.ref_name }}
+            ghcr.io/lreg/planning-poker-frontend:${{ steps.vars.outputs.sha }}
 
       - uses: docker/build-push-action@v6
         with:
           context: .
           target: backend
           push: true
-          tags: ghcr.io/lreg/planning-poker-backend:${{ steps.vars.outputs.sha }}
-
-  bump-chart:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Bump image tags in values.yaml
-        run: |
-          sed -i "s/^\(\s*tag: \).*/\1${{ needs.build-and-push.outputs.sha }}/" deploy/helm/planning-poker/values.yaml
-
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add deploy/helm/planning-poker/values.yaml
-          git diff --cached --quiet || git commit -m "chore: bump planning-poker image tag to ${{ needs.build-and-push.outputs.sha }}"
-          git push
+          tags: |
+            ghcr.io/lreg/planning-poker-backend:${{ github.ref_name }}
+            ghcr.io/lreg/planning-poker-backend:${{ steps.vars.outputs.sha }}

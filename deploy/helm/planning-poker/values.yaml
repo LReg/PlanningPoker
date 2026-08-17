@@ -1,24 +1,26 @@
-# See state/wanted-state/01-cluster-architecture.md and 02-cicd-and-images.md in the infra
-# repo for the shape this chart follows (packaging + CI/CD conventions) and 06-migration-runbook.md
-# for the per-app cutover flow this values.yaml participates in.
+# Base/shared defaults for every environment. Everything that differs between dev
+# and prod (image.tag, ingress.host, frontend.production, frontend.devServer) is
+# deliberately NOT set here — it lives in the infra repo's gitops/values/ per-environment
+# override files, merged on top of this one by each environment's Argo CD Application
+# (multi-source, same pattern as gitops/apps/traefik.yaml). See
+# state/wanted-state/01-cluster-architecture.md and 02-cicd-and-images.md in infra.
 
 replicaCount: 1
 
 image:
   registry: ghcr.io/lreg
   pullPolicy: IfNotPresent
+  # Set per-environment in infra — either the version tag (e.g. "v1.0.1") or the short
+  # commit sha both work: CI pushes each build under both tags for the same image.
+  tag: ""
   frontend:
     repository: planning-poker-frontend
-    tag: latest        # bumped to :sha by CI's CD step on every push to main
   backend:
     repository: planning-poker-backend
-    tag: latest
 
-# Single Host() the IngressRoute matches — both frontend and /api,/socket.io traffic.
-# Currently the staging hostname (Phase 1). Add the real production hostname as a
-# second Host() match at cutover — see 01-cluster-architecture.md's ingress section.
+# Set per-environment in infra (gitops/values/planning-poker-{dev,prod}.yaml).
 ingress:
-  host: poker.k3s.lreg0.de
+  host: ""
 
 backend:
   port: "8080"
@@ -33,14 +35,12 @@ frontend:
   # From the browser's perspective, not the internal hop — TLS terminates at the old
   # docker Traefik in front of the k3s-bridge sidecar; inside the cluster it's plain HTTP.
   protocol: https
-  # This is the staging domain, not the real production one yet — show the
-  # "you're on a test server" banner until this app's real hostname is added
-  # to the bridge rule.
-  production: "false"
-  devServer: "true"
-  # Where that banner's "visit production" link points. ASSUMPTION: taken from DNS
-  # (poker.lreg0.de resolves to the old prod host) — confirm this is the actual
-  # production hostname wired into the old deployProd.yml's DOMAIN secret.
+  # Set per-environment in infra: "false"/"true" for dev/prod respectively — controls
+  # the "you're on a test server" banner.
+  production: ""
+  devServer: ""
+  # Where that banner's "visit production" link points — same in every environment
+  # (only shown at all when devServer is true), so this one stays shared.
   productionAddress: "https://poker.nilsabbing.de"
   resources:
     requests:
@@ -49,15 +49,16 @@ frontend:
     limits:
       memory: 128Mi
 
-# Created once, by hand, imperatively — same category as the ghcr-pull Secret
-# (state/wanted-state/01-cluster-architecture.md's "Secrets: the one thing that doesn't
-# go through git"). N8NCHAT/LIT_PROJECT/LIT_DOMAIN are external credentials, not
-# generate-fresh app passwords, so they don't fit the auto-generate-or-override
-# pattern used for e.g. Postgres passwords — they're pre-existing values pulled from
-# the old .env / GitHub Actions secrets, referenced here by name only:
+# Created once, by hand, imperatively, per namespace — same category as the ghcr-pull
+# Secret (state/wanted-state/01-cluster-architecture.md's "Secrets: the one thing that
+# doesn't go through git"). N8NCHAT/LIT_PROJECT/LIT_DOMAIN are external credentials, not
+# generate-fresh app passwords, so they don't fit the auto-generate-or-override pattern
+# used for e.g. Postgres passwords — they're pre-existing values pulled from the old
+# .env / GitHub Actions secrets, referenced here by name only. Needed once per
+# environment namespace (planning-poker-dev AND planning-poker-prod each need their own):
 #
 #   kubectl create secret generic planning-poker-secrets \
-#     -n planning-poker \
+#     -n <planning-poker-dev|planning-poker-prod> \
 #     --from-literal=n8n-chat-webhook='<N8NCHAT value>' \
 #     --from-literal=lit-project='<LIT_PROJECT value>' \
 #     --from-literal=lit-domain='<LIT_DOMAIN value>'
