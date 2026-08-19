@@ -21,6 +21,7 @@ getActiveSessions().then(info => {
 
 <template>
   <div class="home-container">
+    <app-launcher current="planning-poker" class="launcher"></app-launcher>
     <aside class="info" v-if="activeSessions !== null">
       <span>Sitzungen >= 1 Nutzer: {{activeSessions.active}}</span><br/>
       <span>Sitzungen alle: {{activeSessions.total}}</span>
@@ -72,6 +73,12 @@ getActiveSessions().then(info => {
   background-color: var(--theme-container-color);
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
   border-radius: 0 0 0 1rem;
+  z-index: 100;
+}
+.launcher {
+  position: fixed;
+  top: .5rem;
+  left: .5rem;
   z-index: 100;
 }
 .footer-container {
