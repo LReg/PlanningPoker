@@ -26,8 +26,9 @@ image:
 # Set per-environment in infra (gitops/values/planning-poker-{dev,prod}.yaml).
 ingress:
   host: ""
-  entryPoints: ["web"]
-  # tls: {}   # left absent — set per-environment in infra once ready to serve websecure
+  # websecure: { certResolver: HttpsResolver }   # left absent — adds a second, separate
+  # IngressRoute for websecure once set. web's own IngressRoute never carries a tls block,
+  # so it's unaffected either way — see templates/ingressroute.yaml's file-level comment.
 
 backend:
   port: "8080"
