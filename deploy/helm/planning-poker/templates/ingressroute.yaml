@@ -1,6 +1,6 @@
-# entryPoints: web (plain HTTP, NodePort 30080) — this in-cluster Traefik never
-# terminates TLS. TLS is terminated upstream, at the old docker Traefik / k3s-bridge
-# (see infra repo's deploy/helm/traefik/values.yaml and state/wanted-state/06-migration-runbook.md).
+# entryPoints/tls are values-driven (default: web only, no tls) so the infra repo can flip
+# this to also serve websecure without a template change — see infra repo's
+# manual-exec/get-rid-of-traefik-proxy-gateway/ Step 1/4.
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -16,7 +16,9 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   entryPoints:
-    - web
+    {{- range .Values.ingress.entryPoints | default (list "web") }}
+    - {{ . }}
+    {{- end }}
   routes:
     # Mirrors the old traefik.docker-compose.yml router split exactly: /api and
     # /socket.io go to the backend (only /api gets prefix-stripped — the backend's
@@ -34,3 +36,7 @@ spec:
       services:
         - name: {{ .Release.Name }}-frontend
           port: 80
+  {{- with .Values.ingress.tls }}
+  tls:
+    certResolver: {{ .certResolver }}
+  {{- end }}

@@ -26,6 +26,8 @@ image:
 # Set per-environment in infra (gitops/values/planning-poker-{dev,prod}.yaml).
 ingress:
   host: ""
+  entryPoints: ["web"]
+  # tls: {}   # left absent — set per-environment in infra once ready to serve websecure
 
 backend:
   port: "8080"
