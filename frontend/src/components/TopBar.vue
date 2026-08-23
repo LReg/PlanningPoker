@@ -90,6 +90,7 @@ const handleJoinGame = () => {
         Verlassen
         <template #icon><LogoutOutlined /></template>
       </a-button>
+      <app-launcher current="planning-poker" style="margin-left: 1.5rem;"></app-launcher>
     </div>
     <div v-if="!userRef"  class="top-bar_container top-bar_usercontainer">
       <ColorThemeChooser></ColorThemeChooser>
@@ -104,6 +105,7 @@ const handleJoinGame = () => {
       <a-button type="default" style="margin-left: 1.5rem;" @click="handleLeaveSpectatorMode()">
         <template #icon><LogoutOutlined /></template>
       </a-button>
+      <app-launcher current="planning-poker" style="margin-left: 1.5rem;"></app-launcher>
     </div>
   </div>
 </template>
