@@ -11,6 +11,13 @@ the backend (only /api gets prefix-stripped — the backend's Express routes hav
 prefix of their own), everything else is the static frontend. Every line at column 0 so
 nindent controls indentation uniformly wherever this is included — a leading {{- define -}}
 trim plus indented source lines double-indents every line after the first.
+
+Deliberately no sticky sessions on the /socket.io route, even though the backend Service
+load-balances per TCP connection rather than per HTTP request: the frontend asks for the
+websocket transport only (frontend/src/api/socketService.ts), and a websocket upgrade is a
+single request, so the connection stays with the pod that accepted it for its whole lifetime.
+Re-enabling Engine.IO's long-polling fallback would mean a multi-request handshake that can
+split across pods — that would need stickiness added here first. See HORIZONTAL-SCALING-GAP.md.
 */}}
 {{- define "planning-poker.routes" -}}
 - match: Host(`{{ .Values.ingress.host }}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))

@@ -38,6 +38,7 @@ different pod.
 | G | No dedicated Redis in infra | — | `infra/deploy/k8s/planning-poker{,-dev}/` |
 | H | gitops Applications had 2 sources | No place for the new k8s manifests to sync from | `infra/gitops/apps/planning-poker-{dev,prod}.yaml` |
 | I | Express 4 doesn't catch async route rejections | Every route became `async` under this work; an unhandled rejection used to crash the process | `routers/asyncHandler.ts` |
+| J | Engine.IO default transport (`polling` then upgrade) | **Found live, not by inspection** — deploying with 2 replicas produced `{"code":1,"message":"Session ID unknown"}`. Polling's handshake is several HTTP requests; the backend Service load-balances per TCP connection, so a handshake that splits across pods gets this error from whichever pod didn't see the earlier request. Missed in the original analysis because it only manifests once real traffic hits >1 replica, not in the single-process smoke test. | `frontend/src/api/socketService.ts` (websocket-only transport, same fix huntcontrol/musik-star already made), `deploy/helm/planning-poker/templates/ingressroute.yaml` (comment) |
 
 ## A. Session/player state → Redis
 
@@ -68,6 +69,23 @@ would be invisible to the other pods, same requirement huntcontrol's doc calls o
 attached, `io.to(anyToken)` — used throughout `socketSendService.ts` for both room tokens and
 raw socket IDs — already works cluster-wide with no further changes: a socket's own ID is an
 implicit room every adapter-connected node can address.
+
+## J. Transport / sticky sessions
+
+The Redis adapter fixes broadcasts between already-connected sockets — it does nothing for the
+*handshake itself*. `socket.io-client`'s default (`transports: ['polling', 'websocket']`) opens
+with Engine.IO long-polling: several sequential HTTP requests before any upgrade. Traefik routes
+`PathPrefix('/socket.io')` straight at the backend Service, which load-balances per TCP
+connection, not per HTTP request — with no stickiness, a later poll in the same handshake can
+land on a different pod than the one that issued the session id, which answers with
+`{"code":1,"message":"Session ID unknown"}` for a session it never saw.
+
+**Implemented:** `socketConnect()` now passes `transports: ['websocket']`, huntcontrol's own
+choice for the identical problem. A websocket upgrade is a single request, so the TCP connection
+stays with the accepting pod for its whole lifetime — no sticky-session infrastructure needed.
+Trade-off accepted deliberately: a client behind a proxy that blocks websockets now gets no
+realtime at all rather than falling back to polling. `templates/ingressroute.yaml` carries a
+note so nobody re-enables polling without adding stickiness first.
 
 ## C. Cross-pod player→socket lookup
 
