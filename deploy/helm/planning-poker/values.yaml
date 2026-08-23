@@ -17,7 +17,7 @@ replicaCount: 1
 image:
   registry: ghcr.io/lreg
   pullPolicy: IfNotPresent
-  tag: "2c42383"
+  tag: "cf77dcb"
   frontend:
     repository: planning-poker-frontend
   backend:
