@@ -11,8 +11,10 @@ export function log(message: string): void {
     console.log(`${dateString()}:\t ${message}`);
 }
 
-export function logSesstionDetails(sessionToken: string, message: string): void {
-    const session = getSessionByToken(sessionToken);
+/** Fire-and-forget from callers (`void logSesstionDetails(...)`) — this is diagnostic logging,
+ *  not worth blocking a response on an extra Redis read. */
+export async function logSesstionDetails(sessionToken: string, message: string): Promise<void> {
+    const session = await getSessionByToken(sessionToken);
     if (!session) {
         console.log(`${dateString()}:\t Session: ${sessionToken} - ${message}`);
         return;

@@ -52,7 +52,6 @@ export interface Session {
     open: boolean;
     estimationOptions: EstimationOption;
     estimationValues: string[];
-    timeoutId?: NodeJS.Timeout;
 }
 
 export interface NewSessionDto {

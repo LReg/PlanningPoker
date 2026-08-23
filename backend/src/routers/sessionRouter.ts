@@ -12,15 +12,18 @@ import {
     checkIsOwnerById,
     checkIsOwnerByToken,
     clearSessionDeletion,
+    createSession,
+    getAllSessions,
     getPlayerById,
     getPlayerByToken,
     getSessionByToken,
     getSessionInfo,
+    getSessionInfoFrom,
+    getSessionStats,
     kick,
     mapPersonalPlayerExport,
     playerLeave,
-    sessions,
-    setPlayerTimers,
+    registerPlayer,
     shake,
     throwEmojiAt
 } from "../services/sessionService.js";
@@ -33,18 +36,20 @@ import {
     sendHistogramToSession,
     sendMessageStrFromServer
 } from "../services/socket/socketSendService.js";
-import {socketPlayers} from "../services/socket/socketDataService.js";
+import {getSocketIdForPlayer} from "../services/socket/socketDataService.js";
+import {withSession} from "../services/sessionStore.js";
+import {asyncHandler} from "./asyncHandler.js";
 
 const router = express.Router();
 
-router.post('/debug', (req, res) => {
+router.post('/debug', asyncHandler(async (req, res) => {
     if (debug) {
-        console.log(sessions);
+        console.log(await getAllSessions());
     }
     res.send('OK');
-});
+}));
 
-router.post('/newSession', (req, res) => {
+router.post('/newSession', asyncHandler(async (req, res) => {
     const newSessionReq: NewSessionDto = req.body;
     const owner: Player = {
         estimate: null,
@@ -53,7 +58,6 @@ router.post('/newSession', (req, res) => {
         token: nanoid(25),
         isOwner: true,
         lastAction: new Date(),
-        timeoutIds: [],
     }
     const newSession: Session = {
         open: false,
@@ -63,13 +67,12 @@ router.post('/newSession', (req, res) => {
         estimationOptions: EstimationOption.Fibonacci,
         estimationValues: FibonacciEstimationValues,
     }
-    sessions.push(newSession);
+    await createSession(newSession);
     res.send(newSession);
-    setPlayerTimers(newSession.token, owner.token);
-    logSesstionDetails(newSession.token, 'new session created');
-});
+    void logSesstionDetails(newSession.token, 'new session created');
+}));
 
-router.post('/joinSession/:token', (req, res) => {
+router.post('/joinSession/:token', asyncHandler(async (req, res) => {
     const token = req.params.token;
     const player: Player = {
         name: req.body.name,
@@ -78,43 +81,43 @@ router.post('/joinSession/:token', (req, res) => {
         token: nanoid(25),
         isOwner: false,
         lastAction: new Date(),
-        timeoutIds: [],
     };
-    const session = sessions.find((session) => session.token === token);
-    if (session) {
+    const sessionInfo = await withSession(token, (session) => {
         if (session.players.length == 0) {
             player.isOwner = true;
         }
         session.players.push(player);
-        io.to(token).emit('playerJoined', getSessionInfo(token));
-        res.send(player);
-        setPlayerTimers(token, player.token);
-        sendMessageStrFromServer(token, player.name + ' ist der Sitzung beigetreten.');
-        logSesstionDetails(token, player.name + ' joined session ' + token);
-        clearSessionDeletion(session);
-    }
-    else {
+        return getSessionInfoFrom(session);
+    });
+    if (!sessionInfo) {
         res.status(404).send('Session not found');
+        return;
     }
-});
+    await registerPlayer(token, player.token);
+    io.to(token).emit('playerJoined', sessionInfo);
+    res.send(player);
+    sendMessageStrFromServer(token, player.name + ' ist der Sitzung beigetreten.');
+    void logSesstionDetails(token, player.name + ' joined session ' + token);
+    await clearSessionDeletion(token);
+}));
 
-router.post('/leaveSession/:token', (req, res) => {
+router.post('/leaveSession/:token', asyncHandler(async (req, res) => {
     const token = req.params.token;
     const playerToken = req.body.token;
-    const player = getPlayerByToken(playerToken, token);
+    const player = await getPlayerByToken(playerToken, token);
     try {
-        playerLeave(token, playerToken);
+        await playerLeave(token, playerToken);
         res.send('OK');
-        logSesstionDetails(token, (player?.name ?? '?') + ' left session ' + token);
+        void logSesstionDetails(token, (player?.name ?? '?') + ' left session ' + token);
     } catch (e: any) {
         res.status(404).send(e.message);
     }
-});
+}));
 
 // looks up is a session is closed and sends ExportUser oder ExportEstimateUser
-router.get('/getSession/:token', (req, res) => {
+router.get('/getSession/:token', asyncHandler(async (req, res) => {
     const token = req.params.token;
-    const session = getSessionInfo(token);
+    const session = await getSessionInfo(token);
     if (session) {
         res.send(session);
         return;
@@ -122,54 +125,58 @@ router.get('/getSession/:token', (req, res) => {
     else {
         res.status(404).send('Session not found');
     }
-});
+}));
 
-router.put('/estimate/:token', (req, res) => {
+router.put('/estimate/:token', asyncHandler(async (req, res) => {
     const token = req.params.token;
     const playerToken = req.body.token;
     const estimate = req.body.estimate;
-    const session = getSessionByToken(token);
+    const validationSession = await getSessionByToken(token);
 
-    if (!session) {
+    if (!validationSession) {
         res.status(404).send('Session not found');
         return;
     }
 
-    if (!validateEstimate(estimate, session)) {
+    if (!validateEstimate(estimate, validationSession)) {
         res.status(400).send('Estimate not allowed');
         return;
     }
 
-    if (session) {
-        const player = getPlayerByToken(playerToken, token);
-        if (player) {
-            player.estimate = estimate;
-            player.lastAction = new Date();
-            io.to(token).emit('playerEstimated', getSessionInfo(token));
-            res.send('OK');
-            setPlayerTimers(token, playerToken);
-            if (session.open) {
-                createAndSendHistogram(session, token);
-            }
+    const result = await withSession(token, (session) => {
+        const player = session.players.find((p) => p.token === playerToken);
+        if (!player) {
+            return {found: false as const};
         }
-        else {
-            res.status(404).send('Player not found');
-        }
-    }
-    else {
-        res.status(404).send('Session not found');
-    }
-});
+        player.estimate = estimate;
+        player.lastAction = new Date();
+        player.warningIssued = false;
+        return {found: true as const, session};
+    });
 
-router.put('/changeEstimationOptions/:token', (req, res) => {
+    if (!result) {
+        res.status(404).send('Session not found');
+        return;
+    }
+    if (!result.found) {
+        res.status(404).send('Player not found');
+        return;
+    }
+
+    io.to(token).emit('playerEstimated', getSessionInfoFrom(result.session));
+    res.send('OK');
+    if (result.session.open) {
+        createAndSendHistogram(result.session, token);
+    }
+}));
+
+router.put('/changeEstimationOptions/:token', asyncHandler(async (req, res) => {
     const sessionToken = req.params.token;
     const userToken = req.body.userToken;
 
     let estimationOptions = req.body.custom;
     const estimationTypeString = req.body.estimationType;
     const estimationType = parseEstimationType(estimationTypeString);
-
-    const session = getSessionByToken(sessionToken);
 
     if (!estimationType) {
         res.status(400).send('Invalid estimation type');
@@ -185,67 +192,83 @@ router.put('/changeEstimationOptions/:token', (req, res) => {
         estimationOptions = getEstimationValues(estimationType);
     }
 
-    if (session) {
-        const isOwner = checkIsOwnerByToken(userToken, session);
-        if (!isOwner) {
-            res.status(403).send('Not owner');
-            return;
+    const result = await withSession(sessionToken, (session) => {
+        if (!checkIsOwnerByToken(userToken, session)) {
+            return {status: 403 as const, message: 'Not owner'};
         }
         session.estimationOptions = estimationType;
         session.estimationValues = estimationOptions;
         session.players.forEach((player) => {
             player.estimate = null;
         });
-        io.to(sessionToken).emit('estimationOptionsChanged', getSessionInfo(sessionToken));
-        res.send('OK');
-    }
-    else {
-        res.status(404).send('Session not found');
-    }
-});
+        return {status: 200 as const, session};
+    });
 
-router.put('/openSession/:token/:open', (req, res) => {
+    if (!result) {
+        res.status(404).send('Session not found');
+        return;
+    }
+    if (result.status !== 200) {
+        res.status(result.status).send(result.message);
+        return;
+    }
+
+    io.to(sessionToken).emit('estimationOptionsChanged', getSessionInfoFrom(result.session));
+    res.send('OK');
+}));
+
+router.put('/openSession/:token/:open', asyncHandler(async (req, res) => {
     const token = req.params.token;
     const userToken = req.body.token;
     const open = req.params.open === 'true';
-    const session = getSessionByToken(token);
-    const isInSession = session?.players.find((player) => player.token === userToken) !== undefined;
-    if (!isInSession) {
-        res.status(403).send('Not in session');
-        return;
-    }
-    const isOwner = checkIsOwnerByToken(userToken, session);
-    if (!isOwner) {
-        res.status(403).send('Not owner');
-        return;
-    }
-    if (session) {
+
+    const result = await withSession(token, (session) => {
+        const isInSession = session.players.find((player) => player.token === userToken) !== undefined;
+        if (!isInSession) {
+            return {status: 403 as const, message: 'Not in session'};
+        }
+        if (!checkIsOwnerByToken(userToken, session)) {
+            return {status: 403 as const, message: 'Not owner'};
+        }
         session.open = open;
         if (!open) {
             session.players.forEach((player) => {
                 player.estimate = null;
             });
-            sendHistogramToSession(token, {estimationCount: {}});
         }
-        else {
-            createAndSendHistogram(session, token);
+        const player = session.players.find((p) => p.token === userToken);
+        if (player) {
+            player.lastAction = new Date();
+            player.warningIssued = false;
         }
-        setPlayerTimers(token, userToken);
-        io.to(token).emit('sessionOpened', getSessionInfo(token));
-        log('Session opened: ' + token + ' - ' + open);
-        res.send('OK');
-    }
-    else {
-        res.status(404).send('Session not found');
-    }
-});
+        return {status: 200 as const, session};
+    });
 
-router.get('/isOwner/:token/:sessionToken', (req, res) => {
+    if (!result) {
+        res.status(404).send('Session not found');
+        return;
+    }
+    if (result.status !== 200) {
+        res.status(result.status).send(result.message);
+        return;
+    }
+
+    if (!open) {
+        sendHistogramToSession(token, {estimationCount: {}});
+    } else {
+        createAndSendHistogram(result.session, token);
+    }
+    io.to(token).emit('sessionOpened', getSessionInfoFrom(result.session));
+    log('Session opened: ' + token + ' - ' + open);
+    res.send('OK');
+}));
+
+router.get('/isOwner/:token/:sessionToken', asyncHandler(async (req, res) => {
     const token = req.params.token;
     const sessionToken = req.params.sessionToken;
-    const session = getSessionByToken(sessionToken);
+    const session = await getSessionByToken(sessionToken);
     if (session) {
-        const player = getPlayerByToken(token, sessionToken);
+        const player = await getPlayerByToken(token, sessionToken);
         if (player) {
             res.send(player.isOwner);
         }
@@ -256,15 +279,15 @@ router.get('/isOwner/:token/:sessionToken', (req, res) => {
     else {
         res.status(404).send('Session not found');
     }
-});
+}));
 
-router.get('/pullUserInfo/:token/:sessionToken', (req, res) => {
+router.get('/pullUserInfo/:token/:sessionToken', asyncHandler(async (req, res) => {
     const token = req.params.token;
     const sessionToken = req.params.sessionToken;
-    const session = getSessionByToken(sessionToken);
+    const session = await getSessionByToken(sessionToken);
 
     if (session) {
-        const player = getPlayerByToken(token, sessionToken);
+        const player = await getPlayerByToken(token, sessionToken);
         if (player) {
             res.send(mapPersonalPlayerExport(player));
         }
@@ -275,18 +298,18 @@ router.get('/pullUserInfo/:token/:sessionToken', (req, res) => {
     else {
         res.status(404).send('Session not found');
     }
-});
+}));
 
-router.post('/kickPlayer/:id/:sessionToken', (req, res) => {
+router.post('/kickPlayer/:id/:sessionToken', asyncHandler(async (req, res) => {
     const kickId = req.params.id;
     const sessionToken = req.params.sessionToken;
     const playerToken = req.body.userToken;
-    const session = getSessionByToken(sessionToken);
+    const session = await getSessionByToken(sessionToken);
     if (!session) {
         res.status(404).send('Session not found');
         return;
     }
-    const player = getPlayerByToken(playerToken, sessionToken);
+    const player = await getPlayerByToken(playerToken, sessionToken);
     const isOwner = checkIsOwnerByToken(playerToken, session!);
 
     if (!isOwner) {
@@ -304,28 +327,29 @@ router.post('/kickPlayer/:id/:sessionToken', (req, res) => {
         res.status(404).send('Player not found');
         return;
     }
-    const playerToKick = getPlayerById(kickId, session!.token);
+    const playerToKick = await getPlayerById(kickId, session!.token);
     if (playerToKick) {
-        kick(playerToKick, sessionToken);
+        await kick(playerToKick, sessionToken);
         log('Player kicked: ' + playerToKick.name);
     }
     else {
         res.status(404).send('Player not found');
+        return;
     }
     res.send('OK');
-});
+}));
 
-router.post('/shake/:id/:sessionToken', (req, res) => {
+router.post('/shake/:id/:sessionToken', asyncHandler(async (req, res) => {
     const playerToken = req.body.userToken;
     const sessionToken = req.params.sessionToken;
     const shakeId = req.params.id;
-    const session = getSessionByToken(sessionToken);
+    const session = await getSessionByToken(sessionToken);
     if (!session) {
         res.status(404).send('Session not found');
         return;
     }
-    const player = getPlayerByToken(playerToken, sessionToken);
-    const shakePlayer = getPlayerById(shakeId, sessionToken);
+    const player = await getPlayerByToken(playerToken, sessionToken);
+    const shakePlayer = await getPlayerById(shakeId, sessionToken);
     if (!player) {
         res.status(404).send('Player not found');
         return;
@@ -334,54 +358,68 @@ router.post('/shake/:id/:sessionToken', (req, res) => {
         res.status(404).send('Player to shake not found');
         return;
     }
-    shake(shakePlayer);
+    await shake(shakePlayer);
     res.send('OK');
-});
+}));
 
-router.put('/makeAdmin/:sessionToken/:otherPlayerId', (req, res) => {
+router.put('/makeAdmin/:sessionToken/:otherPlayerId', asyncHandler(async (req, res) => {
     const sessionToken = req.params.sessionToken;
     const otherPlayerId = req.params.otherPlayerId;
     const playerToken = req.body.userToken;
-    const session = getSessionByToken(sessionToken);
-    if (!session) {
+
+    const result = await withSession(sessionToken, (session) => {
+        const player = session.players.find((p) => p.token === playerToken);
+        const otherPlayer = session.players.find((p) => p.id === otherPlayerId);
+        if (!player) {
+            return {status: 404 as const, message: 'Player not found'};
+        }
+        if (!otherPlayer) {
+            return {status: 404 as const, message: 'Player to make admin not found'};
+        }
+        if (!player.isOwner) {
+            return {status: 403 as const, message: 'Not owner'};
+        }
+        otherPlayer.isOwner = true;
+        player.isOwner = false;
+        return {status: 200 as const, player, otherPlayer};
+    });
+
+    if (!result) {
         res.status(404).send('Session not found');
         return;
     }
-    const player = getPlayerByToken(playerToken, sessionToken);
-    const otherPlayer = getPlayerById(otherPlayerId, sessionToken);
-    if (!player) {
-        res.status(404).send('Player not found');
+    if (result.status !== 200) {
+        res.status(result.status).send(result.message);
         return;
     }
-    if (!otherPlayer) {
-        res.status(404).send('Player to make admin not found');
-        return;
-    }
-    if (!player.isOwner) {
-        res.status(403).send('Not owner');
-        return;
-    }
-    otherPlayer.isOwner = true;
-    player.isOwner = false;
-    io.to(socketPlayers[otherPlayer.token]).emit('updateUserinfo');
-    io.to(socketPlayers[player.token]).emit('updateUserinfo');
-    sendMessageStrFromServer(sessionToken, otherPlayer.name + ' ist jetzt der Sitzungsleiter.');
-    log('Admin changed: ' + otherPlayer.name);
-    res.send('OK');
-});
 
-router.post('/throw/:id/:sessionToken', (req, res) => {
+    const [otherSocketId, playerSocketId] = await Promise.all([
+        getSocketIdForPlayer(result.otherPlayer.token),
+        getSocketIdForPlayer(result.player.token),
+    ]);
+    if (otherSocketId) {
+        io.to(otherSocketId).emit('updateUserinfo');
+    }
+    if (playerSocketId) {
+        io.to(playerSocketId).emit('updateUserinfo');
+    }
+    sendMessageStrFromServer(sessionToken, result.otherPlayer.name + ' ist jetzt der Sitzungsleiter.');
+    log('Admin changed: ' + result.otherPlayer.name);
+    res.send('OK');
+}));
+
+router.post('/throw/:id/:sessionToken', asyncHandler(async (req, res) => {
     const playerToken = req.body.userToken;
     const emoji = req.body.emoji;
     const sessionToken = req.params.sessionToken;
     const shakeId = req.params.id;
-    const session = getSessionByToken(sessionToken);
+    const session = await getSessionByToken(sessionToken);
     if (!session) {
         res.status(404).send('Session not found');
         return;
     }
-    const player = getPlayerByToken(playerToken, sessionToken);
-    const throwPlayer = getPlayerById(shakeId, sessionToken);
+    const player = await getPlayerByToken(playerToken, sessionToken);
+    const throwPlayer = await getPlayerById(shakeId, sessionToken);
     if (!player) {
         res.status(404).send('Player not found');
         return;
@@ -392,15 +430,11 @@ router.post('/throw/:id/:sessionToken', (req, res) => {
     }
     throwEmojiAt(session, throwPlayer, emoji);
     res.send('OK');
-});
+}));
 
-router.get('/currentActiveSessions', (req, res) => {
-    const activeSessions = sessions.filter((session) => session.players.length > 0);
-    const totalSessions = sessions.length;
-    res.send({
-        total: totalSessions,
-        active: activeSessions.length,
-    });
-});
+router.get('/currentActiveSessions', asyncHandler(async (req, res) => {
+    const stats = await getSessionStats();
+    res.send(stats);
+}));
 
 export default router;

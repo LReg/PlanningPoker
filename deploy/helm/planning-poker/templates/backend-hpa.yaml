@@ -1,0 +1,33 @@
+{{- if .Values.autoscaling.enabled }}
+{{- if not .Values.redis.host }}
+{{- fail "autoscaling.enabled requires redis.host — session/player state itself lives in Redis now, not just Socket.io fan-out, so this backend cannot run above one replica without it (see values.yaml and HORIZONTAL-SCALING-GAP.md)" }}
+{{- end }}
+# Requires redis.* to be set (see values.yaml's file-level comment) — unlike musik-star/huntcontrol,
+# Redis here isn't just a coordination layer: it's the primary store for session/player state
+# (backend/src/services/sessionStore.ts). The guard above turns "someone enabled the HPA and forgot
+# Redis" into a template error instead of a class of bugs nobody can reproduce.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels:
+    {{- include "planning-poker.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-backend
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.scaleUpStabilizationSeconds }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

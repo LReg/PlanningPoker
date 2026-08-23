@@ -6,7 +6,9 @@ metadata:
     {{- include "planning-poker.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: planning-poker
@@ -47,6 +49,22 @@ spec:
               value: {{ .Values.frontend.protocol | quote }}
             - name: BACKEND_PORT
               value: {{ .Values.backend.port | quote }}
+            # Required at any replica count now — session/player state itself lives in Redis
+            # (backend/src/services/sessionStore.ts), not just Socket.io fan-out, so unlike
+            # musik-star/huntcontrol there's no in-memory fallback to degrade to. See
+            # HORIZONTAL-SCALING-GAP.md.
+            {{- if .Values.redis.credentialsSecretName }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.credentialsSecretName }}
+                  key: password
+            - name: REDIS_URL
+              value: {{ printf "redis://%s:$(REDIS_PASSWORD)@%s:%d" .Values.redis.user .Values.redis.host (.Values.redis.port | int) | quote }}
+            {{- else }}
+            - name: REDIS_URL
+              value: {{ printf "redis://%s:%d" .Values.redis.host (.Values.redis.port | int) | quote }}
+            {{- end }}
             - name: N8NCHAT
               valueFrom:
                 secretKeyRef:

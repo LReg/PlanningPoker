@@ -2,10 +2,19 @@ import {ExportEstimateSession, Session} from "../models/SessionModel.js";
 import {Player} from "../models/PlayerModel.js";
 import { io } from "./socket/socketService.js";
 import {log} from "./logger.js";
-import {socketPlayers} from "./socket/socketDataService.js";
+import {getSocketIdForPlayer} from "./socket/socketDataService.js";
 import {sendMessageStrFromServer} from "./socket/socketSendService.js";
-
-export const sessions: Session[] = [];
+import {
+    cancelExpiry,
+    clearPlayerIndex,
+    createSession as storeCreateSession,
+    expireIfEmpty,
+    getSession,
+    getSessionTokenForPlayer,
+    listActiveSessionTokens,
+    setPlayerIndex,
+    withSession,
+} from "./sessionStore.js";
 
 export const checkIsOwnerByToken = (userToken: string, session: Session): boolean => {
     return session.players.find((player) => player.token === userToken)?.isOwner ?? false;
@@ -15,29 +24,30 @@ export const checkIsOwnerById = (userId: string, session: Session): boolean => {
     return session.players.find((player) => player.id === userId)?.isOwner ?? false;
 }
 
-export const getSessionInfo = (sessionToken: string) => {
-    const session = sessions.find((session) => session.token === sessionToken);
-    if (session) {
-        const open = session.open;
-        return {
-            token: session.token,
-            name: session.name,
-            open: session.open,
-            estimationOptions: session.estimationOptions,
-            estimationValues: session.estimationValues,
-            players: session.players.map((player) => {
-                return {
-                    name: player.name,
-                    id: player.id,
-                    estimate: open ? player.estimate : (player.estimate === null ? null : -1),
-                    isOwner: player.isOwner,
-                };
-            })
-        } as ExportEstimateSession;
-    }
-    else {
-        return null;
-    }
+/** Pure — builds the export shape from an already-loaded session, no Redis round-trip. Use this
+ *  right after a withSession mutation instead of getSessionInfo(token), which re-fetches. */
+export const getSessionInfoFrom = (session: Session): ExportEstimateSession => {
+    const open = session.open;
+    return {
+        token: session.token,
+        name: session.name,
+        open: session.open,
+        estimationOptions: session.estimationOptions,
+        estimationValues: session.estimationValues,
+        players: session.players.map((player) => {
+            return {
+                name: player.name,
+                id: player.id,
+                estimate: open ? player.estimate : (player.estimate === null ? null : -1),
+                isOwner: player.isOwner,
+            };
+        })
+    } as ExportEstimateSession;
+}
+
+export const getSessionInfo = async (sessionToken: string): Promise<ExportEstimateSession | null> => {
+    const session = await getSession(sessionToken);
+    return session ? getSessionInfoFrom(session) : null;
 }
 
 export const mapPersonalPlayerExport = (player: Player) => {
@@ -50,141 +60,149 @@ export const mapPersonalPlayerExport = (player: Player) => {
     };
 }
 
-export const setPlayerTimers = (sessionToken: string, playerToken: string) => {
-    const player = sessions.find((session) => session.token === sessionToken)?.players.find((player) => player.token === playerToken);
-    if (!player) {
-        throw new Error('Player not found');
-    }
-    player.timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
-    player.timeoutIds.push(setTimeout(() => {
-        io.to(socketPlayers[playerToken]).emit('kicked');
-        try {
-            playerLeave(sessionToken, playerToken);
-            log('player leave after timeout for ' + player.name);
-        } catch (e) {
-            log('playerLeave failed (probably because session not found, or player already left)');
-        }
-    }, 1000 * 60 * 60));  // 1 hour
-    player.timeoutIds.push(setTimeout(() => {
-        log('kickWarning for ' + player.name);
-        io.to(socketPlayers[playerToken]).emit('kickWarning');
-    }, (1000 * 60 * 60) - (1000 * 60 * 5)));  // 5 minutes before kick
+/** Registers a brand-new session (and its initial players' player->session index entries). */
+export const createSession = async (session: Session): Promise<void> => {
+    await storeCreateSession(session);
 }
 
-export const activateSessionDeletion = (session: Session) => {
-    log('activateSessionDeletion for ' + session.token);
-    if (session.timeoutId) {
-        clearTimeout(session.timeoutId);
-        session.timeoutId = undefined;
-    }
-    session.timeoutId = setTimeout(() => {
-        if (session?.players.length === 0) {
-            sessions.splice(sessions.indexOf(session), 1);
-            log('session ' + session.token + ' deleted');
-        }
-    }, 1000 * 60 * 60 * 24 * 20); // 20 days
+/** Adds a joining player to an existing session's player->session index — the session document
+ *  mutation itself (pushing the Player) happens via withSession at the call site. */
+export const registerPlayer = async (sessionToken: string, playerToken: string): Promise<void> => {
+    await setPlayerIndex(playerToken, sessionToken);
 }
 
-export const clearSessionDeletion = (session: Session) => {
-    log('clearSessionDeletion for ' + session.token);
-    if (session.timeoutId) {
-        clearTimeout(session.timeoutId);
-        session.timeoutId = undefined;
-    }
-}
-
-const handAdminOver = (session: Session, player: Player) => {
+const handAdminOver = async (session: Session, player: Player) => {
     if (session.players.length > 1) {
         const newOwner = session.players.find((p) => p.id !== player.id);
         if (newOwner) {
             newOwner.isOwner = true;
-            io.to(socketPlayers[newOwner.token]).emit('updateUserinfo');
+            const socketId = await getSocketIdForPlayer(newOwner.token);
+            if (socketId) {
+                io.to(socketId).emit('updateUserinfo');
+            }
             sendMessageStrFromServer(session.token, newOwner.name + ' ist jetzt der Sitzungsleiter.');
             log('handAdminOver: ' + newOwner.name + ' is now the session owner');
         }
     }
 }
 
-export const playerLeave = (sessionToken: string, playerToken: string) => {
-    const session = getSessionByToken(sessionToken);
-    const player = getPlayerByToken(playerToken, sessionToken);
-
-    if (!player) {
-        throw new Error('Player not found');
-    }
-
-    if (player.isOwner && session)
-       handAdminOver(session, player);
-
-    if (session) {
-        session.players = session.players.filter((player) => player.token !== playerToken);
-        io.to(sessionToken).emit('playerLeft', getSessionInfo(sessionToken));
-        sendMessageStrFromServer(sessionToken, player?.name + ' hat die Sitzung verlassen.');
-        if (session.players.length === 0) {
-            activateSessionDeletion(session);
+export const playerLeave = async (sessionToken: string, playerToken: string): Promise<void> => {
+    const result = await withSession(sessionToken, async (session) => {
+        const player = session.players.find((p) => p.token === playerToken);
+        if (!player) {
+            throw new Error('Player not found');
         }
-    } else {
+        if (player.isOwner) {
+            await handAdminOver(session, player);
+        }
+        session.players = session.players.filter((p) => p.token !== playerToken);
+        return { player, playersLeft: session.players.length };
+    });
+
+    if (!result) {
         throw new Error('Session not found');
+    }
+
+    await clearPlayerIndex(playerToken);
+    io.to(sessionToken).emit('playerLeft', await getSessionInfo(sessionToken));
+    sendMessageStrFromServer(sessionToken, result.player.name + ' hat die Sitzung verlassen.');
+    if (result.playersLeft === 0) {
+        await expireIfEmpty(sessionToken);
     }
 }
 
-export const playerKick = (sessionToken: string, playerToken: string) => {
-    const session = getSessionByToken(sessionToken);
-    const player = getPlayerByToken(playerToken, sessionToken);
+export const playerKick = async (sessionToken: string, playerToken: string): Promise<void> => {
+    const result = await withSession(sessionToken, (session) => {
+        const player = session.players.find((p) => p.token === playerToken);
+        if (!player) {
+            throw new Error('Player not found');
+        }
+        session.players = session.players.filter((p) => p.token !== playerToken);
+        return { player, owner: session.players.find((p) => p.isOwner) };
+    });
 
-    if (!player) {
-        throw new Error('Player not found');
-    }
-
-    if (session) {
-        session.players = session.players.filter((player) => player.token !== playerToken);
-        io.to(sessionToken).emit('playerKicked', getSessionInfo(sessionToken));
-        io.to(socketPlayers[playerToken]).emit('kicked');
-        sendMessageStrFromServer(sessionToken, player?.name + ' wurde von ' + session.players.find((player) => player.isOwner)?.name + ' zum Zuschauer gemacht.');
-    } else {
+    if (!result) {
         throw new Error('Session not found');
     }
+
+    await clearPlayerIndex(playerToken);
+    io.to(sessionToken).emit('playerKicked', await getSessionInfo(sessionToken));
+    const socketId = await getSocketIdForPlayer(playerToken);
+    if (socketId) {
+        io.to(socketId).emit('kicked');
+    }
+    sendMessageStrFromServer(sessionToken, result.player?.name + ' wurde von ' + result.owner?.name + ' zum Zuschauer gemacht.');
 }
 
-export const kick = (playerToKick: Player, sessionToken: string) => {
-    const session = getSessionByToken(sessionToken);
+export const kick = async (playerToKick: Player, sessionToken: string): Promise<void> => {
+    const session = await getSession(sessionToken);
     if (session) {
-        playerKick(session.token, playerToKick.token);
+        await playerKick(session.token, playerToKick.token);
     }
     else {
         throw new Error('Session not found');
     }
 }
 
-export const getPlayerById = (playerId: string, sessionToken: string): Player | undefined => {
-    const session = sessions.find((session) => session.token === sessionToken);
+export const getPlayerById = async (playerId: string, sessionToken: string): Promise<Player | undefined> => {
+    const session = await getSession(sessionToken);
     return session?.players.find((player) => player.id === playerId);
 }
 
-export const getPlayerByToken = (playerToken: string, sessionToken: string): Player | undefined => {
-    const session = sessions.find((session) => session.token === sessionToken);
+export const getPlayerByToken = async (playerToken: string, sessionToken: string): Promise<Player | undefined> => {
+    const session = await getSession(sessionToken);
     return session?.players.find((player) => player.token === playerToken);
 }
 
-export function getSessionTokenByPlayerToken(playerToken: string): string | null {
-    for (let session of sessions) {
-        for (let player of session.players) {
-            if (player.token === playerToken) {
-                return session.token;
-            }
-        }
+export async function getSessionTokenByPlayerToken(playerToken: string): Promise<string | null> {
+    return getSessionTokenForPlayer(playerToken);
+}
+
+export const getSessionByToken = async (sessionToken: string): Promise<Session | undefined> => {
+    const session = await getSession(sessionToken);
+    return session ?? undefined;
+}
+
+/** Cancels a pending empty-session expiry — call whenever a player (re)joins. */
+export const clearSessionDeletion = async (sessionToken: string): Promise<void> => {
+    await cancelExpiry(sessionToken);
+}
+
+export const shake = async (player: Player): Promise<void> => {
+    const socketId = await getSocketIdForPlayer(player.token);
+    if (socketId) {
+        io.to(socketId).emit('shake');
     }
-    return null;
-}
-
-export const getSessionByToken = (sessionToken: string): Session | undefined => {
-    return sessions.find((session) => session.token === sessionToken);
-}
-
-export const shake = (player: Player) => {
-    io.to(socketPlayers[player.token]).emit('shake');
 }
 
 export const throwEmojiAt = (session: Session, player: Player, emoji: string) => {
     io.to(session.token).emit('throw', player.id, emoji);
+}
+
+/** Replaces the old setPlayerTimers() timer-reset for callers (chat) that don't otherwise
+ *  mutate the session — resets the sweep's idle clock and clears a pending kick-warning. */
+export const touchPlayerActivity = async (sessionToken: string, playerToken: string): Promise<void> => {
+    await withSession(sessionToken, (session) => {
+        const player = session.players.find((p) => p.token === playerToken);
+        if (player) {
+            player.lastAction = new Date();
+            player.warningIssued = false;
+        }
+    });
+}
+
+/** GET /debug — every session, unfiltered. */
+export const getAllSessions = async (): Promise<Session[]> => {
+    const tokens = await listActiveSessionTokens();
+    const sessions = await Promise.all(tokens.map((token) => getSession(token)));
+    return sessions.filter((s): s is Session => s !== null);
+}
+
+/** GET /currentActiveSessions */
+export const getSessionStats = async (): Promise<{ total: number; active: number }> => {
+    const sessions = await getAllSessions();
+    return {
+        total: sessions.length,
+        active: sessions.filter((session) => session.players.length > 0).length,
+    };
 }

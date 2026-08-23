@@ -16,18 +16,18 @@ interface ContextInformation {
     sessionInformation: SessionInformation;
 }
 
-export function gatherContextInformation(socketId: string): ContextInformation | null {
-    const userToken = getPlayerTokenFromSocketId(socketId);
+export async function gatherContextInformation(socketId: string): Promise<ContextInformation | null> {
+    const userToken = await getPlayerTokenFromSocketId(socketId);
     if (!userToken) {
         sendMessageStrFromServer(socketId, "error");
         return null;
     }
-    const sessionToken = getSessionTokenByPlayerToken(userToken);
+    const sessionToken = await getSessionTokenByPlayerToken(userToken);
     if (!sessionToken) {
         sendMessageStrFromServer(socketId, "error");
         return null;
     }
-    const session = getSessionByToken(sessionToken);
+    const session = await getSessionByToken(sessionToken);
 
     const sessionInformation: SessionInformation = {
         estimationOptions: session?.estimationOptions ?? EstimationOption.Fibonacci,

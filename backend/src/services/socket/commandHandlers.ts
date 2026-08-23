@@ -2,8 +2,8 @@ import {gatherContextInformation, sendMessageToAi} from "../ai/ai-service.js";
 import {sendAiCommandResponse, sendMessageStrFromServer} from "./socketSendService.js";
 
 
-export function handleAsk(command: string, socketId: string) {
-    const contextInformation = gatherContextInformation(socketId);
+export async function handleAsk(command: string, socketId: string) {
+    const contextInformation = await gatherContextInformation(socketId);
     if (!contextInformation) {
         return;
     }
@@ -13,8 +13,8 @@ export function handleAsk(command: string, socketId: string) {
     });
 }
 
-export function handleEstimation(command: string, socketId: string) {
-    const contextInformation = gatherContextInformation(socketId);
+export async function handleEstimation(command: string, socketId: string) {
+    const contextInformation = await gatherContextInformation(socketId);
     if (!contextInformation) {
         return;
     }

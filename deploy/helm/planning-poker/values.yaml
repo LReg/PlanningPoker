@@ -75,3 +75,27 @@ appSecretsName: planning-poker-secrets
 # when unset, so traces work with no collector required. Set per-environment in infra.
 otel:
   endpoint: ""
+
+# Set per-environment in infra, once a dedicated per-namespace Redis exists there (same shape as
+# musik-star/huntcontrol's redis.*: a bare host/port is enough for an unauthenticated instance,
+# user/credentialsSecretName once it's ACL-locked). Unlike those two apps, this isn't optional
+# coordination — session/player state itself lives in Redis (backend/src/services/sessionStore.ts,
+# see HORIZONTAL-SCALING-GAP.md), so REDIS_URL is always wired into the Deployment regardless of
+# replica count.
+redis:
+  host: ""
+  port: 6379
+  user: ""
+  credentialsSecretName: ""
+
+# Disabled by default so a plain `helm install` behaves exactly as before (replicaCount pods, no
+# HPA). templates/backend-hpa.yaml refuses to render if enabled without redis.host set.
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+  # A fresh pod's own boot (Redis connect, Socket.io adapter attach) briefly reads as load —
+  # long enough to cover a normal boot without meaningfully slowing a genuine scale-up. Same
+  # value as musik-star/huntcontrol started with.
+  scaleUpStabilizationSeconds: 30
