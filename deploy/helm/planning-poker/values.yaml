@@ -69,3 +69,9 @@ frontend:
 #     -n <planning-poker-dev|planning-poker-prod> \
 #     --from-literal=n8n-chat-webhook='<N8NCHAT value>'
 appSecretsName: planning-poker-secrets
+
+# In-cluster Tempo (ns: monitoring), receiving OTLP directly — same pattern as ai-tracker's
+# chart. Empty by default: backend/src/telemetry/tracing.ts falls back to a console exporter
+# when unset, so traces work with no collector required. Set per-environment in infra.
+otel:
+  endpoint: ""

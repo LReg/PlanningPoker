@@ -34,6 +34,13 @@ spec:
           ports:
             - containerPort: {{ .Values.backend.port }}
           env:
+            # Unset (default) means telemetry/tracing.ts falls back to a console exporter.
+            {{- if .Values.otel.endpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.otel.endpoint | quote }}
+            - name: OTEL_SERVICE_NAME
+              value: "planning-poker-backend"
+            {{- end }}
             - name: DOMAIN
               value: {{ .Values.ingress.host | quote }}
             - name: PROTOCOL
