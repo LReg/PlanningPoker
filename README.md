@@ -4,67 +4,125 @@ Planning Poker is a collaborative estimation technique used by agile teams to co
 
 https://github.com/user-attachments/assets/91b32a96-8fe0-4c4e-a993-c3fcc1eae215
 
-# Features
+## Features
 
-- User-friendly interface for team members to participate in the estimation process.
-- throw paper balls and emojis at other players
-- shake the screen of other players
-- creating and managing estimation sessions.
-- estimation plot
-- Real-time updates to ensure all team members are on the same page.
-- dockerized
-- free for everyone
-- no ads
+- User-friendly interface for team members to participate in the estimation process
+- Throw paper balls and emojis at other players
+- Shake the screen of other players
+- Create and manage estimation sessions
+- Estimation histogram/plot
+- Real-time updates to ensure all team members are on the same page
+- Dockerized
+- Horizontally scalable backend
+- Free for everyone, no ads
 
-# Get it to run 
 ## Prerequisites
 
-- Docker
+- Docker (or Node.js 18+ and a Redis instance, for [dev without Docker](#without-docker-for-development))
+
+The backend requires a reachable Redis instance — it's where session and player state is stored.
+Every option below already provisions one for you except the no-Docker dev path, which you start
+yourself.
 
 ## Self-Hosting
 
-### No Docker (for development)
-- ```git clone https://github.com/LReg/PlanningPoker.git```
-- ```cd backend```
-- ```npm install```
-- ```npm run start```
-- open new Terminal for trontend
-- ```cd frontend```
-- ```npm install```
-- ```npm run dev```
-- open your browser and go to ```http://localhost:80```
+All three Docker-based options run `docker compose`, differ only in whether/how they front the
+app with Traefik, and all bring up a `redis` container automatically — no separate setup needed.
+
+### Without Docker (for development)
+
+```bash
+git clone https://github.com/LReg/PlanningPoker.git
+```
+
+Start a Redis instance the backend can reach — for example:
+
+```bash
+docker run -d --name planning-poker-redis -p 6379:6379 redis:7-alpine
+```
+
+Then, in one terminal:
+
+```bash
+cd backend
+npm install
+REDIS_URL=redis://localhost:6379 npm run start
+```
+
+And in a second terminal, for the frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open your browser at `http://localhost:80`.
 
 ### Localhost Docker
-- ```git clone https://github.com/LReg/PlanningPoker.git```
-- change the .env File to your needs [explained below](#customize-env-file)
-- ``` docker compose up -d```
- 
+
+```bash
+git clone https://github.com/LReg/PlanningPoker.git
+```
+
+Change the `.env` file to your needs — [see below](#customize-env-file) — then:
+
+```bash
+docker compose up -d
+```
+
 ### Classic Docker
-- ```git clone https://github.com/LReg/PlanningPoker.git```
-- ```cp .env.example .env``` 
-- change the .env File to your needs [explained below](#customize-env-file)
-- ``` docker compose up -d```
+
+```bash
+git clone https://github.com/LReg/PlanningPoker.git
+cp .env.example .env
+```
+
+Change the `.env` file to your needs — [see below](#customize-env-file) — then:
+
+```bash
+docker compose up -d
+```
 
 ### Traefik + Docker
-- ```git clone https://github.com/LReg/PlanningPoker.git```
-- ```cp .env.example.traefik .env```
-- change the .env File to your needs [explained below](#customize-env-file)
-- ``` docker compose -f traefik.docker-compose.yml up -d```
 
-# Customize .env File
-- DOMAIN=YOURDOMAIN -> needs to be changed to your domain
-- PRODUCTION=true -> should stay on true
-- PROTOCOL=http -> important for backend url in frontend
-- BACKEND_PORT=8080 -> port of the backend
- 
-- TRAEFIK=false -> append an /api to route over the same domain (in frontend)
-- TRAEFIK_CERT_RESOLVER=HttpsResolver -> needs to be changed to traefik your cert resolver
-- TRAEFIK_ENTRYPOINT=Https -> name of your traefik entrypoint
-- TRAEFIK_NETWORK=traefiknetwork -> name of your traefik network
-- TRAEFIK_ROUTER=PlanningPokerRouter -> the name of the traefik router (needs to be unique to other traefik services)
- 
-- CONTAINER_NAME=planning-poker -> name of docker the container
-- IMAGE_NAME=planningpoker -> name of the docker image
- 
-# Drawbacks 
-The application is currently only available in German. Maybe some day i will translate it. 
+For hosting behind an existing Traefik reverse proxy on the same Docker host.
+
+```bash
+git clone https://github.com/LReg/PlanningPoker.git
+cp .env.example.traefik .env
+```
+
+Change the `.env` file to your needs — [see below](#customize-env-file) — then:
+
+```bash
+docker compose -f traefik.docker-compose.yml up -d
+```
+
+This expects an external Docker network already created for your Traefik instance to route
+through (`TRAEFIK_NETWORK` below) — see [Traefik's Docker provider docs](https://doc.traefik.io/traefik/providers/docker/) if you don't have one yet.
+
+## Customize .env File
+
+| Variable | Meaning |
+|---|---|
+| `DOMAIN` | Your domain — needs to be changed to yours |
+| `PRODUCTION` | Should stay `true` |
+| `PROTOCOL` | `http` or `https` — used to build the backend URL in the frontend |
+| `BACKEND_PORT` | Port the backend listens on |
+| `N8NCHAT` | Webhook URL for the optional AI chat commands (`/ask`, `/estimation`) — leave as-is if you don't use these |
+| `TRAEFIK` | `true` appends `/api` to route the backend over the same domain as the frontend (used by the frontend) |
+| `TRAEFIK_CERT_RESOLVER` | Needs to match your Traefik cert resolver |
+| `TRAEFIK_ENTRYPOINT` | Name of your Traefik entrypoint |
+| `TRAEFIK_NETWORK` | Name of your external Traefik Docker network |
+| `TRAEFIK_ROUTER` | Name of the Traefik router — must be unique among your other Traefik services |
+| `CONTAINER_NAME` | Name prefix for the Docker containers |
+| `IMAGE_NAME` | Name prefix for the Docker images |
+
+Redis is intentionally not listed here — every Docker option above wires `REDIS_URL` to the
+`redis` service it starts for you automatically. You only need to set it yourself in the
+[no-Docker dev path](#without-docker-for-development).
+
+## Drawbacks
+
+The application is currently only available in German. Maybe some day I will translate it.

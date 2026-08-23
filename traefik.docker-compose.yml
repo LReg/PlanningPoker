@@ -9,6 +9,11 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
       - PROTOCOL=${PROTOCOL}
       - N8NCHAT=${N8NCHAT}
+      # Session/player state itself lives in Redis now, not just Socket.io fan-out — see
+      # HORIZONTAL-SCALING-GAP.md. Required at boot, not optional.
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-backend.entrypoints=${TRAEFIK_ENTRYPOINT}"
@@ -47,6 +52,11 @@ services:
       - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.tls=true"
       - "traefik.http.routers.${TRAEFIK_ROUTER}-frontend.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+    networks:
+      - innernetwork
+  redis:
+    image: redis:7-alpine
+    restart: always
     networks:
       - innernetwork
 networks:
