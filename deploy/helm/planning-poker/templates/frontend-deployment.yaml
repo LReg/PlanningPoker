@@ -46,5 +46,7 @@ spec:
               value: {{ .Values.backend.port | quote }}
             - name: PRODUCTION_ADDRESS
               value: {{ .Values.frontend.productionAddress | quote }}
+            - name: UMAMI_WEBSITE_ID
+              value: {{ .Values.frontend.umamiWebsiteId | quote }}
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}

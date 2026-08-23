@@ -13,6 +13,7 @@ CONFIG_PATH="/usr/share/nginx/html/config.json"
 : "${TRAEFIK:=false}"
 : "${BACKEND_PORT:=8080}"
 : "${PRODUCTION_ADDRESS:=}"
+: "${UMAMI_WEBSITE_ID:=}"
 
 cat > "$CONFIG_PATH" <<EOF
 {
@@ -22,7 +23,8 @@ cat > "$CONFIG_PATH" <<EOF
   "devServer": ${DEV_SERVER},
   "traefik": ${TRAEFIK},
   "backendPort": "${BACKEND_PORT}",
-  "productionAddress": "${PRODUCTION_ADDRESS}"
+  "productionAddress": "${PRODUCTION_ADDRESS}",
+  "umamiWebsiteId": "${UMAMI_WEBSITE_ID}"
 }
 EOF
 

@@ -50,6 +50,10 @@ frontend:
   # Where that banner's "visit production" link points — same in every environment
   # (only shown at all when devServer is true), so this one stays shared.
   productionAddress: "https://poker.nilsabbing.de"
+  # Umami website id for this app (umami.k3s2.lreg0.de) — empty means tracking is off. Website
+  # ids don't exist until registered by hand in Umami's own admin UI after first login, so this
+  # starts empty in every environment; set per-environment in infra once known.
+  umamiWebsiteId: ""
   resources:
     requests:
       cpu: 10m

@@ -5,5 +5,6 @@
   "devServer": true,
   "traefik": false,
   "backendPort": "8080",
-  "productionAddress": "https://poker.lreg0.de"
+  "productionAddress": "https://poker.lreg0.de",
+  "umamiWebsiteId": ""
 }
