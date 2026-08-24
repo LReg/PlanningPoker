@@ -37,6 +37,8 @@ function injectUmamiScript(websiteId: string): void {
   script.async = true;
   script.src = UMAMI_SCRIPT_URL;
   script.setAttribute('data-website-id', websiteId);
+  // Core Web Vitals collection — needs Umami >= 3.1.0 (the deployed instance is 3.3.0).
+  script.setAttribute('data-performance', 'true');
   document.head.appendChild(script);
 }
 
