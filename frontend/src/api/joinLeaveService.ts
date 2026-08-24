@@ -10,6 +10,7 @@ import {aimessageRef, clearMessages, messagesRef} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
 import type {EstimationHistogram} from "@/models/EstimationHistogram";
 import histogramRef from "@/reactive/useEstimationHistogram";
+import flashbangSubject from "@/reactive/useFlashbang";
 
 function socketSessionUpdateListeners() {
     socket!.on('playerJoined', (session: ExportEstimateSession) => {
@@ -69,6 +70,9 @@ function socketSessionListenersForPlayers() {
         setTimeout(() => {
             document.body.classList.remove('shake');
         }, 1000);
+    });
+    socket!.on('flashbang', () => {
+        flashbangSubject.next();
     });
     socket!.on('kickWarning', () => {
         message.warning('Du wirst in 5 Minuten aus der Sitzung geworfen, wenn du nicht aktiv bleibst');

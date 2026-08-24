@@ -25,6 +25,7 @@ import {
     playerLeave,
     registerPlayer,
     shake,
+    flashbang,
     throwEmojiAt
 } from "../services/sessionService.js";
 import {debug} from "../index.js";
@@ -359,6 +360,29 @@ router.post('/shake/:id/:sessionToken', asyncHandler(async (req, res) => {
         return;
     }
     await shake(shakePlayer);
+    res.send('OK');
+}));
+
+router.post('/flashbang/:id/:sessionToken', asyncHandler(async (req, res) => {
+    const playerToken = req.body.userToken;
+    const sessionToken = req.params.sessionToken;
+    const flashId = req.params.id;
+    const session = await getSessionByToken(sessionToken);
+    if (!session) {
+        res.status(404).send('Session not found');
+        return;
+    }
+    const player = await getPlayerByToken(playerToken, sessionToken);
+    const flashPlayer = await getPlayerById(flashId, sessionToken);
+    if (!player) {
+        res.status(404).send('Player not found');
+        return;
+    }
+    if (!flashPlayer) {
+        res.status(404).send('Player to flashbang not found');
+        return;
+    }
+    await flashbang(flashPlayer);
     res.send('OK');
 }));
 

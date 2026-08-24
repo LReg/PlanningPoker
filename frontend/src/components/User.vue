@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import Card from "@/components/Card.vue";
 import reactiveUser from "@/reactive/useUser";
-import {kickPlayer, makeOtherPlayerAdmin, shake, throwEmoji} from "@/api/actionsService";
+import {flashbang, kickPlayer, makeOtherPlayerAdmin, shake, throwEmoji} from "@/api/actionsService";
 import {onMounted, onUnmounted, ref} from "vue";
 import {paperThrowSubject} from "@/api/actionsService";
 import {Subject, takeUntil} from "rxjs";
 import ThrowItem from "@/components/ThrowItem.vue";
 import {message} from "ant-design-vue";
-const props = defineProps(['username', 'estimate', 'id']);
+const props = defineProps(['username', 'estimate', 'id', 'listView']);
 const actionCooldown = ref(false);
 const dropdownOpen = ref(false);
 const throwItems = ref([] as {id: number, emoji: string}[]);
@@ -33,6 +33,10 @@ const triggerActionCooldown = () => {
 }
 const handleShake = (e: any) => {
   shake(props.id);
+  triggerActionCooldown();
+}
+const handleFlashbang = (e: any) => {
+  flashbang(props.id);
   triggerActionCooldown();
 }
 const triggerBallAnimation = (emoji: string) => {
@@ -82,14 +86,20 @@ const handleOpenModal = () => {
 
 <template>
   <a-dropdown :trigger="['click']" v-model:open="dropdownOpen">
-    <div :class="'user' + ((reactiveUser?.id === id) && reactiveUser ? ' user--me' : ' hoverpointer')">
+    <div :class="'user' + (listView ? ' user--list' : ' user--grid') + ((reactiveUser?.id === id) && reactiveUser ? ' user--me' : ' hoverpointer')">
       <span class="user-name">{{ username }}</span>
-      <Card :estimate="estimate" :selected="estimate"></Card>
+      <Card v-if="!listView" :estimate="estimate" :selected="estimate"></Card>
+      <span v-else class="user-estimate-pill" :class="{selected: !!estimate}">
+        <template v-if="estimate === null">X</template>
+        <template v-else-if="typeof estimate === 'string'">{{ estimate }}</template>
+        <template v-else-if="typeof estimate === 'number' && estimate === -1">?</template>
+      </span>
       <ThrowItem v-for="data in throwItems" :key="data.id" :ballid="'ball' + data.id" :emoji="data.emoji"></ThrowItem>
     </div>
     <template #overlay v-if="!(reactiveUser?.id === id) && reactiveUser">
       <a-menu>
         <a-menu-item @click="handleShake" :disabled="actionCooldown"><span class="noselect">Schütteln</span></a-menu-item>
+        <a-menu-item @click="handleFlashbang" :disabled="actionCooldown"><span class="noselect">Blenden</span></a-menu-item>
         <a-menu-Item class="throw-menu-item">
           <span>Abwerfen:</span><br />
           <a-button @click="handleThrow('0')" type="text">Papierkugel</a-button><br />
@@ -143,6 +153,41 @@ const handleOpenModal = () => {
   -webkit-box-orient: vertical;
   line-height: 1.25;
   word-break: break-word;
+}
+.user--list {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 26rem;
+  min-height: auto;
+  padding: .6rem .9rem;
+}
+.user--list .user-name {
+  text-align: left;
+  -webkit-line-clamp: 1;
+  flex: 1;
+  min-width: 0;
+}
+.user-estimate-pill {
+  flex-shrink: 0;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding: 0 .6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--surface-border);
+  background-color: var(--surface-solid);
+  background-image: linear-gradient(150deg, rgba(var(--lingrad-a), 0.06), rgba(var(--lingrad-b), 0.1));
+  font-weight: 700;
+  font-size: 1em;
+  color: var(--text-color);
+}
+.user-estimate-pill.selected {
+  border-color: transparent;
+  background-image: linear-gradient(150deg, rgb(var(--lingrad-a)), rgb(var(--lingrad-b)));
+  color: white;
 }
 .user--me {
   background: rgba(var(--lingrad-a), 0.08);

@@ -175,6 +175,13 @@ export const shake = async (player: Player): Promise<void> => {
     }
 }
 
+export const flashbang = async (player: Player): Promise<void> => {
+    const socketId = await getSocketIdForPlayer(player.token);
+    if (socketId) {
+        io.to(socketId).emit('flashbang');
+    }
+}
+
 export const throwEmojiAt = (session: Session, player: Player, emoji: string) => {
     io.to(session.token).emit('throw', player.id, emoji);
 }

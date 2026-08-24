@@ -70,6 +70,17 @@ export async function shake(playerId: string): Promise<void> {
     );
 }
 
+export async function flashbang(playerId: string): Promise<void> {
+    if (!userRef.value || !sessionRef.value) {
+        throw new Error('User or Session not initialized');
+    }
+
+    await axios.post(
+        env.apiServiceRoute + '/flashbang/' + playerId + '/' + sessionRef.value.token,
+        {userToken: userRef.value.token},
+    );
+}
+
 export async function throwEmoji(playerId: string, emoji: string): Promise<void> {
     if (!userRef.value || !sessionRef.value) {
         throw new Error('User or Session not initialized');

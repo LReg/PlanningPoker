@@ -2,7 +2,18 @@
 import sessionRef from "@/reactive/useSession";
 import userRef from "@/reactive/useUser";
 import ColorThemeChooser from "@/components/ColorThemeChooser.vue";
-import {CopyOutlined, EyeInvisibleOutlined, EyeOutlined, LogoutOutlined, UserOutlined, UserSwitchOutlined} from "@ant-design/icons-vue";
+import {
+  AppstoreOutlined,
+  CopyOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  LogoutOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  UnorderedListOutlined,
+  UserOutlined,
+  UserSwitchOutlined
+} from "@ant-design/icons-vue";
 import env from "@/environments/environments";
 import {message} from "ant-design-vue";
 import {exitSpectateGame, getSpectatorAsUser, leaveGame} from "@/api/joinLeaveService";
@@ -13,8 +24,17 @@ import {ref, watch} from "vue";
 import EstimationOptionsChooser from "@/components/EstimationOptionsChooser.vue";
 import currentTheme from "@/reactive/useTheme";
 import {computed} from "vue";
+import chatCollapsedRef from "@/reactive/useChatCollapsed";
+import playerViewModeRef from "@/reactive/usePlayerViewMode";
 
 const launcherTheme = computed(() => currentTheme.value === 'dark' ? 'dark' : 'light');
+
+const toggleChatCollapsed = () => {
+  chatCollapsedRef.value = !chatCollapsedRef.value;
+}
+const togglePlayerViewMode = () => {
+  playerViewModeRef.value = playerViewModeRef.value === 'grid' ? 'list' : 'grid';
+}
 
 const router = useRouter();
 const route = useRoute();
@@ -75,6 +95,14 @@ const handleJoinGame = () => {
     </div>
     <div v-if="userRef" class="top-bar_container top-bar_usercontainer">
       <EstimationOptionsChooser v-if="userRef && userRef.isOwner"></EstimationOptionsChooser>
+      <button class="icon-btn" @click="togglePlayerViewMode" :title="playerViewModeRef === 'grid' ? 'Listenansicht' : 'Kartenansicht'">
+        <UnorderedListOutlined v-if="playerViewModeRef === 'grid'" />
+        <AppstoreOutlined v-else />
+      </button>
+      <button class="icon-btn" @click="toggleChatCollapsed" :title="chatCollapsedRef ? 'Chat einblenden' : 'Chat ausblenden'">
+        <MenuUnfoldOutlined v-if="chatCollapsedRef" />
+        <MenuFoldOutlined v-else />
+      </button>
       <ColorThemeChooser></ColorThemeChooser>
       <span class="user-chip">
         <UserOutlined/>
@@ -91,6 +119,14 @@ const handleJoinGame = () => {
       <app-launcher current="planning-poker" :theme="launcherTheme"></app-launcher>
     </div>
     <div v-if="!userRef" class="top-bar_container top-bar_usercontainer">
+      <button class="icon-btn" @click="togglePlayerViewMode" :title="playerViewModeRef === 'grid' ? 'Listenansicht' : 'Kartenansicht'">
+        <UnorderedListOutlined v-if="playerViewModeRef === 'grid'" />
+        <AppstoreOutlined v-else />
+      </button>
+      <button class="icon-btn" @click="toggleChatCollapsed" :title="chatCollapsedRef ? 'Chat einblenden' : 'Chat ausblenden'">
+        <MenuUnfoldOutlined v-if="chatCollapsedRef" />
+        <MenuFoldOutlined v-else />
+      </button>
       <ColorThemeChooser></ColorThemeChooser>
       <span class="user-chip">
         <UserOutlined/>

@@ -13,6 +13,8 @@ import estimationHistogram from "@/reactive/useEstimationHistogram";
 import Histogram from "@/components/Histogram.vue";
 import TopBar from "@/components/TopBar.vue";
 import {socketExit} from "@/api/socketService";
+import chatCollapsedRef from "@/reactive/useChatCollapsed";
+import playerViewModeRef from "@/reactive/usePlayerViewMode";
 
 const router = useRouter();
 const route = useRoute();
@@ -71,10 +73,10 @@ watch(sessionRef, (newValue, oldValue) => {
   <div class="game-shell">
     <TopBar></TopBar>
     <div class="content_container">
-      <div v-if="sessionRef" class="userContainer">
-        <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name"></User>
+      <div v-if="sessionRef" class="userContainer" :class="{'userContainer--list': playerViewModeRef === 'list', 'userContainer--full': chatCollapsedRef}">
+        <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name" :list-view="playerViewModeRef === 'list'"></User>
       </div>
-      <div class="chat_container">
+      <div class="chat_container" :class="{'chat_container--collapsed': chatCollapsedRef}">
         <Chat></Chat>
       </div>
     </div>
@@ -85,7 +87,7 @@ watch(sessionRef, (newValue, oldValue) => {
 
 <style scoped>
 .game-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -99,6 +101,15 @@ watch(sessionRef, (newValue, oldValue) => {
   min-width: 17rem;
   padding: 1.5rem 1rem;
   overflow-y: auto;
+  transition: width .25s ease;
+}
+.userContainer--full {
+  width: 100%;
+}
+.userContainer--list {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 h1 {
@@ -111,13 +122,24 @@ h1 {
   min-height: 0;
   gap: 1rem;
   width: 100%;
-  padding-bottom: 7.5rem;
+  padding-bottom: 10rem;
   overflow-x: auto;
 }
 .chat_container {
   min-width: 17rem;
+  min-height: 0;
   padding: 1rem 1rem 1rem 1.25rem;
   width: 30%;
   border-left: 1px solid var(--surface-border);
+  transition: width .25s ease, min-width .25s ease, opacity .2s ease, padding .25s ease;
+}
+.chat_container--collapsed {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border-left: none;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 </style>
