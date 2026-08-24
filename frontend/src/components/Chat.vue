@@ -225,6 +225,7 @@ const handleCommandClickAi = (command: Command) => {
   padding-bottom: .6rem;
 }
 .chat-bubble {
+  flex-shrink: 0;
   border-radius: var(--radius-md);
   background: var(--theme-container-color);
   border: 1px solid var(--surface-border);
