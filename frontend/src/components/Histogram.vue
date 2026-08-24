@@ -19,7 +19,7 @@ const entries = computed(() => {
       .filter(([, count]) => count > 0);
 });
 const maxCount = computed(() => Math.max(1, ...entries.value.map(([, count]) => count)));
-const evaluateHeightRem = (value: number) => `${(value / maxCount.value) * 9}rem`;
+const evaluateHeightRem = (value: number) => `${(value / maxCount.value) * 6}rem`;
 </script>
 
 <template>
@@ -65,7 +65,6 @@ const evaluateHeightRem = (value: number) => `${(value / maxCount.value) * 9}rem
 }
 .histogramContainer {
   width: min(70vw, 40rem);
-  max-height: 11rem;
   position: fixed;
   left: 50%;
   bottom: 9rem;
@@ -73,7 +72,7 @@ const evaluateHeightRem = (value: number) => `${(value / maxCount.value) * 9}rem
   opacity: 1;
   pointer-events: auto;
   transition: opacity .3s ease, transform .3s ease;
-  padding: 1.2rem 1.6rem .8rem;
+  padding: 1.6rem 1.6rem 1rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--surface-border);
   background: var(--theme-container-color);
