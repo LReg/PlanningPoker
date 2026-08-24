@@ -7,7 +7,7 @@ export const themeAccents: Record<string, string> = {
   gray: '#475569',
   green: '#059669',
   red: '#DC2626',
-  dark: '#6366F1',
+  dark: '#3B5BDB',
 };
 
 const currentTheme = ref(localStorage.getItem('theme') || 'default');

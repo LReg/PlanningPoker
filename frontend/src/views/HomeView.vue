@@ -8,6 +8,11 @@ import type {Ref} from "vue";
 import type {ActiveSessions} from "@/models/ActiveSessions";
 import Footer from "@/components/Footer.vue";
 import environment from "@/environments/environments";
+import ColorThemeChooser from "@/components/ColorThemeChooser.vue";
+import currentTheme from "@/reactive/useTheme";
+import {computed} from "vue";
+
+const launcherTheme = computed(() => currentTheme.value === 'dark' ? 'dark' : 'light');
 const router = useRouter();
 const sessionToken = localStorage.getItem('sessionToken');
 if (sessionToken) {
@@ -21,11 +26,14 @@ getActiveSessions().then(info => {
 
 <template>
   <div class="home-container">
-    <app-launcher current="planning-poker" theme="light" class="launcher"></app-launcher>
-    <aside class="info" v-if="activeSessions !== null">
-      <span class="info-dot"></span>
-      <span>{{activeSessions.active}} aktive / {{activeSessions.total}} gesamt</span>
-    </aside>
+    <app-launcher current="planning-poker" :theme="launcherTheme" class="launcher"></app-launcher>
+    <div class="top-right">
+      <aside class="info" v-if="activeSessions !== null">
+        <span class="info-dot"></span>
+        <span>{{activeSessions.active}} aktive / {{activeSessions.total}} gesamt</span>
+      </aside>
+      <ColorThemeChooser variant="surface"></ColorThemeChooser>
+    </div>
     <main class="hero">
       <div class="hero-heading">
         <span class="eyebrow">Planning Poker</span>
@@ -129,12 +137,18 @@ getActiveSessions().then(info => {
   align-items: stretch;
   animation: fade-in-up .6s .1s ease both;
 }
+.top-right {
+  position: fixed;
+  top: .8rem;
+  right: .8rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  z-index: 100;
+}
 .info {
   font-size: .78em;
   font-weight: 500;
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -144,7 +158,6 @@ getActiveSessions().then(info => {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--surface-border);
   border-radius: 999px;
-  z-index: 100;
 }
 .info-dot {
   width: .5rem;

@@ -30,7 +30,9 @@ const choose = (option: any) => {
   left: 50%;
   bottom: 1.2rem;
   transform: translate(-50%, 0);
-  transition: transform 0.2s linear;
+  opacity: 1;
+  pointer-events: auto;
+  transition: transform 0.25s ease, opacity 0.25s ease;
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -47,7 +49,9 @@ const choose = (option: any) => {
   z-index: 150;
 }
 .estimates.hidden {
-  transform: translate(-50%, 6rem);
+  transform: translate(-50%, 1.5rem);
+  opacity: 0;
+  pointer-events: none;
 }
 @media(max-width: 950px) {
   .estimates {
@@ -56,7 +60,8 @@ const choose = (option: any) => {
     transform: translate(0, 0);
   }
   .estimates.hidden {
-    transform: translate(0, 6rem);
+    transform: translate(0, 1.5rem);
+    opacity: 0;
   }
 }
 </style>

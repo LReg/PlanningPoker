@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EstimationHistogram } from '@/models/EstimationHistogram';
 import type {PropType} from "vue";
+import {computed} from "vue";
 
 const props = defineProps({
   data: {
@@ -12,21 +13,22 @@ const props = defineProps({
     default: true,
   }
 })
-const evaluateHeightRem = (value: number) => {
-  const highestEstimation = Math.max(...(Object.values(props.data?.estimationCount)));
-  const highestPossibleRem = 9
-  // evalue Hight in REM when 9 is
-  return `${(value / highestEstimation) * highestPossibleRem}rem`
-}
 
+const entries = computed(() => {
+  return Object.entries(props.data?.estimationCount ?? {})
+      .filter(([, count]) => count > 0);
+});
+const maxCount = computed(() => Math.max(1, ...entries.value.map(([, count]) => count)));
+const evaluateHeightRem = (value: number) => `${(value / maxCount.value) * 9}rem`;
 </script>
 
 <template>
-<div class="histogramContainer" :style="{'opacity': props.hide ?? false ? '0' : '1', 'transition': 'opacity 0.4s linear'}">
-  <div v-for="entry in Object.keys(props.data?.estimationCount)" class="estimation">
-    <div class="bar" :style="{'height': evaluateHeightRem(props.data?.estimationCount[entry as unknown as number])}"></div>
-    <span class="bar-count">{{props.data?.estimationCount[entry as unknown as number]}}</span>
-    <span class="bar-label">{{entry}}</span>
+<div class="histogramContainer" :class="{hidden: props.hide ?? false}">
+  <div v-if="entries.length === 0" class="empty">Noch keine Schätzungen</div>
+  <div v-for="[label, count] in entries" :key="label" class="estimation">
+    <div class="bar" :style="{height: evaluateHeightRem(count)}"></div>
+    <span class="bar-count">{{count}}</span>
+    <span class="bar-label">{{label}}</span>
   </div>
 </div>
 </template>
@@ -56,13 +58,21 @@ const evaluateHeightRem = (value: number) => {
   font-size: .8em;
   font-weight: 600;
 }
+.empty {
+  font-size: .85em;
+  color: var(--text-color-secondary);
+  padding: .5rem 1rem;
+}
 .histogramContainer {
   width: min(70vw, 40rem);
   max-height: 11rem;
   position: fixed;
   left: 50%;
   bottom: 9rem;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .3s ease, transform .3s ease;
   padding: 1.2rem 1.6rem .8rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--surface-border);
@@ -76,5 +86,10 @@ const evaluateHeightRem = (value: number) => {
   gap: 1rem;
   overflow-x: auto;
   z-index: 140;
+}
+.histogramContainer.hidden {
+  opacity: 0;
+  transform: translate(-50%, .75rem);
+  pointer-events: none;
 }
 </style>

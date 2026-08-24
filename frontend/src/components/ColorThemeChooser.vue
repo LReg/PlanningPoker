@@ -3,6 +3,8 @@ import { BgColorsOutlined } from '@ant-design/icons-vue';
 import {onMounted, ref} from "vue";
 import currentTheme from "@/reactive/useTheme";
 
+withDefaults(defineProps<{variant?: 'bar' | 'surface'}>(), {variant: 'bar'});
+
 const themes = [
   { key: 'default', label: 'Default', color: 'linear-gradient(135deg, rgb(79,70,229), rgb(168,85,247))' },
   { key: 'purple', label: 'Purple', color: 'linear-gradient(135deg, rgb(126,34,206), rgb(217,70,239))' },
@@ -32,7 +34,7 @@ onMounted(() => {
 
 <template>
 <a-popover trigger="click" placement="bottom" v-model:open="open" overlayClassName="theme-popover">
-  <button class="theme-trigger" aria-label="Farbschema wählen">
+  <button class="theme-trigger" :class="'theme-trigger--' + variant" aria-label="Farbschema wählen" title="Farbschema wählen">
     <BgColorsOutlined :style="{fontSize: '18px'}"/>
   </button>
   <template #content>
@@ -61,14 +63,28 @@ onMounted(() => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.14);
-  color: inherit;
   cursor: pointer;
-  transition: background .2s ease, transform .2s ease;
+  transition: background .2s ease, transform .2s ease, border-color .2s ease;
 }
-.theme-trigger:hover {
-  background: rgba(255, 255, 255, 0.28);
+.theme-trigger--bar {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+.theme-trigger--bar:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ffffff;
+  transform: translateY(-1px);
+}
+.theme-trigger--surface {
+  border: 1px solid var(--surface-border);
+  background: var(--theme-container-color);
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
+}
+.theme-trigger--surface:hover {
+  background: rgba(var(--lingrad-a), 0.14);
+  border-color: rgba(var(--lingrad-a), 0.4);
   transform: translateY(-1px);
 }
 

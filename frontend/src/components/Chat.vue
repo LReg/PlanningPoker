@@ -117,20 +117,18 @@ const handleCommandClickAi = (command: Command) => {
       <div class="chat">
         <div class="scroll-down" @click="scrollDown" v-if="showScrollDown">Scroll Down</div>
         <div class="chat__messages" ref="messagesContainerRef">
-          <a-comment
-              :author="message.name"
-              :avatar="message.name === 'Server' ? '/server.png' : '/user.png'"
-              v-for="message in messagesRef"
-              :key="message.timestamp"
-          >
-            <template #datetime>
-              {{ new Date(message.timestamp).toLocaleTimeString() }}
-            </template>
-            <template #content>
-              <div v-html="message.message" class="chat-message-content"></div>
-            </template>
-          </a-comment>
-          <div class="chat__message">
+          <div class="chat-bubble" v-for="message in messagesRef" :key="message.timestamp">
+            <a-comment
+                :author="message.name"
+                :avatar="message.name === 'Server' ? '/server.png' : '/user.png'"
+            >
+              <template #datetime>
+                {{ new Date(message.timestamp).toLocaleTimeString() }}
+              </template>
+              <template #content>
+                <div v-html="message.message" class="chat-message-content"></div>
+              </template>
+            </a-comment>
           </div>
         </div>
         <div class="command-options">
@@ -162,20 +160,18 @@ const handleCommandClickAi = (command: Command) => {
 
       <div class="chat">
         <div class="chat__messages">
-          <a-comment
-              :author="message.name"
-              :avatar="message.name === 'Server' ? '/server.png' : '/user.png'"
-              v-for="message in aimessageRef"
-              :key="message.timestamp"
-          >
-            <template #datetime>
-              {{ new Date(message.timestamp).toLocaleTimeString() }}
-            </template>
-            <template #content>
-              <div v-html="message.message"></div>
-            </template>
-          </a-comment>
-          <div class="chat__message">
+          <div class="chat-bubble" v-for="message in aimessageRef" :key="message.timestamp">
+            <a-comment
+                :author="message.name"
+                :avatar="message.name === 'Server' ? '/server.png' : '/user.png'"
+            >
+              <template #datetime>
+                {{ new Date(message.timestamp).toLocaleTimeString() }}
+              </template>
+              <template #content>
+                <div v-html="message.message"></div>
+              </template>
+            </a-comment>
           </div>
         </div>
         <div class="command-options">
@@ -222,23 +218,29 @@ const handleCommandClickAi = (command: Command) => {
   overflow-y: scroll;
   height: 100%;
   padding-right: .3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  padding-bottom: .6rem;
 }
-.chat__messages :deep(.ant-comment) {
-  padding: .6rem .7rem;
-  margin-bottom: .4rem;
+.chat-bubble {
   border-radius: var(--radius-md);
   background: var(--theme-container-color);
   border: 1px solid var(--surface-border);
+  overflow: hidden;
 }
-.chat__messages :deep(.ant-comment-content-author-name) {
-  font-weight: 700;
-  color: var(--text-color);
+.chat-bubble :deep(.ant-comment-inner) {
+  padding: .6rem .7rem !important;
 }
-.chat__messages :deep(.ant-comment-content-author-time) {
-  color: var(--text-color-secondary);
+.chat-bubble :deep(.ant-comment-content-author-name) {
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
 }
-.chat__messages :deep(.ant-avatar) {
-  border-radius: var(--radius-sm);
+.chat-bubble :deep(.ant-comment-content-author-time) {
+  color: var(--text-color-secondary) !important;
+}
+.chat-bubble :deep(.ant-avatar) {
+  border-radius: var(--radius-sm) !important;
 }
 
 .command-options {

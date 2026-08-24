@@ -103,8 +103,8 @@ h1, h2, h3, h4 {
 }
 
 .dark {
-    --lingrad-a: 99, 102, 241;
-    --lingrad-b: 56, 189, 248;
+    --lingrad-a: 49, 46, 129;
+    --lingrad-b: 29, 78, 216;
     --bg-color: #0e0f14;
     --text-color: #f2f3f7;
     --text-color-secondary: rgba(242, 243, 247, 0.62);
@@ -127,8 +127,8 @@ h1, h2, h3, h4 {
 }
 
 .blue {
-    --lingrad-a: 37, 99, 235;
-    --lingrad-b: 6, 182, 212;
+    --lingrad-a: 30, 58, 138;
+    --lingrad-b: 37, 99, 235;
     --bg-color: #f1f7ff;
     --text-color: #0c1a2e;
     --text-color-secondary: rgba(12, 26, 46, 0.62);

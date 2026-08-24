@@ -120,25 +120,29 @@ const handleOpenModal = () => {
 
 .user {
   user-select: none;
-  width: 9rem;
-  height: 8.6rem;
+  width: 10rem;
+  min-height: 9.6rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: .9rem;
-  padding: .8rem .5rem;
+  gap: .7rem;
+  padding: .9rem .6rem;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   transition: background .2s ease, border-color .2s ease;
 }
 .user-name {
   font-weight: 600;
-  font-size: .92em;
+  font-size: .9em;
   max-width: 100%;
+  text-align: center;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.25;
+  word-break: break-word;
 }
 .user--me {
   background: rgba(var(--lingrad-a), 0.08);

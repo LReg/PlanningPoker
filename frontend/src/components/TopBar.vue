@@ -11,6 +11,10 @@ import {useRoute, useRouter} from "vue-router";
 import {noop} from "rxjs";
 import {ref, watch} from "vue";
 import EstimationOptionsChooser from "@/components/EstimationOptionsChooser.vue";
+import currentTheme from "@/reactive/useTheme";
+import {computed} from "vue";
+
+const launcherTheme = computed(() => currentTheme.value === 'dark' ? 'dark' : 'light');
 
 const router = useRouter();
 const route = useRoute();
@@ -60,18 +64,14 @@ const handleJoinGame = () => {
         </button>
         {{gameToken}}
       </span>
-      <a-button class="reveal-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true">
-        <template #icon>
-          <EyeInvisibleOutlined></EyeInvisibleOutlined>
-        </template>
+      <button class="pill-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true">
+        <EyeInvisibleOutlined/>
         neue Schätzung
-      </a-button>
-      <a-button class="reveal-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false">
-        <template #icon>
-          <EyeOutlined></EyeOutlined>
-        </template>
+      </button>
+      <button class="pill-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false">
+        <EyeOutlined/>
         Schätzungen aufdecken
-      </a-button>
+      </button>
     </div>
     <div v-if="userRef" class="top-bar_container top-bar_usercontainer">
       <EstimationOptionsChooser v-if="userRef && userRef.isOwner"></EstimationOptionsChooser>
@@ -80,17 +80,15 @@ const handleJoinGame = () => {
         <UserOutlined/>
         {{userRef.name}}
       </span>
-      <a-button v-if="userRef && !userRef.isOwner" @click="handleSpectateFromPlayer" ghost>
+      <button v-if="userRef && !userRef.isOwner" class="pill-btn" @click="handleSpectateFromPlayer">
+        <UserSwitchOutlined/>
         Zuschauer werden
-        <template #icon>
-          <UserSwitchOutlined />
-        </template>
-      </a-button>
-      <a-button ghost @click="handleLeave()">
+      </button>
+      <button class="pill-btn" @click="handleLeave()">
+        <LogoutOutlined/>
         Verlassen
-        <template #icon><LogoutOutlined /></template>
-      </a-button>
-      <app-launcher current="planning-poker" theme="light"></app-launcher>
+      </button>
+      <app-launcher current="planning-poker" :theme="launcherTheme"></app-launcher>
     </div>
     <div v-if="!userRef" class="top-bar_container top-bar_usercontainer">
       <ColorThemeChooser></ColorThemeChooser>
@@ -98,16 +96,14 @@ const handleJoinGame = () => {
         <UserOutlined/>
         Zuschauer
       </span>
-      <a-button ghost @click="handleJoinGame">
+      <button class="pill-btn" @click="handleJoinGame">
+        <UserSwitchOutlined/>
         Spiel beitreten
-        <template #icon>
-          <UserSwitchOutlined />
-        </template>
-      </a-button>
-      <a-button ghost @click="handleLeaveSpectatorMode()">
-        <template #icon><LogoutOutlined /></template>
-      </a-button>
-      <app-launcher current="planning-poker" theme="light"></app-launcher>
+      </button>
+      <button class="pill-btn pill-btn--icon" title="Verlassen" @click="handleLeaveSpectatorMode()">
+        <LogoutOutlined/>
+      </button>
+      <app-launcher current="planning-poker" :theme="launcherTheme"></app-launcher>
     </div>
   </div>
 </template>
@@ -186,23 +182,32 @@ h1 {
   background: rgba(255, 255, 255, 0.38);
 }
 
-.reveal-btn {
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .5rem 1.1rem;
   border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: .92em;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
 }
-
-:deep(.top-bar .ant-btn),
-:deep(.top-bar .ant-btn.ant-btn-background-ghost) {
-  border-radius: 999px;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
-  text-shadow: none;
+.pill-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+  border-color: #ffffff;
+  transform: translateY(-1px);
 }
-:deep(.top-bar .ant-btn:hover),
-:deep(.top-bar .ant-btn.ant-btn-background-ghost:hover) {
-  border-color: white !important;
-  color: white !important;
-  background: rgba(255, 255, 255, 0.22) !important;
+.pill-btn:active {
+  transform: translateY(0);
+}
+.pill-btn--icon {
+  padding: .5rem;
 }
 
 @media(max-width: 1295px) {

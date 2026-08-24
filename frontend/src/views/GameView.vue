@@ -68,13 +68,15 @@ watch(sessionRef, (newValue, oldValue) => {
 
 </script>
 <template>
-  <TopBar></TopBar>
-  <div class="content_container">
-    <div v-if="sessionRef" class="userContainer">
-      <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name"></User>
-    </div>
-    <div class="chat_container">
-      <Chat></Chat>
+  <div class="game-shell">
+    <TopBar></TopBar>
+    <div class="content_container">
+      <div v-if="sessionRef" class="userContainer">
+        <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name"></User>
+      </div>
+      <div class="chat_container">
+        <Chat></Chat>
+      </div>
     </div>
   </div>
   <Histogram v-if="sessionRef && estimationHistogram" :data="estimationHistogram" :hide="!sessionRef?.open"></Histogram>
@@ -82,8 +84,10 @@ watch(sessionRef, (newValue, oldValue) => {
 </template>
 
 <style scoped>
-.estimations {
-  transition: top 0.5s linear;
+.game-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 .userContainer{
   display: flex;
@@ -103,11 +107,11 @@ h1 {
 }
 .content_container {
   display: flex;
-  position: absolute;
+  flex: 1;
+  min-height: 0;
   gap: 1rem;
-  top: 5.5rem;
-  bottom: 7.5rem;
   width: 100%;
+  padding-bottom: 7.5rem;
   overflow-x: auto;
 }
 .chat_container {
@@ -115,11 +119,5 @@ h1 {
   padding: 1rem 1rem 1rem 0;
   width: 30%;
   border-left: 1px solid var(--surface-border);
-}
-
-@media(max-width: 1295px) {
-  .content_container {
-    top: 7.5rem;
-  }
 }
 </style>
