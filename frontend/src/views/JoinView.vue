@@ -20,13 +20,15 @@ const handleHome = () => {
 
 <style scoped>
 .guest-button {
-  margin: 1rem auto;
+  margin: 1.2rem auto 0;
+  border-radius: var(--radius-sm);
 }
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 5rem auto;
+  margin: 6rem auto;
   width: 30rem;
+  max-width: 90vw;
 }
 </style>

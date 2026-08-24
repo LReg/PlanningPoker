@@ -3,20 +3,33 @@
     <RouterLink to="/">
       <a-button class="home-button">Home</a-button>
     </RouterLink>
+    <h1 class="page-title">Changelog</h1>
     <Changelog :changelogs="changelogs" />
   </div>
 </template>
 <style scoped>
 .changelog-container {
   width: 100%;
+  min-height: 100vh;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 2rem 1.5rem 3rem;
+}
+.page-title {
+  font-size: 1.6em;
+  font-weight: 800;
+  margin-bottom: .5rem;
+  background-image: linear-gradient(105deg, rgb(var(--lingrad-a)), rgb(var(--lingrad-b)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .home-button {
-  margin: 1rem;
+  margin-top: 1rem;
+  border-radius: var(--radius-sm);
 }
 </style>
 

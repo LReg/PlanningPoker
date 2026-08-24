@@ -104,4 +104,7 @@ const handleSubmit = async () => {
   display: flex;
   gap: 1rem;
 }
+.action-container :deep(.ant-btn) {
+  border-radius: var(--radius-sm);
+}
 </style>

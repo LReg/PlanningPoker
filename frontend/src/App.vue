@@ -1,19 +1,31 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
+import { computed } from 'vue';
+import currentTheme, { themeAccents } from '@/reactive/useTheme';
+
+const colorPrimary = computed(() => themeAccents[currentTheme.value] ?? themeAccents.default);
 </script>
 
 <template>
   <a-config-provider
       :theme="{
         token: {
-          colorPrimary: 'var(--text-color)',
+          colorPrimary: colorPrimary,
           colorBgContainer: 'var(--theme-container-color)',
-          colorBorder: '',
-          borderRadius: 8,
+          colorBgElevated: 'var(--surface-solid)',
+          colorBorder: 'var(--surface-border)',
+          colorBorderSecondary: 'var(--surface-border)',
+          borderRadius: 14,
+          borderRadiusLG: 18,
+          borderRadiusSM: 10,
+          controlHeight: 40,
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
           colorText: 'var(--text-color)',
-          colorTextSecondary: 'var(--text-color)',
-          colorTextTertiary: 'var(--text-color)',
-          colorTextQuaternary: 'var(--text-color)',
+          colorTextSecondary: 'var(--text-color-secondary)',
+          colorTextTertiary: 'var(--text-color-secondary)',
+          colorTextQuaternary: 'var(--text-color-secondary)',
+          boxShadow: 'var(--shadow-md)',
+          boxShadowSecondary: 'var(--shadow-sm)',
         }
       }"
   >

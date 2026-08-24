@@ -88,11 +88,12 @@ watch(sessionRef, (newValue, oldValue) => {
 .userContainer{
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   justify-content: center;
   gap: 1rem;
   width: 70%;
   min-width: 17rem;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   overflow-y: auto;
 }
 
@@ -104,21 +105,21 @@ h1 {
   display: flex;
   position: absolute;
   gap: 1rem;
-  top: 8rem;
-  bottom: 9rem;
+  top: 5.5rem;
+  bottom: 7.5rem;
   width: 100%;
   overflow-x: auto;
 }
 .chat_container {
   min-width: 17rem;
-  padding: 0 1rem;
+  padding: 1rem 1rem 1rem 0;
   width: 30%;
-  border-left: 1px solid grey;
+  border-left: 1px solid var(--surface-border);
 }
 
 @media(max-width: 1295px) {
   .content_container {
-    top: 10rem;
+    top: 7.5rem;
   }
 }
 </style>

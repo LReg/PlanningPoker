@@ -50,62 +50,64 @@ const handleJoinGame = () => {
 
 <template>
   <div class="top-bar">
-    <div style="gap: 1rem;" class="top-bar_container">
-      <h1 v-if="sessionRef">
+    <div class="top-bar_container top-bar_left">
+      <h1 v-if="sessionRef" class="session-title">
         {{ sessionRef.name }}
       </h1>
-      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true">
+      <span class="token-pill">
+        <button class="icon-btn" @click="handleCopy" title="Token kopieren">
+          <CopyOutlined />
+        </button>
+        {{gameToken}}
+      </span>
+      <a-button class="reveal-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true">
         <template #icon>
           <EyeInvisibleOutlined></EyeInvisibleOutlined>
         </template>
         neue Schätzung
       </a-button>
-      <a-button @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false">
+      <a-button class="reveal-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false">
         <template #icon>
           <EyeOutlined></EyeOutlined>
         </template>
         Schätzungen aufdecken
       </a-button>
     </div>
-    <div>
-      <a-button @click="handleCopy">
-        <template #icon>
-          <CopyOutlined />
-        </template>
-      </a-button>
-      Token: {{gameToken}}
-    </div>
-    <div v-if="userRef" style="" class="top-bar_container top-bar_usercontainer">
+    <div v-if="userRef" class="top-bar_container top-bar_usercontainer">
       <EstimationOptionsChooser v-if="userRef && userRef.isOwner"></EstimationOptionsChooser>
       <ColorThemeChooser></ColorThemeChooser>
-      <UserOutlined style="margin: .7rem;"/>
-      <h1>{{userRef.name}}</h1>
-      <a-button v-if="userRef && !userRef.isOwner" @click="handleSpectateFromPlayer" style="margin-left: 1.5rem;" >
+      <span class="user-chip">
+        <UserOutlined/>
+        {{userRef.name}}
+      </span>
+      <a-button v-if="userRef && !userRef.isOwner" @click="handleSpectateFromPlayer" ghost>
         Zuschauer werden
         <template #icon>
           <UserSwitchOutlined />
         </template>
       </a-button>
-      <a-button type="default" style="margin-left: 1.5rem;" @click="handleLeave()">
+      <a-button ghost @click="handleLeave()">
         Verlassen
         <template #icon><LogoutOutlined /></template>
       </a-button>
-      <app-launcher current="planning-poker" theme="light" style="margin-left: 1.5rem;"></app-launcher>
+      <app-launcher current="planning-poker" theme="light"></app-launcher>
     </div>
-    <div v-if="!userRef"  class="top-bar_container top-bar_usercontainer">
+    <div v-if="!userRef" class="top-bar_container top-bar_usercontainer">
       <ColorThemeChooser></ColorThemeChooser>
-      <UserOutlined style="margin: .7rem;"/>
-      <h1>Zuschauer</h1>
-      <a-button @click="handleJoinGame" style="margin-left: 1.5rem;">
+      <span class="user-chip">
+        <UserOutlined/>
+        Zuschauer
+      </span>
+      <a-button ghost @click="handleJoinGame">
         Spiel beitreten
         <template #icon>
           <UserSwitchOutlined />
         </template>
       </a-button>
-      <a-button type="default" style="margin-left: 1.5rem;" @click="handleLeaveSpectatorMode()">
+      <a-button ghost @click="handleLeaveSpectatorMode()">
         <template #icon><LogoutOutlined /></template>
       </a-button>
-      <app-launcher current="planning-poker" theme="light" style="margin-left: 1.5rem;"></app-launcher>
+      <app-launcher current="planning-poker" theme="light"></app-launcher>
     </div>
   </div>
 </template>
@@ -116,35 +118,99 @@ h1 {
   margin: 0;
   font-size: 1.3em;
 }
+
+.session-title {
+  font-weight: 800;
+}
+
 .top-bar_usercontainer {
   display: flex;
   align-items: center;
   justify-content: end;
-  gap: .5rem
+  gap: .7rem;
 }
 
 .top-bar {
   flex-wrap: wrap;
   width: 100%;
   margin: 0 auto;
-  background-image: linear-gradient(to right, rgba(var(--lingrad-a), 0.7), rgba(var(--lingrad-b), 0.7));
+  background-image: linear-gradient(105deg, rgb(var(--lingrad-a)), rgb(var(--lingrad-b)));
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.3rem;
-  text-shadow: 1px 1px 5px black;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  position: sticky;
+  top: 0;
+  z-index: 200;
 }
 .top-bar_container {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  width: 35rem;
+  gap: .8rem;
+}
+.top-bar_left {
+  min-width: 0;
+}
+
+.token-pill, .user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: .4rem .9rem;
+  border-radius: 999px;
+  font-size: .9em;
+  font-weight: 500;
+  backdrop-filter: blur(6px);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: white;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.reveal-btn {
+  border-radius: 999px;
+}
+
+:deep(.top-bar .ant-btn),
+:deep(.top-bar .ant-btn.ant-btn-background-ghost) {
+  border-radius: 999px;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  text-shadow: none;
+}
+:deep(.top-bar .ant-btn:hover),
+:deep(.top-bar .ant-btn.ant-btn-background-ghost:hover) {
+  border-color: white !important;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.22) !important;
 }
 
 @media(max-width: 1295px) {
+  .top-bar {
+    justify-content: flex-start;
+  }
   .top-bar_usercontainer {
     justify-content: start;
-    margin-top: .4rem;
   }
 }
 </style>

@@ -19,28 +19,44 @@ const choose = (option: any) => {
 </script>
 
 <template>
-  <div class="estimates" :style="{'transform': props.hide?? false ? 'translateY(6rem)': '', 'transition': 'transform 0.2s linear'}">
+  <div class="estimates" :class="{hidden: props.hide ?? false}">
     <Card v-for="option in estimationOptions" :estimate="option" @click="choose(option)" clickable="true" :selected="selected === option"/>
   </div>
 </template>
 
 <style scoped>
 .estimates {
-  position: absolute;
-  bottom: 0;
+  position: fixed;
+  left: 50%;
+  bottom: 1.2rem;
+  transform: translate(-50%, 0);
+  transition: transform 0.2s linear;
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  gap: 1rem;
+  max-width: calc(100% - 2rem);
+  gap: .9rem;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  padding: 1rem 2rem;
-  background-image: linear-gradient(to right, rgba(var(--lingrad-a), 0.3), rgba(var(--lingrad-b), 0.3));
+  padding: 1rem 1.6rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: var(--theme-container-color);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-lg);
+  z-index: 150;
+}
+.estimates.hidden {
+  transform: translate(-50%, 6rem);
 }
 @media(max-width: 950px) {
   .estimates {
     justify-content: start;
+    left: 1rem;
+    transform: translate(0, 0);
+  }
+  .estimates.hidden {
+    transform: translate(0, 6rem);
   }
 }
 </style>

@@ -16,7 +16,9 @@ const handleMenuClick = (e: any) => {
 
 <template>
   <a-dropdown @click.prevent>
-    <InteractionOutlined :style="{fontSize: '24px'}"/>
+    <button class="chooser-trigger" aria-label="Schätzoptionen wählen" title="Schätzoptionen wählen">
+      <InteractionOutlined :style="{fontSize: '18px'}"/>
+    </button>
     <template #overlay>
       <a-menu @click="handleMenuClick">
         <a-menu-item key="Fibonacci">
@@ -37,5 +39,21 @@ const handleMenuClick = (e: any) => {
 </template>
 
 <style scoped>
-
+.chooser-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+.chooser-trigger:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
 </style>

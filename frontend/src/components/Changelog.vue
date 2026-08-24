@@ -23,32 +23,56 @@ defineProps(['changelogs']);
 </script>
 
 <style scoped>
+div {
+  width: 34rem;
+  max-width: 90vw;
+}
 .card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  padding: 15px;
+  border: 1px solid var(--surface-border);
+  background: var(--theme-container-color);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1rem;
+  padding: 1.1rem 1.3rem;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: .8rem;
+}
+.card-header h2 {
+  font-size: 1.05em;
+}
+
+.card-body p {
+  color: var(--text-color-secondary);
+  margin-top: .4rem;
+  line-height: 1.5;
 }
 
 .badge {
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  flex-shrink: 0;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .bg-success {
-  background-color: #28a745;
-  color: white;
+  background-color: rgba(5, 150, 105, 0.16);
+  color: #059669;
 }
 
 .bg-warning {
-  background-color: #ffc107;
-  color: white;
+  background-color: rgba(217, 119, 6, 0.16);
+  color: #d97706;
 }
 </style>

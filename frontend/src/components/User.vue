@@ -82,8 +82,8 @@ const handleOpenModal = () => {
 
 <template>
   <a-dropdown :trigger="['click']" v-model:open="dropdownOpen">
-    <div :class="'user' + ((reactiveUser?.id === id) && reactiveUser ? '' : ' hoverpointer')">
-      {{ username }}
+    <div :class="'user' + ((reactiveUser?.id === id) && reactiveUser ? ' user--me' : ' hoverpointer')">
+      <span class="user-name">{{ username }}</span>
       <Card :estimate="estimate" :selected="estimate"></Card>
       <ThrowItem v-for="data in throwItems" :key="data.id" :ballid="'ball' + data.id" :emoji="data.emoji"></ThrowItem>
     </div>
@@ -121,15 +121,32 @@ const handleOpenModal = () => {
 .user {
   user-select: none;
   width: 9rem;
-  height: 8rem;
+  height: 8.6rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: .9rem;
+  padding: .8rem .5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: background .2s ease, border-color .2s ease;
+}
+.user-name {
+  font-weight: 600;
+  font-size: .92em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user--me {
+  background: rgba(var(--lingrad-a), 0.08);
+  border-color: rgba(var(--lingrad-a), 0.25);
 }
 .hoverpointer:hover {
   cursor: pointer;
+  background: var(--theme-container-color);
 }
 .noselect {
   user-select: none;
@@ -144,11 +161,7 @@ const handleOpenModal = () => {
 }
 .throw-menu-item button {
   margin: 0.1rem;
-  background-color: #eaeaea;
-}
-
-.dark .throw-menu-item button {
-  margin: 0.1rem;
-  background-color: #475256;
+  background-color: var(--theme-container-color);
+  border-radius: var(--radius-sm);
 }
 </style>

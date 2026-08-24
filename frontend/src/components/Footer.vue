@@ -20,7 +20,7 @@ const links = [
 
 <style scoped>
 .footer {
-  padding: 20px;
+  padding: 2rem 1rem 2.5rem;
   text-align: center;
 }
 
@@ -29,19 +29,20 @@ const links = [
   padding: 0;
   margin: 0;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-}
-
-.footer-links li {
-  margin: 0 10px;
+  gap: .4rem 1.6rem;
 }
 
 .footer-links a {
-  color: #007bff;
+  color: var(--text-color-secondary);
+  font-size: .88em;
+  font-weight: 500;
   text-decoration: none;
+  transition: color .2s ease;
 }
 
 .footer-links a:hover {
-  text-decoration: underline;
+  color: rgb(var(--lingrad-a));
 }
 </style>

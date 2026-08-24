@@ -203,7 +203,14 @@ const handleCommandClickAi = (command: Command) => {
 <style scoped>
 .chat__input {
   display: flex;
-  gap: .2rem;
+  gap: .5rem;
+  align-items: flex-end;
+}
+.chat__input :deep(textarea) {
+  border-radius: var(--radius-md);
+}
+.chat__input :deep(.ant-btn) {
+  border-radius: var(--radius-md);
 }
 .chat {
   height: 100%;
@@ -214,21 +221,39 @@ const handleCommandClickAi = (command: Command) => {
 .chat__messages {
   overflow-y: scroll;
   height: 100%;
+  padding-right: .3rem;
+}
+.chat__messages :deep(.ant-comment) {
+  padding: .6rem .7rem;
+  margin-bottom: .4rem;
+  border-radius: var(--radius-md);
+  background: var(--theme-container-color);
+  border: 1px solid var(--surface-border);
+}
+.chat__messages :deep(.ant-comment-content-author-name) {
+  font-weight: 700;
+  color: var(--text-color);
+}
+.chat__messages :deep(.ant-comment-content-author-time) {
+  color: var(--text-color-secondary);
+}
+.chat__messages :deep(.ant-avatar) {
+  border-radius: var(--radius-sm);
 }
 
 .command-options {
   display: flex;
-  gap: 1rem;
+  gap: .6rem;
   height: 6rem;
   font-size: .8em;
   margin: .5rem .2rem;
-  padding: .9rem .2rem;
+  padding: .3rem .2rem;
   overflow: auto;
   .command {
     .command-text {
       display: flex;
       flex-direction: column;
-      gap: .5rem;
+      gap: .3rem;
     }
     align-items: center;
     overflow: visible;
@@ -236,31 +261,36 @@ const handleCommandClickAi = (command: Command) => {
     flex-direction: row;
     flex-shrink: 0;
     gap: .5rem;
-    border-radius: 5px;
-    padding: .4rem;
-    box-shadow: 2px 3px 5px gray;
-    transition: box-shadow linear .2s;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--surface-border);
+    background: var(--theme-container-color);
+    padding: .5rem .7rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s ease, transform .2s ease;
   }
   .command:hover {
     cursor: pointer;
-    box-shadow: 2px 3px 15px gray;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
 }
 
 .scroll-down {
   position: absolute;
-  width: 100%;
+  width: fit-content;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
-  padding: 5px;
-  border-radius: 10px;
+  padding: .4rem 1rem;
+  font-size: .85em;
+  font-weight: 600;
   z-index: 2;
 
-  background: rgba(255, 255, 255, 0.23);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5.3px);
-  -webkit-backdrop-filter: blur(5.3px);
-  border: 1px solid rgba(255, 255, 255, 0.41);
+  background: var(--theme-container-color);
+  border-radius: 999px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--surface-border);
 }
 
 .scroll-down:hover {

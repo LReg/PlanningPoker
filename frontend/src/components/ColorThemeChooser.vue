@@ -1,55 +1,103 @@
 <script setup lang="ts">
-import { BgColorsOutlined, InteractionOutlined } from '@ant-design/icons-vue';
-import {onMounted} from "vue";
+import { BgColorsOutlined } from '@ant-design/icons-vue';
+import {onMounted, ref} from "vue";
+import currentTheme from "@/reactive/useTheme";
+
+const themes = [
+  { key: 'default', label: 'Default', color: 'linear-gradient(135deg, rgb(79,70,229), rgb(168,85,247))' },
+  { key: 'purple', label: 'Purple', color: 'linear-gradient(135deg, rgb(126,34,206), rgb(217,70,239))' },
+  { key: 'blue', label: 'Blue', color: 'linear-gradient(135deg, rgb(37,99,235), rgb(6,182,212))' },
+  { key: 'gray', label: 'Gray', color: 'linear-gradient(135deg, rgb(71,85,105), rgb(100,116,139))' },
+  { key: 'green', label: 'Green', color: 'linear-gradient(135deg, rgb(5,150,105), rgb(20,184,166))' },
+  { key: 'red', label: 'Red', color: 'linear-gradient(135deg, rgb(220,38,38), rgb(236,72,153))' },
+  { key: 'dark', label: 'Dark', color: 'linear-gradient(135deg, rgb(30,32,40), rgb(56,189,248))' },
+];
+
+const open = ref(false);
+
 const changeTheme = (key: string) => {
   document.body.className = key;
   localStorage.setItem('theme', key);
-}
-const handleMenuClick = (e: any) => {
-  const theme = e.key;
-  changeTheme(theme);
+  currentTheme.value = key;
+  open.value = false;
 }
 
 onMounted(() => {
-  const theme = localStorage.getItem('theme');
-  if (theme) {
-    changeTheme(theme);
+  if (currentTheme.value) {
+    document.body.className = currentTheme.value;
   }
 });
 </script>
 
 
 <template>
-<a-dropdown @click.prevent>
-  <BgColorsOutlined :style="{fontSize: '24px'}"/>
-  <template #overlay>
-    <a-menu @click="handleMenuClick">
-      <a-menu-item key="default">
-        Default
-      </a-menu-item>
-      <a-menu-item key="purple">
-        Purple
-      </a-menu-item>
-      <a-menu-item key="blue">
-        Blue
-      </a-menu-item>
-      <a-menu-item key="gray">
-        Gray
-      </a-menu-item>
-      <a-menu-item key="green">
-        Green
-      </a-menu-item>
-      <a-menu-item key="red">
-        Red
-      </a-menu-item>
-      <a-menu-item key="dark">
-        Dark
-      </a-menu-item>
-    </a-menu>
+<a-popover trigger="click" placement="bottom" v-model:open="open" overlayClassName="theme-popover">
+  <button class="theme-trigger" aria-label="Farbschema wählen">
+    <BgColorsOutlined :style="{fontSize: '18px'}"/>
+  </button>
+  <template #content>
+    <div class="theme-swatches">
+      <button
+          v-for="theme in themes"
+          :key="theme.key"
+          class="swatch"
+          :class="{active: currentTheme === theme.key}"
+          :style="{backgroundImage: theme.color}"
+          :title="theme.label"
+          @click="changeTheme(theme.key)"
+      >
+        <span class="visually-hidden">{{ theme.label }}</span>
+      </button>
+    </div>
   </template>
-</a-dropdown>
+</a-popover>
 </template>
 
 <style scoped>
+.theme-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+.theme-trigger:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
 
+.theme-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .6rem;
+  padding: .2rem;
+}
+.swatch {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform .15s ease, border-color .15s ease;
+}
+.swatch:hover {
+  transform: scale(1.1);
+}
+.swatch.active {
+  border-color: var(--text-color);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
 </style>

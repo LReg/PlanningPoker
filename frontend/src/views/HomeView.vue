@@ -23,16 +23,23 @@ getActiveSessions().then(info => {
   <div class="home-container">
     <app-launcher current="planning-poker" theme="light" class="launcher"></app-launcher>
     <aside class="info" v-if="activeSessions !== null">
-      <span>Sitzungen >= 1 Nutzer: {{activeSessions.active}}</span><br/>
-      <span>Sitzungen alle: {{activeSessions.total}}</span>
+      <span class="info-dot"></span>
+      <span>{{activeSessions.active}} aktive / {{activeSessions.total}} gesamt</span>
     </aside>
-    <main class="join-create-container">
-      <CreateGame/>
-      <JoinGame />
+    <main class="hero">
+      <div class="hero-heading">
+        <span class="eyebrow">Planning Poker</span>
+        <h1>Schätze Aufgaben.<br/>Gemeinsam. In Echtzeit.</h1>
+        <p class="subtitle">Erstelle in Sekunden eine Sitzung oder tritt einer bestehenden bei &mdash; kein Account nötig.</p>
+      </div>
+      <div class="join-create-container">
+        <CreateGame/>
+        <JoinGame />
+      </div>
     </main>
     <div v-if="environment.devServer" class="testserver-message">
+      <h2>Du nutzt einen Testserver</h2>
       <p>
-        <h2>Du nutzt einen Testserver</h2>
         Eventuell funktionieren bei dieser Version einige Funktionen noch nicht.<br/>
         Du kannst Informationen über die aktuelle Version in den <RouterLink to="/changelog">Changelogs</RouterLink> finden.<br/>
         Die Produktivversion findest du <a :href="environment.productionAddress" target="_blank">hier</a>.
@@ -45,46 +52,115 @@ getActiveSessions().then(info => {
 </template>
 <style scoped>
 .testserver-message {
-  margin: 1rem auto;
+  margin: 2rem auto;
   max-width: 30rem;
-  border: 1px solid #91caff;
-  background-color: #e6f4ff;
-  padding: 1rem;
+  border: 1px solid var(--surface-border);
+  background-color: var(--theme-container-color);
+  backdrop-filter: blur(10px);
+  padding: 1.2rem 1.5rem;
   font-size: 14px;
   line-height: 1.5;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.testserver-message h2 {
+  font-size: 1.1em;
+  margin-bottom: .4rem;
+}
+.testserver-message a {
+  color: rgb(var(--lingrad-a));
+  font-weight: 600;
 }
 .home-container {
-  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 7rem 1.5rem 3rem;
+  text-align: center;
+}
+.hero-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 40rem;
+  animation: fade-in-up .5s ease both;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .35rem .9rem;
+  border-radius: 999px;
+  background: rgba(var(--lingrad-a), 0.12);
+  color: rgb(var(--lingrad-a));
+  font-weight: 700;
+  font-size: .8em;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.12;
+  background-image: linear-gradient(105deg, rgb(var(--lingrad-a)), rgb(var(--lingrad-b)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.subtitle {
+  color: var(--text-color-secondary);
+  font-size: 1.08em;
+  max-width: 32rem;
 }
 .join-create-container {
   display: flex;
-  gap: 1rem;
-  padding-top: 25vh;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
+  animation: fade-in-up .6s .1s ease both;
 }
 .info {
-  font-size: .7em;
+  font-size: .78em;
+  font-weight: 500;
   position: fixed;
-  top: 0;
-  right: 0;
-  padding: .5rem;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
   background-color: var(--theme-container-color);
-  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 0 1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
   z-index: 100;
+}
+.info-dot {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 999px;
+  background-image: linear-gradient(135deg, rgb(var(--lingrad-a)), rgb(var(--lingrad-b)));
+  box-shadow: 0 0 0 3px rgba(var(--lingrad-a), 0.18);
 }
 .launcher {
   position: fixed;
-  top: .5rem;
-  left: .5rem;
+  top: .8rem;
+  left: .8rem;
   z-index: 100;
 }
 .footer-container {
-  position: fixed;
-  bottom: 0;
-  width: 100vw;
+  width: 100%;
 }
 </style>
 
