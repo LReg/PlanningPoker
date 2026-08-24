@@ -21,7 +21,7 @@ getActiveSessions().then(info => {
 
 <template>
   <div class="home-container">
-    <app-launcher current="planning-poker" class="launcher"></app-launcher>
+    <app-launcher current="planning-poker" theme="light" class="launcher"></app-launcher>
     <aside class="info" v-if="activeSessions !== null">
       <span>Sitzungen >= 1 Nutzer: {{activeSessions.active}}</span><br/>
       <span>Sitzungen alle: {{activeSessions.total}}</span>
