@@ -93,8 +93,8 @@ watch(sessionRef, (newValue, oldValue) => {
             :aria-label="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
             @click="toggleChatCollapsed"
         >
-          <LeftOutlined v-if="!chatCollapsedRef"/>
-          <RightOutlined v-else/>
+          <RightOutlined v-if="!chatCollapsedRef"/>
+          <LeftOutlined v-else/>
         </button>
         <div class="chat_container" :class="{'chat_container--collapsed': chatCollapsedRef}">
           <Chat></Chat>
