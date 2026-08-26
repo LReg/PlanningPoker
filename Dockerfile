@@ -1,4 +1,6 @@
-FROM node:18 as backend
+# @langchain/openai's own dependency (openai@7.x) requires Node >=22 — it needs the
+# native WebSocket global, stable since Node 22, not the node:18 this used to be.
+FROM node:22 as backend
 
 WORKDIR /opt/app
 COPY backend/tsconfig.json .
