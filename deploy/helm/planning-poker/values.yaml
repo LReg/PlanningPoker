@@ -64,10 +64,11 @@ frontend:
 # Sealed via infra's manual-exec/sealed-secrets/seal-secret.sh (opaque kind), key
 # deepseek-api-key, one SealedSecret per environment namespace, landing in
 # infra's deploy/k8s/planning-poker-{dev,prod}/ (synced by that Application's
-# third source — see manual-exec/sealed-secrets/sealed-secrets.md in infra):
+# third source — see manual-exec/sealed-secrets/sealed-secrets.md in infra). Same
+# appSecretsName/app-secrets.sealed.yaml pattern as musik-star/huntcontrol:
 #
 #   manual-exec/sealed-secrets/seal-secret.sh opaque <planning-poker-dev|planning-poker-prod> \
-#     planning-poker-secrets deploy/k8s/<namespace>/ai-secret.sealed.yaml \
+#     planning-poker-secrets deploy/k8s/<namespace>/app-secrets.sealed.yaml \
 #     deepseek-api-key='<DeepSeek API key>'
 appSecretsName: planning-poker-secrets
 
