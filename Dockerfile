@@ -8,7 +8,13 @@ COPY backend/package.json .
 COPY backend/package-lock.json .
 RUN npm ci
 COPY backend/src src
-CMD ["npm", "run", "start"]
+# Compiled here at build time, not on every container boot — this used to run `tsc`
+# as part of the container's CMD, recompiling on every restart inside the pod's own
+# memory limit. That's what turned into an OOMKill once the AI dependencies made tsc's
+# peak memory usage cross it (verified: ~330MB peak vs. the 256Mi pod limit). Matches
+# musik-star/huntcontrol's pattern — compile once in the image, ship compiled JS.
+RUN npm run build
+CMD ["npm", "run", "start:prod"]
 EXPOSE 80
 
 ####################################

@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node --import ./src/telemetry/tracing.js src/index.js"
+    "build": "tsc",
+    "start": "npm run build && node --import ./src/telemetry/tracing.js src/index.js",
+    "start:prod": "node --import ./src/telemetry/tracing.js src/index.js"
   },
   "author": "",
   "license": "ISC",
