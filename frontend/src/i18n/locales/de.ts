@@ -128,6 +128,7 @@ export default {
   changelog: {
     pageTitle: 'Changelog',
     currentVersion: 'derzeitige Version',
+    v150: 'Mehrsprachigkeit: die komplette Oberfläche ist jetzt auf Deutsch und Englisch verfügbar, umschaltbar über den neuen Sprach-Switch in der Topbar und auf der Startseite.<br/>KI-Migration: `/ask` und `/estimation` laufen nicht mehr über einen n8n-Webhook, sondern direkt im Backend über LangChain und DeepSeek, mit eigenen System-Prompts.<br/>Bedienung: Listen-/Kartenansicht und Chat-Ein-/Ausklappen sind aus der Topbar in eigene, besser platzierte Bedienelemente gewandert (Ansicht-Switch oben links über der Spielerliste, Chat-Griff mittig auf der Trennlinie).',
     v140: 'UI-Rework: neues visuelles Redesign von Frontend, Chat und Diagrammen, mit Fixes für Kontrast, Clipping, Layout und Dark Theme.',
     v110: 'Scaling-Readiness: Backend-State liegt jetzt in Redis statt im Prozessspeicher, dadurch horizontal skalierbar (mehrere Pods, HPA).<br/>Fix: Session-Beitritt schlug bei mehreren Backend-Instanzen fehl ("Session ID unknown") – durch WebSocket-only Transport jetzt zuverlässig im Cluster.',
     v020: 'Chat Tabs, Bilder und Gifs im Chat',

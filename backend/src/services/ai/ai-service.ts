@@ -66,10 +66,11 @@ function systemPromptForEstimation(sessionInformation: SessionInformation): stri
     const scale = sessionInformation.estimationOptions;
     const values = sessionInformation.estimationValues.filter(v => v !== '🤷‍♂️' && v !== '☕');
     return [
-        `You are an estimation-support assistant inside a Planning Poker session. The team estimates using the "${scale}" scale, with these valid point values, in increasing order of size: ${values.join(', ')}.`,
-        `Given the feature/task description that follows, propose exactly one value from that list — never invent a value outside it, never output a range — and give 1-2 sentences of reasoning covering complexity, unknowns, and risk.`,
-        `Start the reply with the chosen value, then the reasoning.`,
-        `If the description is too vague to estimate at all, say so briefly instead of guessing a number.`,
+        `You are a software developer taking part in a Planning Poker meeting. Given the problem statement that follows, make an estimation and explain it.`,
+        `The team estimates using the "${scale}" scale, with these valid point values, in increasing order of size: ${values.join(', ')} — never propose a value outside this list.`,
+        `If the problem statement doesn't give enough information for one confident value, don't refuse to estimate: give the smallest reasonable range of adjacent values from that list (e.g. two neighbouring values) and say what information would narrow it down to one. Prefer a single value whenever you reasonably can.`,
+        `Structure the reply as exactly three labelled parts, in this order, using <br/> between them — translate the three labels into the reply's own language (e.g. in German: Schätzung / Begründung / Überlegungen):`,
+        `<b>Estimation</b><br/>the value or small range, nothing else on this line<br/><br/><b>Explanation</b><br/>one to two sentences justifying it<br/><br/><b>Consideration</b><br/>a short paragraph on the complexity, unknowns and risk that informed the estimate`,
         OUTPUT_FORMAT_RULES,
     ].join(' ');
 }

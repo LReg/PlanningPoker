@@ -128,6 +128,7 @@ export default {
   changelog: {
     pageTitle: 'Changelog',
     currentVersion: 'current version',
+    v150: 'Multi-language: the whole UI is now available in German and English, switchable via the new language switch in the top bar and on the home page.<br/>AI migration: `/ask` and `/estimation` no longer go through an n8n webhook — they run directly in the backend via LangChain and DeepSeek, with their own system prompts.<br/>Controls: the grid/list view and chat collapse toggles moved out of the top bar into their own, better-placed controls (view switch top-left above the player list, chat handle centered on the divider).',
     v140: 'UI rework: a new visual redesign of the frontend, chat and charts, with contrast, clipping, layout and dark-theme fixes.',
     v110: "Scaling readiness: backend state now lives in Redis instead of process memory, making it horizontally scalable (multiple pods, HPA).<br/>Fix: joining a session failed with multiple backend instances (\"Session ID unknown\") – now reliable across the cluster via websocket-only transport.",
     v020: 'Chat tabs, images and gifs in chat',

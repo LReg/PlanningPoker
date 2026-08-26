@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="changelog-list">
     <div v-for="(log, index) in changelogs" :key="index" class="card">
       <div class="card-header">
         <h2>{{ log.title }}</h2>
@@ -23,11 +23,13 @@ defineProps(['changelogs']);
 </script>
 
 <style scoped>
-div {
+.changelog-list {
   width: 34rem;
   max-width: 90vw;
 }
 .card {
+  box-sizing: border-box;
+  width: 100%;
   border: 1px solid var(--surface-border);
   background: var(--theme-container-color);
   backdrop-filter: blur(12px);
@@ -56,6 +58,7 @@ div {
   color: var(--text-color-secondary);
   margin-top: .4rem;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .badge {

@@ -42,10 +42,14 @@ const { t } = useI18n();
 
 const changelogs = computed(() => [
   {
-    title: 'Version 1.4.0',
-    body: t('changelog.v140'),
+    title: 'Version 1.5.0',
+    body: t('changelog.v150'),
     server: t('changelog.currentVersion'),
     green: true
+  },
+  {
+    title: 'Version 1.4.0',
+    body: t('changelog.v140'),
   },
   {
     title: 'Version 1.1.0',

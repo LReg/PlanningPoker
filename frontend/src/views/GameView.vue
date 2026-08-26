@@ -82,21 +82,23 @@ watch(sessionRef, (newValue, oldValue) => {
     <TopBar></TopBar>
     <div class="content_container">
       <PlayerViewSwitch class="player-view-switch"></PlayerViewSwitch>
-      <div v-if="sessionRef" class="userContainer" :class="{'userContainer--list': playerViewModeRef === 'list', 'userContainer--full': chatCollapsedRef}">
-        <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name" :list-view="playerViewModeRef === 'list'"></User>
-      </div>
-      <button
-          class="chat-handle"
-          :class="{'chat-handle--collapsed': chatCollapsedRef}"
-          :title="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
-          :aria-label="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
-          @click="toggleChatCollapsed"
-      >
-        <LeftOutlined v-if="!chatCollapsedRef"/>
-        <RightOutlined v-else/>
-      </button>
-      <div class="chat_container" :class="{'chat_container--collapsed': chatCollapsedRef}">
-        <Chat></Chat>
+      <div class="panels">
+        <div v-if="sessionRef" class="userContainer" :class="{'userContainer--list': playerViewModeRef === 'list', 'userContainer--full': chatCollapsedRef}">
+          <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name" :list-view="playerViewModeRef === 'list'"></User>
+        </div>
+        <button
+            class="chat-handle"
+            :class="{'chat-handle--collapsed': chatCollapsedRef}"
+            :title="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
+            :aria-label="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
+            @click="toggleChatCollapsed"
+        >
+          <LeftOutlined v-if="!chatCollapsedRef"/>
+          <RightOutlined v-else/>
+        </button>
+        <div class="chat_container" :class="{'chat_container--collapsed': chatCollapsedRef}">
+          <Chat></Chat>
+        </div>
       </div>
     </div>
   </div>
@@ -140,7 +142,6 @@ h1 {
   display: flex;
   flex: 1;
   min-height: 0;
-  gap: 1rem;
   width: 100%;
   padding-bottom: 10rem;
   overflow-x: auto;
@@ -150,6 +151,17 @@ h1 {
   top: .8rem;
   left: .8rem;
   z-index: 210;
+}
+/* Excludes content_container's own padding-bottom (reserved for the floating histogram/
+   estimate bar) so the chat handle's top:50% below centers on the actually-visible player+
+   chat row, not on that reserved space too. */
+.panels {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 1rem;
+  width: 100%;
 }
 .chat_container {
   min-width: 17rem;
@@ -171,28 +183,35 @@ h1 {
 .chat-handle {
   position: absolute;
   top: 50%;
-  right: 30%;
-  transform: translate(50%, -50%);
+  /* Centered exactly on the chat_container/userContainer seam: right:30% is that seam's
+     position, offset by half the handle's own width so its center — not its edge — lands
+     on it. Only the vertical centering (translateY) is a transform; the horizontal position
+     is plain right/calc per state, so collapsing never pushes it past the panel edge. */
+  right: calc(30% - .55rem);
+  transform: translateY(-50%);
   z-index: 211;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.4rem;
-  height: 3.2rem;
+  width: 1.1rem;
+  height: 3.6rem;
   padding: 0;
+  font-size: .65rem;
   border: 1px solid var(--surface-border);
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   background: var(--theme-container-color);
   color: var(--text-color-secondary);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: right .25s ease, background .2s ease, color .2s ease;
+  transition: right .25s ease, background .2s ease, color .2s ease, transform .15s ease;
 }
 .chat-handle:hover {
-  background: rgba(var(--lingrad-a), 0.14);
-  color: var(--text-color);
+  background-image: linear-gradient(105deg, rgb(var(--lingrad-a)), rgb(var(--lingrad-b)));
+  border-color: transparent;
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
 }
 .chat-handle--collapsed {
-  right: 0;
+  right: .6rem;
 }
 </style>
