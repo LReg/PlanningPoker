@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CreditCardOutlined } from '@ant-design/icons-vue';
+import { OrderedListOutlined } from '@ant-design/icons-vue';
 import {parseEstimationType} from "@/models/Session.model";
 import {changeEstimationType} from "@/api/actionsService";
 import {useI18n} from "vue-i18n";
@@ -20,7 +20,7 @@ const handleMenuClick = (e: any) => {
 <template>
   <a-dropdown @click.prevent>
     <button class="chooser-trigger" :aria-label="t('estimationOptions.label')" :title="t('estimationOptions.label')">
-      <CreditCardOutlined :style="{fontSize: '18px'}"/>
+      <OrderedListOutlined :style="{fontSize: '18px'}"/>
     </button>
     <template #overlay>
       <a-menu @click="handleMenuClick">
