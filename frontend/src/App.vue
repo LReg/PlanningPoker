@@ -69,7 +69,7 @@ onUnmounted(() => {
       }"
   >
     <RouterView />
-    <div class="flashbang-grenade" :class="{'flashbang-grenade--active': grenadeActive}">💣</div>
+    <img class="flashbang-grenade" :class="{'flashbang-grenade--active': grenadeActive}" src="/flashbang.png" alt=""/>
     <div class="flashbang-overlay" :class="{'flashbang-overlay--active': flashActive}"></div>
   </a-config-provider>
 </template>
@@ -79,8 +79,8 @@ onUnmounted(() => {
   position: fixed;
   left: 50%;
   top: 50%;
-  font-size: 2.6rem;
-  line-height: 1;
+  height: 3.6rem;
+  width: auto;
   opacity: 0;
   pointer-events: none;
   z-index: 9998;

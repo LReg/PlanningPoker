@@ -65,10 +65,10 @@ spec:
             - name: REDIS_URL
               value: {{ printf "redis://%s:%d" .Values.redis.host (.Values.redis.port | int) | quote }}
             {{- end }}
-            - name: N8NCHAT
+            - name: DEEPSEEK_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.appSecretsName }}
-                  key: n8n-chat-webhook
+                  key: deepseek-api-key
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}

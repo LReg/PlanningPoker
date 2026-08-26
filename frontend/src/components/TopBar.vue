@@ -2,15 +2,12 @@
 import sessionRef from "@/reactive/useSession";
 import userRef from "@/reactive/useUser";
 import ColorThemeChooser from "@/components/ColorThemeChooser.vue";
+import LanguageChooser from "@/components/LanguageChooser.vue";
 import {
-  AppstoreOutlined,
   CopyOutlined,
   EyeInvisibleOutlined,
   EyeOutlined,
   LogoutOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UnorderedListOutlined,
   UserOutlined,
   UserSwitchOutlined
 } from "@ant-design/icons-vue";
@@ -21,20 +18,13 @@ import {openSession} from "@/api/actionsService";
 import {useRoute, useRouter} from "vue-router";
 import {noop} from "rxjs";
 import {ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import EstimationOptionsChooser from "@/components/EstimationOptionsChooser.vue";
 import currentTheme from "@/reactive/useTheme";
 import {computed} from "vue";
-import chatCollapsedRef from "@/reactive/useChatCollapsed";
-import playerViewModeRef from "@/reactive/usePlayerViewMode";
 
+const { t } = useI18n();
 const launcherTheme = computed(() => currentTheme.value === 'dark' ? 'dark' : 'light');
-
-const toggleChatCollapsed = () => {
-  chatCollapsedRef.value = !chatCollapsedRef.value;
-}
-const togglePlayerViewMode = () => {
-  playerViewModeRef.value = playerViewModeRef.value === 'grid' ? 'list' : 'grid';
-}
 
 const router = useRouter();
 const route = useRoute();
@@ -49,7 +39,7 @@ const handleLeave = () => {
 }
 const handleCopy = () => {
   navigator.clipboard.writeText(env.joinAddress + gameToken).then(() => {
-    message.success('Beitrittslink wurde in die Zwischenablage kopiert.');
+    message.success(t('toast.tokenCopied'));
   });
 }
 const handleLeaveSpectatorMode = () => {
@@ -58,7 +48,7 @@ const handleLeaveSpectatorMode = () => {
   });
 }
 const handleSpectateFromPlayer = () => {
-  getSpectatorAsUser().then(() => message.success('Du bist nun Zuschauer.'));
+  getSpectatorAsUser().then(() => message.success(t('toast.becameSpectator')));
 }
 
 const toggleOpen = async () => {
@@ -79,30 +69,23 @@ const handleJoinGame = () => {
         {{ sessionRef.name }}
       </h1>
       <span class="token-pill">
-        <button class="icon-btn" @click="handleCopy" title="Token kopieren">
+        <button class="icon-btn" @click="handleCopy" :title="t('topBar.copyToken')">
           <CopyOutlined />
         </button>
         {{gameToken}}
       </span>
       <button class="pill-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === true">
         <EyeInvisibleOutlined/>
-        neue Schätzung
+        {{ t('topBar.newEstimation') }}
       </button>
       <button class="pill-btn" @click="toggleOpen()" v-if="userRef && userRef.isOwner && sessionRef && sessionRef.open === false">
         <EyeOutlined/>
-        Schätzungen aufdecken
+        {{ t('topBar.revealEstimates') }}
       </button>
     </div>
     <div v-if="userRef" class="top-bar_container top-bar_usercontainer">
       <EstimationOptionsChooser v-if="userRef && userRef.isOwner"></EstimationOptionsChooser>
-      <button class="icon-btn" @click="togglePlayerViewMode" :title="playerViewModeRef === 'grid' ? 'Listenansicht' : 'Kartenansicht'">
-        <UnorderedListOutlined v-if="playerViewModeRef === 'grid'" />
-        <AppstoreOutlined v-else />
-      </button>
-      <button class="icon-btn" @click="toggleChatCollapsed" :title="chatCollapsedRef ? 'Chat einblenden' : 'Chat ausblenden'">
-        <MenuUnfoldOutlined v-if="chatCollapsedRef" />
-        <MenuFoldOutlined v-else />
-      </button>
+      <LanguageChooser></LanguageChooser>
       <ColorThemeChooser></ColorThemeChooser>
       <span class="user-chip">
         <UserOutlined/>
@@ -110,33 +93,26 @@ const handleJoinGame = () => {
       </span>
       <button v-if="userRef && !userRef.isOwner" class="pill-btn" @click="handleSpectateFromPlayer">
         <UserSwitchOutlined/>
-        Zuschauer werden
+        {{ t('topBar.becomeSpectator') }}
       </button>
       <button class="pill-btn" @click="handleLeave()">
         <LogoutOutlined/>
-        Verlassen
+        {{ t('topBar.leave') }}
       </button>
       <app-launcher current="planning-poker" :theme="launcherTheme"></app-launcher>
     </div>
     <div v-if="!userRef" class="top-bar_container top-bar_usercontainer">
-      <button class="icon-btn" @click="togglePlayerViewMode" :title="playerViewModeRef === 'grid' ? 'Listenansicht' : 'Kartenansicht'">
-        <UnorderedListOutlined v-if="playerViewModeRef === 'grid'" />
-        <AppstoreOutlined v-else />
-      </button>
-      <button class="icon-btn" @click="toggleChatCollapsed" :title="chatCollapsedRef ? 'Chat einblenden' : 'Chat ausblenden'">
-        <MenuUnfoldOutlined v-if="chatCollapsedRef" />
-        <MenuFoldOutlined v-else />
-      </button>
+      <LanguageChooser></LanguageChooser>
       <ColorThemeChooser></ColorThemeChooser>
       <span class="user-chip">
         <UserOutlined/>
-        Zuschauer
+        {{ t('topBar.spectator') }}
       </span>
       <button class="pill-btn" @click="handleJoinGame">
         <UserSwitchOutlined/>
-        Spiel beitreten
+        {{ t('topBar.joinGame') }}
       </button>
-      <button class="pill-btn pill-btn--icon" title="Verlassen" @click="handleLeaveSpectatorMode()">
+      <button class="pill-btn pill-btn--icon" :title="t('topBar.leave')" @click="handleLeaveSpectatorMode()">
         <LogoutOutlined/>
       </button>
       <app-launcher current="planning-poker" :theme="launcherTheme"></app-launcher>

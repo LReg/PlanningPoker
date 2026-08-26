@@ -2,7 +2,9 @@
 import type { EstimationHistogram } from '@/models/EstimationHistogram';
 import type {PropType} from "vue";
 import {computed} from "vue";
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n();
 const props = defineProps({
   data: {
     type: Object as PropType<EstimationHistogram>,
@@ -24,7 +26,7 @@ const evaluateHeightRem = (value: number) => `${(value / maxCount.value) * 6}rem
 
 <template>
 <div class="histogramContainer" :class="{hidden: props.hide ?? false}">
-  <div v-if="entries.length === 0" class="empty">Noch keine Schätzungen</div>
+  <div v-if="entries.length === 0" class="empty">{{ t('histogram.empty') }}</div>
   <div v-for="[label, count] in entries" :key="label" class="estimation">
     <div class="bar" :style="{height: evaluateHeightRem(count)}"></div>
     <span class="bar-count">{{count}}</span>

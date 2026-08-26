@@ -7,6 +7,8 @@ import {paperThrowSubject} from "@/api/actionsService";
 import {Subject, takeUntil} from "rxjs";
 import ThrowItem from "@/components/ThrowItem.vue";
 import {message} from "ant-design-vue";
+import {useI18n} from "vue-i18n";
+const { t } = useI18n();
 const props = defineProps(['username', 'estimate', 'id', 'listView']);
 const actionCooldown = ref(false);
 const dropdownOpen = ref(false);
@@ -52,14 +54,14 @@ const handleThrow = (emoji:string) => {
 const handleAddEmoji = () => {
   const emoji = newEmoji.value;
   if (emoji.length === 0) {
-    message.error('Emoji zu kurz');
+    message.error(t('toast.emojiTooShort'));
     return;
   }
   const emojis = localStorage.getItem('emojis');
   if (emojis) {
     const emojiArray = JSON.parse(emojis);
     if (emojiArray.includes(emoji)) {
-      message.error('Emoji bereits vorhanden');
+      message.error(t('toast.emojiAlreadyExists'));
       return;
     }
     emojiArray.push(emoji);
@@ -98,11 +100,11 @@ const handleOpenModal = () => {
     </div>
     <template #overlay v-if="!(reactiveUser?.id === id) && reactiveUser">
       <a-menu>
-        <a-menu-item @click="handleShake" :disabled="actionCooldown"><span class="noselect">Schütteln</span></a-menu-item>
-        <a-menu-item @click="handleFlashbang" :disabled="actionCooldown"><span class="noselect">Blenden</span></a-menu-item>
+        <a-menu-item @click="handleShake" :disabled="actionCooldown"><span class="noselect">{{ t('user.shake') }}</span></a-menu-item>
+        <a-menu-item @click="handleFlashbang" :disabled="actionCooldown"><span class="noselect">{{ t('user.flashbang') }}</span></a-menu-item>
         <a-menu-Item class="throw-menu-item">
-          <span>Abwerfen:</span><br />
-          <a-button @click="handleThrow('0')" type="text">Papierkugel</a-button><br />
+          <span>{{ t('user.throwLabel') }}</span><br />
+          <a-button @click="handleThrow('0')" type="text">{{ t('user.throwPaperball') }}</a-button><br />
           <a-button @click="handleThrow('🚀')" type="text">🚀</a-button>
           <a-button @click="handleThrow('🎱')" type="text">🎱</a-button>
           <a-button @click="handleThrow('❤️')" type="text">❤️</a-button><br />
@@ -112,12 +114,12 @@ const handleOpenModal = () => {
           <div class="custom-icons">
             <a-button v-for="emoji in customIcons" @click="handleThrow(emoji)">{{emoji}}</a-button><br v-if="customIcons.length > 0" />
           </div>
-          <a-button @click="handleOpenModal" type="text">Emoji hinzufügen</a-button>
-          <a-button @click="handleResetCustomEmojis" v-if="customIcons.length > 0" type="text">Zurücksetzen</a-button>
+          <a-button @click="handleOpenModal" type="text">{{ t('user.addEmoji') }}</a-button>
+          <a-button @click="handleResetCustomEmojis" v-if="customIcons.length > 0" type="text">{{ t('user.resetEmojis') }}</a-button>
         </a-menu-Item>
-        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">zum Zuschauer machen / rauswerfen</span></a-menu-item>
-        <a-menu-item v-if="reactiveUser?.isOwner" @click="makeOtherPlayerAdmin(id)"><span class="noselect">zum Admin machen</span></a-menu-item>
-        <a-menu-item @click="dropdownOpen = false"><span class="noselect">Schließen</span></a-menu-item>
+        <a-menu-item v-if="reactiveUser?.isOwner" @click="kickPlayer(id)"><span class="noselect">{{ t('user.makeSpectator') }}</span></a-menu-item>
+        <a-menu-item v-if="reactiveUser?.isOwner" @click="makeOtherPlayerAdmin(id)"><span class="noselect">{{ t('user.makeAdmin') }}</span></a-menu-item>
+        <a-menu-item @click="dropdownOpen = false"><span class="noselect">{{ t('user.close') }}</span></a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>

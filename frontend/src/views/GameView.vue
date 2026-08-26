@@ -7,15 +7,19 @@ import User from "@/components/User.vue";
 import EstimateOptions from "@/components/EstimateOptions.vue";
 import {computed, ref, watch} from "vue";
 import { message } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
 import Chat from "@/components/Chat.vue";
 import {clearMessages} from "@/api/chatService";
 import estimationHistogram from "@/reactive/useEstimationHistogram";
 import Histogram from "@/components/Histogram.vue";
 import TopBar from "@/components/TopBar.vue";
+import PlayerViewSwitch from "@/components/PlayerViewSwitch.vue";
 import {socketExit} from "@/api/socketService";
 import chatCollapsedRef from "@/reactive/useChatCollapsed";
 import playerViewModeRef from "@/reactive/usePlayerViewMode";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons-vue";
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
@@ -25,19 +29,23 @@ const estimationOptions = computed(() => {
   return sessionRef.value?.estimationValues;
 })
 
+const toggleChatCollapsed = () => {
+  chatCollapsedRef.value = !chatCollapsedRef.value;
+}
+
 if (sessionRef.value === null) {
   if (!localStorage.getItem('userToken')) {
     // kein Usertoken vorhanden -> Zuschauermodus
     spectateGame(gameToken).then(
       () => {
-        message.success('Du bist nun Zuschauer.');
+        message.success(t('toast.becameSpectator'));
       }
     ).catch(() => {
       socketExit();
       clearMessages();
       localStorage.clear();
       router.push('/');
-      message.error('Die Sitzung ist abgelaufen, du musst eine neue erstellen.');
+      message.error(t('toast.sessionExpired'));
     });
   }
   else {
@@ -45,7 +53,7 @@ if (sessionRef.value === null) {
     tryReconnectFromBrowserStorage(gameToken)
         .then(
             () => {
-              message.success('Du bist nun wieder in der Sitzung.');
+              message.success(t('toast.reconnected'));
             }
         )
         .catch(() => {
@@ -53,7 +61,7 @@ if (sessionRef.value === null) {
           clearMessages();
           localStorage.clear();
           router.push('/');
-          message.error('Die Sitzung ist abgelaufen, du musst eine neue erstellen.');
+          message.error(t('toast.sessionExpired'));
     });
   }
 }
@@ -73,9 +81,20 @@ watch(sessionRef, (newValue, oldValue) => {
   <div class="game-shell">
     <TopBar></TopBar>
     <div class="content_container">
+      <PlayerViewSwitch class="player-view-switch"></PlayerViewSwitch>
       <div v-if="sessionRef" class="userContainer" :class="{'userContainer--list': playerViewModeRef === 'list', 'userContainer--full': chatCollapsedRef}">
         <User v-for="user of sessionRef.players" :id="user.id" :estimate="user.estimate" :username="user.name" :list-view="playerViewModeRef === 'list'"></User>
       </div>
+      <button
+          class="chat-handle"
+          :class="{'chat-handle--collapsed': chatCollapsedRef}"
+          :title="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
+          :aria-label="chatCollapsedRef ? t('chatToggle.show') : t('chatToggle.hide')"
+          @click="toggleChatCollapsed"
+      >
+        <LeftOutlined v-if="!chatCollapsedRef"/>
+        <RightOutlined v-else/>
+      </button>
       <div class="chat_container" :class="{'chat_container--collapsed': chatCollapsedRef}">
         <Chat></Chat>
       </div>
@@ -99,7 +118,7 @@ watch(sessionRef, (newValue, oldValue) => {
   gap: 1rem;
   width: 70%;
   min-width: 17rem;
-  padding: 1.5rem 1rem;
+  padding: 3.4rem 1rem 1.5rem;
   overflow-y: auto;
   transition: width .25s ease;
 }
@@ -117,6 +136,7 @@ h1 {
   font-size: 1.3em;
 }
 .content_container {
+  position: relative;
   display: flex;
   flex: 1;
   min-height: 0;
@@ -124,6 +144,12 @@ h1 {
   width: 100%;
   padding-bottom: 10rem;
   overflow-x: auto;
+}
+.player-view-switch {
+  position: absolute;
+  top: .8rem;
+  left: .8rem;
+  z-index: 210;
 }
 .chat_container {
   min-width: 17rem;
@@ -141,5 +167,32 @@ h1 {
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
+}
+.chat-handle {
+  position: absolute;
+  top: 50%;
+  right: 30%;
+  transform: translate(50%, -50%);
+  z-index: 211;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 3.2rem;
+  padding: 0;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--theme-container-color);
+  color: var(--text-color-secondary);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: right .25s ease, background .2s ease, color .2s ease;
+}
+.chat-handle:hover {
+  background: rgba(var(--lingrad-a), 0.14);
+  color: var(--text-color);
+}
+.chat-handle--collapsed {
+  right: 0;
 }
 </style>

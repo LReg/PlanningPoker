@@ -3,8 +3,10 @@ import {ref} from "vue";
 import {joinGame} from "@/api/joinLeaveService";
 import {useRouter} from "vue-router";
 import {message} from "ant-design-vue";
+import {useI18n} from "vue-i18n";
 import { TeamOutlined } from '@ant-design/icons-vue';
 
+const { t } = useI18n();
 const props = defineProps(['gameToken']);
 const emit = defineEmits(['joinGame']);
 const router = useRouter();
@@ -12,7 +14,7 @@ const handleJoinGame = () => {
   joinGame(sessionToken.value, playerName.value).then(() => {
     router.push('/game/' + sessionToken.value);
   }).catch((error) => {
-    message.error('Beitreten fehlgeschlagen, das Spiel scheint nicht (mehr) zu existieren.');
+    message.error(t('toast.joinFailed'));
     console.error(error);
   });
 };
@@ -30,15 +32,15 @@ const playerName = ref('');
     <div class="panel-icon">
       <TeamOutlined />
     </div>
-    <h2>Spiel beitreten</h2>
-    <p class="panel-hint">Nutze den Token, den du von deinem Team bekommen hast.</p>
+    <h2>{{ t('joinGame.title') }}</h2>
+    <p class="panel-hint">{{ t('joinGame.hint') }}</p>
     <div class="panel-fields">
-      <a-input v-model:value="sessionToken" placeholder="Sitzungstoken" size="large"></a-input>
-      <a-input v-model:value="playerName" placeholder="Dein Spielername" size="large" @keydown.enter="handleJoinGame"></a-input>
+      <a-input v-model:value="sessionToken" :placeholder="t('joinGame.tokenPlaceholder')" size="large"></a-input>
+      <a-input v-model:value="playerName" :placeholder="t('joinGame.playerNamePlaceholder')" size="large" @keydown.enter="handleJoinGame"></a-input>
     </div>
     <div class="panel-actions">
-      <a-button type="primary" size="large" class="cta-button" @click="handleJoinGame">Beitreten</a-button>
-      <a-button size="large" @click="handleSpectate">Zuschauen</a-button>
+      <a-button type="primary" size="large" class="cta-button" @click="handleJoinGame">{{ t('joinGame.join') }}</a-button>
+      <a-button size="large" @click="handleSpectate">{{ t('joinGame.spectate') }}</a-button>
     </div>
   </section>
 </template>

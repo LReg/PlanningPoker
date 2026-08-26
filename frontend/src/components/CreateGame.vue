@@ -3,13 +3,13 @@
     <div class="panel-icon">
       <PlusOutlined />
     </div>
-    <h2>Neues Spiel erstellen</h2>
-    <p class="panel-hint">Starte eine neue Schätzrunde für dein Team.</p>
+    <h2>{{ t('createGame.title') }}</h2>
+    <p class="panel-hint">{{ t('createGame.hint') }}</p>
     <div class="panel-fields">
-      <a-input v-model:value="sessionName" placeholder="Sitzungsname" size="large"></a-input>
-      <a-input v-model:value="playerName" placeholder="Dein Spielername" size="large" @keydown.enter="handleCreateGame"></a-input>
+      <a-input v-model:value="sessionName" :placeholder="t('createGame.sessionNamePlaceholder')" size="large"></a-input>
+      <a-input v-model:value="playerName" :placeholder="t('createGame.playerNamePlaceholder')" size="large" @keydown.enter="handleCreateGame"></a-input>
     </div>
-    <a-button type="primary" size="large" block class="cta-button" @click="handleCreateGame">Sitzung erstellen</a-button>
+    <a-button type="primary" size="large" block class="cta-button" @click="handleCreateGame">{{ t('createGame.cta') }}</a-button>
   </section>
 </template>
 <script lang="ts" setup>
@@ -17,14 +17,16 @@ import {ref} from "vue";
 import {createGame} from "@/api/joinLeaveService";
 import {useRouter} from "vue-router";
 import { message } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
 import { PlusOutlined } from '@ant-design/icons-vue';
+const { t } = useI18n();
 const router = useRouter();
 const handleCreateGame = () => {
   createGame(sessionName.value, playerName.value)
       .then((token) => {
         router.push('/game/' + token);
       }).catch((error) => {
-        message.error('Erstellen fehlgeschlagen, vermutlich ist das Backend nicht erreichbar.');
+        message.error(t('toast.createFailed'));
       });
 }
 const sessionName = ref('');

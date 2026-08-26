@@ -4,22 +4,22 @@
       layout="vertical"
   >
     <a-form-item
-        label="Title"
-        :rules="[{ required: true, message: 'Please input the title!' }]"
+        :label="t('request.titleLabel')"
+        :rules="[{ required: true, message: t('request.titleRequired') }]"
     >
       <a-input
           v-model:value="formData.title"
-          placeholder="Enter the title"
+          :placeholder="t('request.titlePlaceholder')"
       />
     </a-form-item>
 
     <a-form-item
-        label="Text"
-        :rules="[{ required: true, message: 'Please input the text!' }]"
+        :label="t('request.textLabel')"
+        :rules="[{ required: true, message: t('request.textRequired') }]"
     >
       <a-textarea
           v-model:value="formData.text"
-          placeholder="Enter the text"
+          :placeholder="t('request.textPlaceholder')"
           rows="4"
       />
     </a-form-item>
@@ -31,10 +31,10 @@
             html-type="submit"
             :loading="loading"
         >
-          Submit
+          {{ t('request.submit') }}
         </a-button>
         <RouterLink to="/">
-          <a-button type="default" class="guest-button">Home</a-button>
+          <a-button type="default" class="guest-button">{{ t('common.home') }}</a-button>
         </RouterLink>
       </div>
     </a-form-item>
@@ -44,8 +44,11 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
+import { useI18n } from 'vue-i18n';
 import env from "@/environments/environments";
 import environment from "@/environments/environments";
+
+const { t } = useI18n();
 
 // Props definieren
 const props = defineProps({
@@ -69,7 +72,7 @@ const loading = ref(false);
 // Methoden
 const handleSubmit = async () => {
   if (!formData.value.title || !formData.value.text) {
-    message.error('Please fill in both the title and the text.');
+    message.error(t('toast.requestFillBoth'));
     return;
   }
   if (environment.devServer) {
@@ -80,15 +83,15 @@ const handleSubmit = async () => {
     const response = await axios.post(`${env.apiServiceRoute}/${props.requestType}`, formData.value);
 
     if (response.status === 200) {
-      message.success('Deine Anfrage wurde erfolgreich abgeschickt.');
+      message.success(t('toast.requestSuccess'));
     } else {
-      message.error('Ein Fehler ist aufgetreten.');
+      message.error(t('toast.requestError'));
     }
   } catch (error: any) {
     if (error?.response?.status === 429)
-      message.warn('Zu viele Anfragen versuche es später nochmal.');
+      message.warn(t('toast.requestTooMany'));
     else
-      message.error('Ein Fehler ist aufgetreten.');
+      message.error(t('toast.requestError'));
   } finally {
     loading.value = false;
     formData.value = {

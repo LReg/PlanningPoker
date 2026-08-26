@@ -11,15 +11,18 @@ import type {Message} from "@/models/Message.model";
 import type {EstimationHistogram} from "@/models/EstimationHistogram";
 import histogramRef from "@/reactive/useEstimationHistogram";
 import flashbangSubject from "@/reactive/useFlashbang";
+import i18n from "@/i18n";
+
+const t = i18n.global.t;
 
 function socketSessionUpdateListeners() {
     socket!.on('playerJoined', (session: ExportEstimateSession) => {
         sessionRef.value = session;
-        message.info('Ein Spieler ist der Sitzung beigetreten.');
+        message.info(t('toast.playerJoined'));
     });
     socket!.on('playerLeft', (session: ExportEstimateSession) => {
         sessionRef.value = session;
-        message.info('Ein Spieler hat die Sitzung verlassen.');
+        message.info(t('toast.playerLeft'));
     });
     socket!.on('estimationOptionsChanged', (session: ExportEstimateSession) => {
         sessionRef.value = session;
@@ -35,7 +38,7 @@ function socketSessionUpdateListeners() {
     });
     socket!.on('playerKicked', (session: ExportEstimateSession) => {
         sessionRef.value = session;
-        message.info('Ein Spieler wurde aus der Sitzung entfernt.');
+        message.info(t('toast.playerKicked'));
     });
     socket!.on('newHistogram', (histogram: EstimationHistogram) => {
         histogramRef.value = histogram;
@@ -75,7 +78,7 @@ function socketSessionListenersForPlayers() {
         flashbangSubject.next();
     });
     socket!.on('kickWarning', () => {
-        message.warning('Du wirst in 5 Minuten aus der Sitzung geworfen, wenn du nicht aktiv bleibst');
+        message.warning(t('toast.kickWarning'));
     });
 }
 
@@ -109,7 +112,7 @@ export async function joinGame(sessionToken: string, playerName: string): Promis
         name: playerName,
     })
     if (res.status === 404) {
-        message.error('Beitreten fehlgeschlagen, überprüfe den Token.');
+        message.error(t('toast.joinFailedCheckToken'));
     }
     socketConnect();
     // @ts-ignore

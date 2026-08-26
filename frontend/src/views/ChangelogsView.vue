@@ -1,9 +1,9 @@
 <template>
   <div class="changelog-container">
     <RouterLink to="/">
-      <a-button class="home-button">Home</a-button>
+      <a-button class="home-button">{{ t('common.home') }}</a-button>
     </RouterLink>
-    <h1 class="page-title">Changelog</h1>
+    <h1 class="page-title">{{ t('changelog.pageTitle') }}</h1>
     <Changelog :changelogs="changelogs" />
   </div>
 </template>
@@ -35,34 +35,45 @@
 
 <script lang="ts" setup>
 import Changelog from '@/components/Changelog.vue';
+import {computed} from "vue";
+import {useI18n} from "vue-i18n";
 
-const changelogs = [
+const { t } = useI18n();
+
+const changelogs = computed(() => [
   {
-    title: 'Version 0.2.0 Beta',
-    body: 'Chat Tabs, Images and Gifs in chat',
-    server: 'derzeitige Version',
+    title: 'Version 1.4.0',
+    body: t('changelog.v140'),
+    server: t('changelog.currentVersion'),
     green: true
   },
   {
+    title: 'Version 1.1.0',
+    body: t('changelog.v110'),
+  },
+  {
+    title: 'Version 0.2.0 Beta',
+    body: t('changelog.v020'),
+  },
+  {
     title: 'Version 0.1.0 Beta',
-    body: 'Feature: AI Integration',
-
+    body: t('changelog.v010'),
   },
   {
     title: 'Version 0.0.4 Beta',
-    body: 'Bugfix: Schätzungsdiagramm verschwindet mit einer nachträglichen Schätzungsänderung',
+    body: t('changelog.v004'),
   },
   {
     title: 'Version 0.0.3 Beta',
-    body: 'Die changelogs wurden hinzufügt',
+    body: t('changelog.v003'),
   },
   {
     title: 'Version 0.0.2 Beta',
-    body: 'Bugreport und Changerequest wurden hinzugefügt',
+    body: t('changelog.v002'),
   },
   {
     title: 'Version 0.0.1 Beta',
-    body: 'Zusätzlich zu Fibonacci Schätzungen wurden T-Shirt und Power Of two Schätzungen hinzugefügt.<br/> Zudem kann man sehen wie viele Session gerade aktiv sind.',
+    body: t('changelog.v001'),
   }
-]
+]);
 </script>

@@ -2,7 +2,9 @@
 import { BgColorsOutlined } from '@ant-design/icons-vue';
 import {onMounted, ref} from "vue";
 import currentTheme from "@/reactive/useTheme";
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n();
 withDefaults(defineProps<{variant?: 'bar' | 'surface'}>(), {variant: 'bar'});
 
 const themes = [
@@ -34,7 +36,7 @@ onMounted(() => {
 
 <template>
 <a-popover trigger="click" placement="bottom" v-model:open="open" overlayClassName="theme-popover">
-  <button class="theme-trigger" :class="'theme-trigger--' + variant" aria-label="Farbschema wählen" title="Farbschema wählen">
+  <button class="theme-trigger" :class="'theme-trigger--' + variant" :aria-label="t('colorTheme.label')" :title="t('colorTheme.label')">
     <BgColorsOutlined :style="{fontSize: '18px'}"/>
   </button>
   <template #content>

@@ -2,6 +2,9 @@
 import { InteractionOutlined } from '@ant-design/icons-vue';
 import {parseEstimationType} from "@/models/Session.model";
 import {changeEstimationType} from "@/api/actionsService";
+import {useI18n} from "vue-i18n";
+
+const { t } = useI18n();
 
 const handleMenuClick = (e: any) => {
   const estimationTypeString = e.key;
@@ -16,22 +19,22 @@ const handleMenuClick = (e: any) => {
 
 <template>
   <a-dropdown @click.prevent>
-    <button class="chooser-trigger" aria-label="Schätzoptionen wählen" title="Schätzoptionen wählen">
+    <button class="chooser-trigger" :aria-label="t('estimationOptions.label')" :title="t('estimationOptions.label')">
       <InteractionOutlined :style="{fontSize: '18px'}"/>
     </button>
     <template #overlay>
       <a-menu @click="handleMenuClick">
         <a-menu-item key="Fibonacci">
-          Fibonacci
+          {{ t('estimationOptions.fibonacci') }}
         </a-menu-item>
         <a-menu-item key="PowersOfTwo">
-          Powers of Two
+          {{ t('estimationOptions.powersOfTwo') }}
         </a-menu-item>
         <a-menu-item key="TShirtSizes">
-          T-Shirt Sizes
+          {{ t('estimationOptions.tShirtSizes') }}
         </a-menu-item>
         <a-menu-item key="PersonDays">
-          Personentage
+          {{ t('estimationOptions.personDays') }}
         </a-menu-item>
       </a-menu>
     </template>

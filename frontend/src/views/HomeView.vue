@@ -9,9 +9,12 @@ import type {ActiveSessions} from "@/models/ActiveSessions";
 import Footer from "@/components/Footer.vue";
 import environment from "@/environments/environments";
 import ColorThemeChooser from "@/components/ColorThemeChooser.vue";
+import LanguageChooser from "@/components/LanguageChooser.vue";
 import currentTheme from "@/reactive/useTheme";
 import {computed} from "vue";
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n();
 const launcherTheme = computed(() => currentTheme.value === 'dark' ? 'dark' : 'light');
 const router = useRouter();
 const sessionToken = localStorage.getItem('sessionToken');
@@ -30,15 +33,16 @@ getActiveSessions().then(info => {
     <div class="top-right">
       <aside class="info" v-if="activeSessions !== null">
         <span class="info-dot"></span>
-        <span>{{activeSessions.active}} aktive / {{activeSessions.total}} gesamt</span>
+        <span>{{ t('home.activeSessions', {active: activeSessions.active, total: activeSessions.total}) }}</span>
       </aside>
+      <LanguageChooser variant="surface"></LanguageChooser>
       <ColorThemeChooser variant="surface"></ColorThemeChooser>
     </div>
     <main class="hero">
       <div class="hero-heading">
         <span class="eyebrow">Planning Poker</span>
-        <h1>Schätze Aufgaben.<br/>Gemeinsam. In Echtzeit.</h1>
-        <p class="subtitle">Erstelle in Sekunden eine Sitzung oder tritt einer bestehenden bei &mdash; kein Account nötig.</p>
+        <h1 v-html="t('home.heading')"></h1>
+        <p class="subtitle">{{ t('home.subtitle') }}</p>
       </div>
       <div class="join-create-container">
         <CreateGame/>
@@ -46,11 +50,11 @@ getActiveSessions().then(info => {
       </div>
     </main>
     <div v-if="environment.devServer" class="testserver-message">
-      <h2>Du nutzt einen Testserver</h2>
+      <h2>{{ t('home.testserver.title') }}</h2>
       <p>
-        Eventuell funktionieren bei dieser Version einige Funktionen noch nicht.<br/>
-        Du kannst Informationen über die aktuelle Version in den <RouterLink to="/changelog">Changelogs</RouterLink> finden.<br/>
-        Die Produktivversion findest du <a :href="environment.productionAddress" target="_blank">hier</a>.
+        {{ t('home.testserver.line1') }}<br/>
+        {{ t('home.testserver.line2Pre') }} <RouterLink to="/changelog">{{ t('home.testserver.changelogLink') }}</RouterLink> {{ t('home.testserver.line2Post') }}<br/>
+        {{ t('home.testserver.line3Pre') }} <a :href="environment.productionAddress" target="_blank">{{ t('home.testserver.here') }}</a>.
       </p>
     </div>
     <div class="footer-container">
@@ -142,8 +146,11 @@ getActiveSessions().then(info => {
   top: .8rem;
   right: .8rem;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: .6rem;
+  max-width: calc(100vw - 1.6rem);
   z-index: 100;
 }
 .info {

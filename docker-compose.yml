@@ -8,7 +8,8 @@ services:
             - DOMAIN=${DOMAIN}
             - BACKEND_PORT=${BACKEND_PORT}
             - PROTOCOL=${PROTOCOL}
-            - N8NCHAT=${N8NCHAT}
+            - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+            - DEEPSEEK_MODEL=${DEEPSEEK_MODEL}
             # Session/player state itself lives in Redis now, not just Socket.io fan-out — see
             # HORIZONTAL-SCALING-GAP.md. Required at boot, not optional.
             - REDIS_URL=redis://redis:6379

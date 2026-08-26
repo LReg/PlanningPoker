@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { SendOutlined, WechatOutlined, PictureOutlined } from "@ant-design/icons-vue";
 import {aimessageRef, messagesRef} from "@/api/chatService";
-import { ref, toRefs, watch } from 'vue';
+import { computed, ref, toRefs, watch } from 'vue';
 import { postMessage} from "@/api/chatService";
 import type {Message} from "@/models/Message.model";
 import { useScroll } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const messageInputRef = ref('');
 const messageInputRefAi = ref('');
 
@@ -34,12 +36,12 @@ const handleSendMessageAi = (event: Event) => {
     return;
   }
   const msg: string = messageInputRefAi.value;
-  const isCommand = commandOptionsAI.map(c => c.command).some(cm => msg.startsWith(cm))
+  const isCommand = commandOptionsAI.value.map(c => c.command).some(cm => msg.startsWith(cm))
 
   if (!isCommand) {
     const helpMsg: Message = {
-      message: 'Use one of the shown Commands',
-      name: 'Failed',
+      message: t('chat.unknownCommand'),
+      name: t('chat.unknownCommandSender'),
       timestamp: Date.now(),
       type: 'ai'
     }
@@ -73,26 +75,26 @@ interface Command {
   description: string;
 }
 
-const commandOptionsAI: Command[] = [
+const commandOptionsAI = computed<Command[]>(() => [
   {
-    title: '/ask [question]',
+    title: t('chat.commandAskTitle'),
     command: '/ask',
-    description: 'Ask technical question'
+    description: t('chat.commandAskDescription')
   },
   {
-    title: '/estimation [feature explanation]',
+    title: t('chat.commandEstimationTitle'),
     command: '/estimation',
-    description: 'Ask for estimation with considertation'
+    description: t('chat.commandEstimationDescription')
   }
-];
+]);
 
-const commandOptions: Command[] = [
+const commandOptions = computed<Command[]>(() => [
   {
-    title: '/img [url]',
+    title: t('chat.commandImgTitle'),
     command: '/img',
-    description: 'send image or gif'
+    description: t('chat.commandImgDescription')
   },
-];
+]);
 
 const handleCommandClick = (command: Command) => {
   messageInputRef.value = `${command.command} ${messageInputRef.value}`;
@@ -110,12 +112,12 @@ const handleCommandClickAi = (command: Command) => {
       <template #tab>
         <span>
           <WechatOutlined />
-          Chat
+          {{ t('chat.tabChat') }}
         </span>
       </template>
 
       <div class="chat">
-        <div class="scroll-down" @click="scrollDown" v-if="showScrollDown">Scroll Down</div>
+        <div class="scroll-down" @click="scrollDown" v-if="showScrollDown">{{ t('chat.scrollDown') }}</div>
         <div class="chat__messages" ref="messagesContainerRef">
           <div class="chat-bubble" v-for="message in messagesRef" :key="message.timestamp">
             <a-comment
@@ -141,7 +143,7 @@ const handleCommandClickAi = (command: Command) => {
           </div>
         </div>
         <div class="chat__input">
-          <a-textarea v-model:value="messageInputRef" type="text" placeholder="Nachricht eingeben..." @keydown.enter="handleSendMessage" id="chatInput" :auto-size="{ minRows: 1, maxRows: 5 }"/>
+          <a-textarea v-model:value="messageInputRef" type="text" :placeholder="t('chat.messagePlaceholder')" @keydown.enter="handleSendMessage" id="chatInput" :auto-size="{ minRows: 1, maxRows: 5 }"/>
           <a-button @click="handleSendMessage" :type="messageInputRef === '' ? 'default' : 'primary'">
             <SendOutlined />
           </a-button>
@@ -154,7 +156,7 @@ const handleCommandClickAi = (command: Command) => {
       <template #tab>
         <span>
         <img src="/ai.png" height="20">
-          Ai
+          {{ t('chat.tabAi') }}
         </span>
       </template>
 
@@ -184,7 +186,7 @@ const handleCommandClickAi = (command: Command) => {
           </div>
         </div>
         <div class="chat__input">
-          <a-textarea v-model:value="messageInputRefAi" type="text" placeholder="Prompt eingeben..." @keydown.enter="handleSendMessageAi" id="chatInputAi" :auto-size="{ minRows: 1, maxRows: 5 }"/>
+          <a-textarea v-model:value="messageInputRefAi" type="text" :placeholder="t('chat.aiPlaceholder')" @keydown.enter="handleSendMessageAi" id="chatInputAi" :auto-size="{ minRows: 1, maxRows: 5 }"/>
           <a-button @click="handleSendMessageAi" :type="messageInputRefAi === '' ? 'default' : 'primary'">
             <SendOutlined />
           </a-button>

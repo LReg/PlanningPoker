@@ -110,7 +110,8 @@ through (`TRAEFIK_NETWORK` below) — see [Traefik's Docker provider docs](https
 | `PRODUCTION` | Should stay `true` |
 | `PROTOCOL` | `http` or `https` — used to build the backend URL in the frontend |
 | `BACKEND_PORT` | Port the backend listens on |
-| `N8NCHAT` | Webhook URL for the optional AI chat commands (`/ask`, `/estimation`) — leave as-is if you don't use these |
+| `DEEPSEEK_API_KEY` | DeepSeek API key for the optional AI chat commands (`/ask`, `/estimation`) — leave empty if you don't use these |
+| `DEEPSEEK_MODEL` | DeepSeek model id, e.g. `deepseek-chat` |
 | `TRAEFIK` | `true` appends `/api` to route the backend over the same domain as the frontend (used by the frontend) |
 | `TRAEFIK_CERT_RESOLVER` | Needs to match your Traefik cert resolver |
 | `TRAEFIK_ENTRYPOINT` | Name of your Traefik entrypoint |

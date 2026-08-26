@@ -2,6 +2,9 @@
 import {useRoute, useRouter} from "vue-router";
 import {} from "@/api/joinLeaveService";
 import JoinGame from "@/components/JoinGame.vue";
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const gameToken: string = (typeof route.params.token === 'object' ? route.params.token[0] : route.params.token);
@@ -14,7 +17,7 @@ const handleHome = () => {
 <template>
   <div class="container">
     <JoinGame :gameToken="gameToken"></JoinGame>
-    <a-button @click="handleHome" type="default" class="guest-button">Home</a-button>
+    <a-button @click="handleHome" type="default" class="guest-button">{{ t('common.home') }}</a-button>
   </div>
 </template>
 

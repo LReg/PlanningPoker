@@ -1,13 +1,16 @@
 <template>
   <div class="card-container">
-    <RouterLink to="/"><a-button class="home-button">Home</a-button></RouterLink>
-    <a-card class="card" title="Hier kannst du eine Änderung vorschlagen" hoverable>
+    <RouterLink to="/"><a-button class="home-button">{{ t('common.home') }}</a-button></RouterLink>
+    <a-card class="card" :title="t('request.changeViewCardTitle')" hoverable>
       <user-request-form request-type="changerequest"></user-request-form>
     </a-card>
   </div>
 </template>
 <script setup lang="ts">
 import UserRequestForm from "@/components/UserRequestForm.vue";
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 </script>
 <style scoped>
 

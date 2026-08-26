@@ -61,17 +61,14 @@ frontend:
     limits:
       memory: 128Mi
 
-# Created once, by hand, imperatively, per namespace — same category as the ghcr-pull
-# Secret (state/wanted-state/01-cluster-architecture.md's "Secrets: the one thing that
-# doesn't go through git"). N8NCHAT is an external credential, not a generate-fresh app
-# password, so it doesn't fit the auto-generate-or-override pattern used for e.g.
-# Postgres passwords — it's a pre-existing value pulled from the old .env / GitHub
-# Actions secrets, referenced here by name only. Needed once per environment namespace
-# (planning-poker-dev AND planning-poker-prod each need their own):
+# Sealed via infra's manual-exec/sealed-secrets/seal-secret.sh (opaque kind), key
+# deepseek-api-key, one SealedSecret per environment namespace, landing in
+# infra's deploy/k8s/planning-poker-{dev,prod}/ (synced by that Application's
+# third source — see manual-exec/sealed-secrets/sealed-secrets.md in infra):
 #
-#   kubectl create secret generic planning-poker-secrets \
-#     -n <planning-poker-dev|planning-poker-prod> \
-#     --from-literal=n8n-chat-webhook='<N8NCHAT value>'
+#   manual-exec/sealed-secrets/seal-secret.sh opaque <planning-poker-dev|planning-poker-prod> \
+#     planning-poker-secrets deploy/k8s/<namespace>/ai-secret.sealed.yaml \
+#     deepseek-api-key='<DeepSeek API key>'
 appSecretsName: planning-poker-secrets
 
 # In-cluster Tempo (ns: monitoring), receiving OTLP directly — same pattern as ai-tracker's
