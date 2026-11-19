@@ -20,7 +20,7 @@ EXPOSE 80
 ####################################
 # frontend ('f-' Prefix)
 ####################################
-FROM node:18 as f-file-loader
+FROM node:22 as f-file-loader
 WORKDIR /data
 COPY frontend/package.json .
 COPY frontend/package-lock.json .
@@ -30,7 +30,7 @@ COPY frontend/tsconfig.app.json .
 COPY frontend/env.d.ts .
 COPY frontend/vite.config.ts .
 
-FROM node:18 as f-dependencyfetcher
+FROM node:22 as f-dependencyfetcher
 WORKDIR /build
 COPY --from=f-file-loader /data .
 RUN npm install
@@ -47,7 +47,7 @@ FROM f-build-files as f-prod
 RUN npm run build
 # TODO Add Linter
 
-FROM nginx:1.22.1 as frontend
+FROM nginx:1.31 as frontend
 COPY frontend/docker/remote.nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=f-prod /build/dist /usr/share/nginx/html
 # Renders config.json from real env vars at container start — see docker-entrypoint.sh.
